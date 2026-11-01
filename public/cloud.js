@@ -21,6 +21,7 @@ export async function removePrivate(path){const {error}=await bucket.remove([pat
 const formKey='soft-hours-auth-form-v1';
 function storedForm(){try{return localStorage.getItem(formKey)==='login'?'login':'register';}catch{return 'register';}}
 function rememberForm(mode){try{localStorage.setItem(formKey,mode);}catch{}}
+function markPasswordReady(user){if(!user)return;try{localStorage.setItem(`soft-hours-password-ready:${user.id}`,'1');}catch{}}
 function emailError(error){const wait=error?.message?.match(/after (\d+) seconds?/i);if(wait)return `请求太频繁，请 ${wait[1]} 秒后再试。`;return error?.message||'请求失败，请稍后重试。';}
 export async function showPrivateGate(host,whenReady){
   const member=await getIdentity(true);if(member)return member;
@@ -35,12 +36,12 @@ export async function showPrivateGate(host,whenReady){
       if(mode==='register'){
         const {data:signup,error}=await cloud.auth.signUp({email,password,options:{data:{soft_hours_invite:String(data.get('invite')).trim()}}});
         if(error)status.textContent=error.message.includes('Invalid invitation code')?'邮箱或邀请码不正确。':error.message.includes('User already registered')?'这个邮箱已有账号，请切换到登录。':emailError(error);
-        else if(signup.session){rememberForm('login');status.textContent='注册成功，欢迎进入小屋。';}
+        else if(signup.session){markPasswordReady(signup.user);rememberForm('login');window.dispatchEvent(new Event('soft-hours:auth-change'));window.dispatchEvent(new Event('soft-hours:close'));}
         else status.textContent='注册尚未完成，请稍后重试。';
       }else{
-        const {error}=await cloud.auth.signInWithPassword({email,password});
+        const {data:login,error}=await cloud.auth.signInWithPassword({email,password});
         status.textContent=error?'邮箱或密码不正确。':'欢迎回来。';
-        if(!error)rememberForm('login');
+        if(!error){markPasswordReady(login.user);rememberForm('login');window.dispatchEvent(new Event('soft-hours:auth-change'));window.dispatchEvent(new Event('soft-hours:close'));}
       }
       button.disabled=false;
     };

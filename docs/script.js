@@ -49,7 +49,24 @@ const panels = {
 function renderWardrobe() { mountPhotos(panelBody); }
 function renderRecord() { mountRecords(panelBody); }
 function renderBoard() { mountBoard(panelBody); }
-async function renderPrivateLogin(){const member=await getIdentity(true);if(!member){await showPrivateGate(panelBody,renderPrivateLogin);return;}panelBody.innerHTML=`<div class="private-gate"><p class="modal-section-title">WELCOME HOME</p><h3>${member.slot}，欢迎回来</h3><p>照片、唱片和公告板现在只对你们两人开放。</p><form id="privatePasswordForm"><label>设置或更换密码<input name="password" type="password" autocomplete="new-password" minlength="8" required placeholder="至少 8 位"></label><button type="submit">保存密码</button></form><p class="private-gate-status" role="status"></p><button type="button" id="privateSignout">退出私人模式</button></div>`;const form=panelBody.querySelector('#privatePasswordForm');form.onsubmit=async e=>{e.preventDefault();const password=form.elements.password.value,button=form.querySelector('button'),status=panelBody.querySelector('.private-gate-status');button.disabled=true;status.textContent='正在保存…';const {error}=await cloud.auth.updateUser({password});status.textContent=error?`保存失败：${error.message}`:'密码已保存。以后可直接在网站输入邮箱和密码登录。';form.reset();button.disabled=false;};panelBody.querySelector('#privateSignout').onclick=async()=>{await cloud.auth.signOut();renderPrivateLogin();};}
+async function renderPrivateLogin(){
+  const member=await getIdentity(true);
+  if(!member){await showPrivateGate(panelBody,renderPrivateLogin);return;}
+  let passwordReady=false;
+  try{passwordReady=localStorage.getItem(`soft-hours-password-ready:${member.user.id}`)==='1';}catch{}
+  panelBody.innerHTML=`<div class="private-gate"><p class="modal-section-title">WELCOME HOME</p><h3>${member.slot} · 私人模式</h3><p>照片、唱片和公告板现在只对你们两人开放。</p>${passwordReady?'':`<form id="privatePasswordForm"><label>设置密码<input name="password" type="password" autocomplete="new-password" minlength="8" required placeholder="至少 8 位"></label><button type="submit">保存密码</button></form><p class="private-gate-status" role="status"></p>`}<button type="button" id="privateSignout">退出私人模式</button></div>`;
+  const form=panelBody.querySelector('#privatePasswordForm');
+  if(form)form.onsubmit=async e=>{
+    e.preventDefault();
+    const password=form.elements.password.value,button=form.querySelector('button'),status=panelBody.querySelector('.private-gate-status');
+    button.disabled=true;status.textContent='正在保存…';
+    const {error}=await cloud.auth.updateUser({password});
+    if(error){status.textContent=`保存失败：${error.message}`;button.disabled=false;return;}
+    try{localStorage.setItem(`soft-hours-password-ready:${member.user.id}`,'1');}catch{}
+    closePanel();
+  };
+  panelBody.querySelector('#privateSignout').onclick=async()=>{await cloud.auth.signOut();renderPrivateLogin();};
+}
 async function updatePrivateLabel(){const member=await getIdentity(true);document.getElementById('privateLogin').textContent=member?`${member.slot} · 私人模式`:'J/K 登录';if(currentPanel==='privateLogin')renderPrivateLogin();}
 window.addEventListener('soft-hours:auth-change',updatePrivateLabel);updatePrivateLabel();
 function renderCoffeeMachine(){
