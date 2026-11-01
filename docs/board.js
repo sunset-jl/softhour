@@ -1,9 +1,11 @@
+import {showPrivateGate} from './cloud.js';
+import {boardApi} from './board-cloud.js';
 let host=null, data=null, filter='active', timer=null, busy=false, loading=false, signature='', editor=null;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const date=n=>new Date(n).toLocaleString('zh-CN',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
 const uid=()=>crypto.randomUUID();
 function message(text){const el=host?.querySelector('#boardStatus');if(el)el.textContent=text;}
-async function api(payload){const r=await fetch('/api/board',payload?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}:{cache:'no-store'});let d;try{d=await r.json();}catch{throw new Error('连接暂时中断，请稍后重试。');}if(!r.ok)throw Object.assign(new Error(d.error||'暂时无法保存。'),{status:r.status});return d;}
+async function api(payload){return boardApi(payload);}
 function draftKey(){return `soft-hours-board-${data?.me||''}-${editor?.action||'create'}-${editor?.action==='create'?'new':editor?.id||'new'}`;}
 function saveDraft(){try{localStorage.setItem(draftKey(),host.querySelector('#boardText').value);}catch{}}
 function draw(){
@@ -24,7 +26,7 @@ function draw(){
 async function sync(){
   if(!host||loading||document.hidden)return;loading=true;
   try{const next=await api();if(!host)return;const nextSig=JSON.stringify(next);data=next;if(signature!==nextSig){signature=nextSig;draw();}message('已连接 · 留言会自动同步');host.querySelector('#newNote').disabled=false;}
-  catch(e){message(e.message);if(e.status===401&&host)host.querySelector('#boardLogin').hidden=false;}
+  catch(e){message(e.message);if(e.status===401&&host)mountBoard(host);}
   finally{loading=false;}
 }
 function openEditor(action,note){
@@ -37,10 +39,12 @@ function openEditor(action,note){
   try{const draft=localStorage.getItem(draftKey());if(draft)input.value=draft;}catch{}
   input.focus();input.scrollIntoView({block:'nearest',behavior:'smooth'});
 }
-export function mountBoard(element){
+export async function mountBoard(element){
   unmountBoard();host=element;signature='';filter='active';
+  host.innerHTML='<p class="small-note">正在确认公告板的访问权限…</p>';
+  if(!await showPrivateGate(host,()=>mountBoard(element)))return;
   document.querySelector('[data-action="board"]')?.classList.remove('has-unread');
-  host.innerHTML=`<div class="board-toolbar"><p id="boardIdentity">正在打开你们的公告板…</p><button id="newNote" disabled>＋ 贴张便签</button></div><p id="boardStatus" role="status">连接中…</p><a id="boardLogin" href="/signin-with-chatgpt?return_to=/" target="_top" hidden>登录小屋</a><div class="board-tabs" aria-label="便签分类"><button data-filter="active" aria-pressed="true">公告板</button><button data-filter="archive" aria-pressed="false">回忆盒</button><button id="boardRetry" aria-label="刷新公告板">↻</button></div><form id="boardForm" class="board-compose" hidden><label id="boardFormTitle" for="boardText">今天想告诉你</label><textarea id="boardText" required maxlength="2000" rows="4" placeholder="留一句话给对方…"></textarea><p id="boardFormStatus" role="status"></p><div><button type="submit" id="saveNote">贴上去</button><button type="button" id="cancelNote">暂时收起</button></div><small>未发送的草稿会留在这台设备上。</small></form><div id="boardList"></div>`;
+  host.innerHTML=`<div class="board-toolbar"><p id="boardIdentity">正在打开你们的公告板…</p><button id="newNote" disabled>＋ 贴张便签</button></div><p id="boardStatus" role="status">连接中…</p><div class="board-tabs" aria-label="便签分类"><button data-filter="active" aria-pressed="true">公告板</button><button data-filter="archive" aria-pressed="false">回忆盒</button><button id="boardRetry" aria-label="刷新公告板">↻</button></div><form id="boardForm" class="board-compose" hidden><label id="boardFormTitle" for="boardText">今天想告诉你</label><textarea id="boardText" required maxlength="2000" rows="4" placeholder="留一句话给对方…"></textarea><p id="boardFormStatus" role="status"></p><div><button type="submit" id="saveNote">贴上去</button><button type="button" id="cancelNote">暂时收起</button></div><small>未发送的草稿会留在这台设备上。</small></form><div id="boardList"></div>`;
   host.querySelector('#newNote').onclick=()=>openEditor('create');
   host.querySelector('#boardRetry').onclick=()=>sync();
   host.querySelector('#cancelNote').onclick=()=>{saveDraft();host.querySelector('#boardForm').hidden=true;editor=null;};
@@ -75,3 +79,4 @@ async function checkUnread(){
   try{const snapshot=await api();const count=snapshot.notes.filter(n=>!n.deleted&&!n.archived&&n.seen_version<n.version).length;const button=document.querySelector('[data-action="board"]');if(button){button.classList.toggle('has-unread',count>0);button.setAttribute('aria-label',count?`公告板 · ${count} 张便签有更新`:'公告板');}}catch{}
 }
 setInterval(checkUnread,15000);checkUnread();
+window.addEventListener('soft-hours:auth-change',()=>{if(host)mountBoard(host);});

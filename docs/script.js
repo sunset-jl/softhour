@@ -2,6 +2,7 @@ import {mountThings,unmountThings} from './little-things.js';
 import {mountRecords, unmountRecords} from './records.js';
 import { mountPhotos, unmountPhotos } from './photos.js';
 import { mountBoard, unmountBoard } from './board.js';
+import {cloud,getIdentity,showPrivateGate} from './cloud.js';
 const roomSection = document.getElementById('roomSection');
 const heroCopy = document.getElementById('heroCopy');
 const modalShell = document.getElementById('modalShell');
@@ -42,11 +43,15 @@ const panels = {
   wardrobe: { number: '01 / THE WARDROBE', title: '照片衣柜', intro: '拉开柜门，那些舍不得删掉的瞬间都在这里。' },
   record: { number: '02 / THE RECORD PLAYER', title: '挑一张，听听那一天', intro: '从唱片架抽出一段声音，放进我们的小小时光。' },
   coffeeMachine: {number:'07 / THE LITTLE CAFÉ',title:'今天喝什么？',intro:'给小屋添一杯热乎乎的饮品。'},
+  privateLogin: {number:'J & K',title:'我们的小屋',intro:'公开的房间，私藏的回忆。'},
   board: { number: '03 / THE MEMORY BOARD', title: '回忆公告板', intro: '有些日子值得被钉在墙上，偶尔抬头再看一眼。' }
 };
 function renderWardrobe() { mountPhotos(panelBody); }
 function renderRecord() { mountRecords(panelBody); }
 function renderBoard() { mountBoard(panelBody); }
+async function renderPrivateLogin(){const member=await getIdentity(true);if(!member){await showPrivateGate(panelBody,renderPrivateLogin);return;}panelBody.innerHTML=`<div class="private-gate"><p class="modal-section-title">WELCOME HOME</p><h3>${member.slot}，欢迎回来</h3><p>照片、唱片和公告板现在只对你们两人开放。</p><button type="button" id="privateSignout">退出私人模式</button></div>`;panelBody.querySelector('#privateSignout').onclick=async()=>{await cloud.auth.signOut();renderPrivateLogin();};}
+async function updatePrivateLabel(){const member=await getIdentity(true);document.getElementById('privateLogin').textContent=member?`${member.slot} · 私人模式`:'J/K 登录';if(currentPanel==='privateLogin')renderPrivateLogin();}
+window.addEventListener('soft-hours:auth-change',updatePrivateLabel);updatePrivateLabel();
 function renderCoffeeMachine(){
   panelBody.innerHTML='<div class="drink-choices"><button type="button" data-drink="coffee"><span aria-hidden="true">☕</span><strong>做一杯咖啡</strong><small>香浓、暖暖的</small></button><button type="button" data-drink="milkTea"><span aria-hidden="true">🧋</span><strong>做一杯奶茶</strong><small>甜甜、慢慢喝</small></button></div>';
   panelBody.querySelectorAll('[data-drink]').forEach(button=>button.addEventListener('click',()=>{window.dispatchEvent(new CustomEvent('soft-hours:brew',{detail:button.dataset.drink}));closePanel();}));
@@ -64,6 +69,7 @@ function openPanel(name) {
   if (name === 'wardrobe') renderWardrobe();
   if (name === 'record') renderRecord();
   if (name === 'board') renderBoard();
+  if (name === 'privateLogin') renderPrivateLogin();
   if (name === 'coffeeMachine') renderCoffeeMachine();
   if (['letters','presence','pillow'].includes(name)) mountThings(panelBody,name);
   modalShell.hidden = false; document.body.style.overflow = 'hidden';
@@ -92,6 +98,7 @@ document.querySelectorAll('[data-action]').forEach(button => button.addEventList
   else openPanel(button.dataset.action);
 }));
 document.getElementById('closePanel').addEventListener('click', closePanel);
+document.getElementById('privateLogin').addEventListener('click',()=>openPanel('privateLogin'));
 modalShell.addEventListener('click', event => { if (event.target.matches('[data-close]')) closePanel(); });
 document.addEventListener('keydown', event => {
   if (event.key === 'Escape') closePanel();
