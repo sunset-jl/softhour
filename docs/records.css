@@ -17,3 +17,14 @@
 
 
 @media(max-width:640px){.modal-shell.is-records .memory-panel__scroll{overflow-x:hidden}.record-sleeve{width:128px}}
+.record-fan{height:min(30svh,255px);margin:5px 0}
+.record-sleeve{top:8px;width:clamp(110px,16vw,150px)}
+.record-caption{min-height:0;margin:5px 0;font-size:12px}
+.record-library-actions{gap:8px}
+.record-library-actions button{padding:7px 12px}
+.record-upload{margin-top:8px;padding-top:8px;gap:9px}
+.record-upload label{gap:4px;font-size:12px}
+.record-upload input,.record-upload textarea{padding:7px}
+.record-upload textarea{min-height:50px;max-height:16svh;resize:none}
+#panelBody.is-uploading .record-fan,#panelBody.is-uploading .record-caption,#panelBody.is-uploading .record-library-actions{display:none}
+@media(max-width:640px){.record-fan{height:min(28svh,205px)}.record-sleeve{top:5px;width:clamp(95px,30vw,120px)}.record-upload{grid-template-columns:1fr}}

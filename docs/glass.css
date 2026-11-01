@@ -1,7 +1,8 @@
 /* The shell never scrolls: its close control stays anchored above the content. */
+.modal-shell{padding:12px}
 .modal-shell .memory-panel {
   display:flex; flex-direction:column; padding:58px 0 0;
-  max-height:min(84svh,760px); overflow:hidden; isolation:isolate;
+  max-height:calc(100svh - 24px); overflow:hidden; isolation:isolate;
   border:1px solid rgba(255,255,255,.76); border-radius:28px;
   background:linear-gradient(135deg,rgba(255,253,247,.72),rgba(250,239,234,.46) 52%,rgba(242,237,252,.60));
   -webkit-backdrop-filter:blur(24px) saturate(125%);
@@ -10,7 +11,7 @@
 }
 .modal-shell .memory-panel__scroll {
   min-height:0; overflow-y:auto; overscroll-behavior:contain;
-  padding:0 30px 30px; scrollbar-width:thin; scrollbar-color:#bda5b5 transparent;
+  padding:0 30px 22px; scrollbar-width:thin; scrollbar-color:#bda5b5 transparent;
   scroll-padding:16px;
 }
 .modal-shell .memory-panel__close {
@@ -25,6 +26,10 @@
 .modal-shell .memory-panel__close svg {display:block;width:20px;height:20px}
 .modal-shell .memory-panel:before {top:17px;left:27px;opacity:.7}
 .modal-shell .memory-panel__number {display:block;margin-top:0}
+.modal-shell:has(.private-gate) .memory-panel__number,
+.modal-shell:has(.private-gate) #panelTitle,
+.modal-shell:has(.private-gate) .memory-panel__intro {display:none}
+.modal-shell:has(.private-gate) .memory-panel{padding-top:54px}
 .modal-shell .modal-scrim {background:#66557222;backdrop-filter:blur(2px)}
 .is-night .modal-shell .modal-scrim {background:#10122559}
 .is-night .modal-shell .memory-panel {
@@ -35,8 +40,15 @@
 .is-night .modal-shell .memory-panel__close {color:#efe1f3;background:#c5acd52e;border-color:#e0cfeb5c;box-shadow:inset 0 1px 1px #e8dafa33}
 .is-night .modal-shell .memory-panel__close:hover {background:#c5acd552}
 @media(max-width:600px) {
-  .modal-shell .memory-panel {border-radius:24px;max-height:84svh}
-  .modal-shell .memory-panel__scroll {padding:0 21px 24px}
+  .modal-shell{padding:8px}
+  .modal-shell .memory-panel {border-radius:24px;max-height:calc(100svh - 16px)}
+  .modal-shell .memory-panel__scroll {padding:0 18px 16px}
+}
+@media(max-height:700px){
+  .modal-shell .memory-panel{padding-top:50px}
+  .modal-shell .memory-panel__intro{margin-bottom:10px;line-height:1.5}
+  .modal-shell .memory-panel__number{margin-bottom:7px}
+  .modal-shell .memory-panel h2{font-size:clamp(20px,3vw,25px);margin-bottom:6px}
 }
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))) {
   .modal-shell .memory-panel {background:#faf4ecf5}
