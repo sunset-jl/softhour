@@ -38,6 +38,7 @@ document.getElementById('resetView').addEventListener('click', () => {
 
 const panels = {
   bedPrank:{number:'',title:'烤鱼女士禁止睡觉！',intro:''},
+  spilledTea:{number:'',title:'你为什么要这样对我的奶茶！',intro:''},
   letters:{number:'04 / LETTERS TO TOMORROW',title:'未来来信',intro:'把今天想说的话，留给未来某一天的你。'},
   presence:{number:'05 / TWO CUPS OF TEA',title:'你也在这里吗',intro:'两只杯子，给你们各留一个位置。'},
   pillow:{number:'06 / A LITTLE SECRET',title:'抱枕里的小纸条',intro:'轻轻碰三下，就会掉出一句悄悄话。'},
@@ -77,12 +78,13 @@ function openPanel(name) {
   const data = panels[name]; if (!data) return;
   unmountBoard(); unmountPhotos(); unmountRecords(); unmountThings();
   currentPanel = name;
-  modalShell.classList.toggle('is-bed-prank',name==='bedPrank');
+  modalShell.classList.toggle('is-bed-prank',name==='bedPrank'||name==='spilledTea');
   modalShell.classList.toggle('is-board', name === 'board');
   modalShell.classList.toggle('is-records', name === 'record');
   lastTrigger = document.activeElement;
   panelNumber.textContent = data.number; panelTitle.textContent = data.title; panelIntro.textContent = data.intro;
   if(name==='bedPrank'){panelBody.replaceChildren();const ok=document.createElement('button');ok.type='button';ok.className='bed-prank-ok';ok.textContent='好啦，醒着呢！';ok.addEventListener('click',closePanel);panelBody.append(ok);}
+  if(name==='spilledTea'){panelBody.replaceChildren();const ok=document.createElement('button');ok.type='button';ok.className='bed-prank-ok';ok.textContent='我错啦';ok.addEventListener('click',closePanel);panelBody.append(ok);}
   if (name === 'wardrobe') renderWardrobe();
   if (name === 'record') renderRecord();
   if (name === 'board') renderBoard();

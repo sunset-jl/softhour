@@ -18,7 +18,7 @@ const area = document.getElementById('sceneArea');
 const loader = document.getElementById('sceneLoader');
 const hoverLabel = document.getElementById('hoverLabel');
 const zoomLevel = document.getElementById('zoomLevel');
-const labels = {coffeeMachine:'饮品机',drawer0:'抽屉',drawer1:'抽屉',drawer2:'抽屉',drawer3:'抽屉',drawer4:'抽屉',drawer5:'抽屉',storageBox0:'收纳箱',storageBox1:'收纳箱',cat: '小猫',wardrobeAlbum:'相册 · 翻看照片',bed:'床铺',pillow:'抱枕 · 轻轻碰一下',letters:'信封 · 未来来信',presence:'J & K · 两杯热茶', wardrobeDoorLeft: '左柜门 · 点击开合', wardrobeDoorRight: '右柜门 · 点击开合', curtainLeft: '窗帘 · 左右拖动开合', curtainRight: '窗帘 · 左右拖动开合', wardrobe: '衣柜 · 翻看照片', record: '唱片机 · 听听我们的声音', lamp: '台灯 · 切换昼夜', board: '公告板 · 收藏回忆' };
+const labels = {teaCupJ:'茶杯',teaCupK:'茶杯',coffeeMachine:'饮品机',drawer0:'抽屉',drawer1:'抽屉',drawer2:'抽屉',drawer3:'抽屉',drawer4:'抽屉',drawer5:'抽屉',storageBox0:'收纳箱',storageBox1:'收纳箱',cat: '小猫',wardrobeAlbum:'相册 · 翻看照片',bed:'床铺',pillow:'抱枕 · 轻轻碰一下',letters:'信封 · 未来来信',presence:'J & K · 两杯热茶', wardrobeDoorLeft: '左柜门 · 点击开合', wardrobeDoorRight: '右柜门 · 点击开合', curtainLeft: '窗帘 · 左右拖动开合', curtainRight: '窗帘 · 左右拖动开合', wardrobe: '衣柜 · 翻看照片', record: '唱片机 · 听听我们的声音', lamp: '台灯 · 切换昼夜', board: '公告板 · 收藏回忆' };
 
 async function startRoom() {
   const scene = new THREE.Scene();
@@ -265,7 +265,7 @@ async function startRoom() {
       const y=hit?room.worldToLocal(hit.point.clone()).y+.035:.035;cat.drop(Math.min(catObject.position.y,y));
     }else if(e.type==='pointerup'){talkToCat();cat.tap();}e.preventDefault();e.stopImmediatePropagation();}
   for(const type of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(type,endCatDrag,true);
-  const fingers = new Set(); let down = null; let dragged = false;
+  const fingers = new Set(); let down = null; let dragged = false,lastCupClick='',lastCupAt=0;
   canvas.addEventListener('pointerdown', event => {
     fingers.add(event.pointerId); if (fingers.size > 1) dragged = true;
     if (fingers.size === 1) { down = { x: event.clientX, y: event.clientY }; dragged = false; }
@@ -290,6 +290,7 @@ async function startRoom() {
     if (down && !dragged && !fingers.size && (event.button === 0 || event.pointerType === 'touch')) {
       const action = hitAt(event.clientX, event.clientY);
       if (focusTween) {}
+      else if(action==='teaCupJ'||action==='teaCupK') {const now=performance.now();if(lastCupClick===action&&now-lastCupAt<460&&coffeeMachine.spill(action==='teaCupK'?1:0)){lastCupClick='';setTimeout(()=>window.dispatchEvent(new CustomEvent('soft-hours:open',{detail:'spilledTea'})),1000);}else{lastCupClick=action;lastCupAt=now;}}
       else if(category(action)&&approach(category(action))) {}
       else if(!action) returnView();
       else if (action === 'wardrobeDoorLeft' || action === 'wardrobeDoorRight') wardrobe.toggle(action);
