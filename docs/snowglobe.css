@@ -4,3 +4,6 @@
 @media(max-height:600px){.globe-header{padding:10px 20px}.globe-heading{display:none}.globe-bottom{padding-bottom:8px}.globe-instruction{display:none}.globe-stage{max-height:none}.globe-actions{margin-top:8px}}
 
 .globe-entry{display:inline-flex;align-items:center;justify-content:center;gap:7px;text-align:center;line-height:1.2}.globe-entry span{display:inline-flex;align-items:center;justify-content:center;margin:0;line-height:1;width:23px;height:23px;flex-shrink:0}
+/* Place the keepsake action beside the room, clear of the title and top bar. */
+.globe-entry{top:auto;right:auto;left:clamp(18px,4vw,66px);bottom:116px}
+@media(max-width:600px){.globe-entry{top:auto;right:auto;left:16px;bottom:164px}}
