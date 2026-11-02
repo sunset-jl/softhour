@@ -41,11 +41,11 @@ export function installCoffeeMachine(room,meshes){
  return {
   brew(value){
    const recipe=typeof value==='string'?{base:value,extras:[],decoration:'heart'}:value||{};
-   const base=recipe.base==='milkTea'?'#d5aa84':recipe.base==='milk'?'#eee0c7':'#8b6048';
-   liquidDay.set(base);if(recipe.extras?.includes('milk'))liquidDay.lerp(new THREE.Color('#f2dfc7'),.35);
+   const base=recipe.base==='jasmine'?'#c8c893':recipe.base==='oolong'?'#b9895d':recipe.base==='black'?'#a56f56':recipe.base==='milkTea'?'#d5aa84':recipe.base==='milk'?'#eee0c7':'#8b6048';
+   liquidDay.set(base);if(recipe.flavor==='peach')liquidDay.lerp(new THREE.Color('#e6aa9d'),.38);if(recipe.flavor==='grape')liquidDay.lerp(new THREE.Color('#aa95b4'),.38);if(recipe.flavor==='lemon')liquidDay.lerp(new THREE.Color('#e6cf8b'),.38);
    pourTime=2.7;liquid.visible=true;liquid.scale.setScalar(.12);stream.visible=true;
    const hasCream=recipe.extras?.includes('cream'),hasPearls=recipe.extras?.includes('pearls');foam.visible=false;pearls.forEach(pearl=>pearl.visible=false);decoration.visible=false;
-   paintDecoration(recipe.decoration==='star'?'✦':recipe.decoration==='paw'?'paw':'♥',hasCream);
+   paintDecoration(recipe.flavor==='peach'?'♥':recipe.flavor==='grape'?'✦':recipe.flavor==='lemon'?'✿':'paw',hasCream);
    this.setNight(document.body.classList.contains('is-night')?1:0);
    foam.userData.showAfterPour=hasCream;pearls.forEach(pearl=>pearl.userData.showAfterPour=hasPearls);
   },
