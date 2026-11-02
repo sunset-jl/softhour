@@ -14,7 +14,8 @@ export function installCoffeeMachine(room,meshes){
  const glass=new THREE.MeshBasicMaterial({color:'#e9f3f4',transparent:true,opacity:.27,depthWrite:false,side:THREE.DoubleSide});
  const glassEdge=new THREE.MeshBasicMaterial({color:'#f8ffff',transparent:true,opacity:.78,depthWrite:false});
  const cups=[1.07,.69].map((x,index)=>{
-  const z=-3.40,base=1.445,height=.25;
+  const z=-3.40,base=1.375,height=.25;
+  const contact=new THREE.Mesh(new THREE.CircleGeometry(.15,32),new THREE.MeshBasicMaterial({color:'#6b5d74',transparent:true,opacity:.16,depthWrite:false,side:THREE.DoubleSide}));contact.rotation.x=-Math.PI/2;contact.position.set(x,base-.004,z);root.add(contact);
   const shell=piece(new THREE.CylinderGeometry(.127,.112,height,32,1,true),glass,x,base+height/2,z);
   shell.name=index?'glassCupK':'glassCupJ';
   piece(new THREE.CylinderGeometry(.112,.112,.014,32),glassEdge,x,base+.008,z);
@@ -38,19 +39,19 @@ export function installCoffeeMachine(room,meshes){
  piece(new THREE.SphereGeometry(.068,12,10),wood,cx+.385,1.98,cz+.04);
  // The existing right-hand cup stays in place; liquid appears inside it.
  // The cup's handle extends rightward; the bowl itself is centered at x=1.07.
- const liquid=piece(new THREE.CylinderGeometry(.108,.10,.17,32),mat('#8b6048','#604764'),cups[0].x,1.54,cups[0].z);
+ const liquid=piece(new THREE.CylinderGeometry(.108,.10,.17,32),mat('#8b6048','#604764'),cups[0].x,1.47,cups[0].z);
  liquid.userData.action='coffeeMachine';liquid.visible=false;
  const liquidK=liquid.clone();liquidK.position.x=cups[1].x;root.add(liquidK);meshes.push(liquidK);
  const stream=piece(new THREE.CylinderGeometry(.019,.013,.24,12),mat('#a47653','#9e8298'),1.07,1.69,-3.40);
  stream.visible=false;
- const foam=piece(new THREE.CylinderGeometry(.105,.105,.007,32),mat('#fff0cf','#c9b9d6'),1.07,1.628,-3.40);foam.visible=false;
+ const foam=piece(new THREE.CylinderGeometry(.105,.105,.007,32),mat('#fff0cf','#c9b9d6'),1.07,1.558,-3.40);foam.visible=false;
  const foamK=foam.clone();foamK.position.x=cups[1].x;root.add(foamK);meshes.push(foamK);
  const pearls=[];
- for(const [x,z] of [[-.055,-.034],[.03,-.052],[.065,.025],[-.018,.062]]){const pearl=piece(new THREE.SphereGeometry(.018,10,8),mat('#514151','#353149'),1.07+x,1.631,-3.40+z);pearl.visible=false;pearls.push(pearl);}
+ for(const [x,z] of [[-.055,-.034],[.03,-.052],[.065,.025],[-.018,.062]]){const pearl=piece(new THREE.SphereGeometry(.018,10,8),mat('#514151','#353149'),1.07+x,1.561,-3.40+z);pearl.visible=false;pearls.push(pearl);}
  const pearlsK=pearls.map(pearl=>{const copy=pearl.clone();copy.position.x+=cups[1].x-cups[0].x;root.add(copy);meshes.push(copy);return copy;});
  const ink=document.createElement('canvas');ink.width=128;ink.height=128;
  const decoration=new THREE.Mesh(new THREE.PlaneGeometry(.15,.15),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(ink),transparent:true,depthWrite:false,side:THREE.DoubleSide}));
- decoration.rotation.x=-Math.PI/2;decoration.position.set(1.07,1.641,-3.40);decoration.visible=false;decoration.userData.action='coffeeMachine';root.add(decoration);meshes.push(decoration);
+ decoration.rotation.x=-Math.PI/2;decoration.position.set(1.07,1.571,-3.40);decoration.visible=false;decoration.userData.action='coffeeMachine';root.add(decoration);meshes.push(decoration);
  const decorationK=decoration.clone();decorationK.position.x=cups[1].x;root.add(decorationK);meshes.push(decorationK);
  function paintDecoration(symbol,light){const context=ink.getContext('2d');context.clearRect(0,0,128,128);context.fillStyle=light?'#a46f86':'#fff0d3';if(symbol==='paw'){for(const [x,y,r] of [[34,39,11],[57,28,11],[81,31,11],[101,45,10],[66,76,27]]){context.beginPath();context.arc(x,y,r,0,Math.PI*2);context.fill();}}else{context.textAlign='center';context.textBaseline='middle';context.font='bold 86px serif';context.fillText(symbol,64,65);}decoration.material.map.needsUpdate=true;}
  let pourTime=0,liquidDay=new THREE.Color('#8b6048');
@@ -59,13 +60,13 @@ export function installCoffeeMachine(room,meshes){
    const recipe=typeof value==='string'?{base:value,extras:[],decoration:'heart'}:value||{};
    const base=recipe.base==='jasmine'?'#c8c893':recipe.base==='oolong'?'#b9895d':recipe.base==='black'?'#a56f56':recipe.base==='milkTea'?'#d5aa84':recipe.base==='milk'?'#eee0c7':'#8b6048';
    liquidDay.set(base);if(recipe.flavor==='peach')liquidDay.lerp(new THREE.Color('#e6aa9d'),.38);if(recipe.flavor==='grape')liquidDay.lerp(new THREE.Color('#aa95b4'),.38);if(recipe.flavor==='lemon')liquidDay.lerp(new THREE.Color('#e6cf8b'),.38);
-   pourTime=2.7;for(const tea of [liquid,liquidK]){tea.visible=true;tea.scale.set(.94,.08,.94);tea.position.y=1.465;}stream.visible=true;
+   pourTime=2.7;for(const tea of [liquid,liquidK]){tea.visible=true;tea.scale.set(.94,.08,.94);tea.position.y=1.395;}stream.visible=true;
    const hasCream=recipe.extras?.includes('cream'),hasPearls=recipe.extras?.includes('pearls');foam.visible=foamK.visible=false;[...pearls,...pearlsK].forEach(pearl=>pearl.visible=false);decoration.visible=decorationK.visible=false;
    paintDecoration(recipe.flavor==='peach'?'♥':recipe.flavor==='grape'?'✦':recipe.flavor==='lemon'?'✿':'paw',hasCream);
    this.setNight(document.body.classList.contains('is-night')?1:0);
    foam.userData.showAfterPour=hasCream;[...pearls,...pearlsK].forEach(pearl=>pearl.userData.showAfterPour=hasPearls);
   },
   setNight(amount){for(const c of colored){if(c.material===liquid.material||c.material===stream.material)continue;c.material.color.lerpColors(c.day,c.night,amount);}glass.color.lerpColors(new THREE.Color('#e9f3f4'),new THREE.Color('#9ba8bf'),amount);glassEdge.color.lerpColors(new THREE.Color('#f8ffff'),new THREE.Color('#b6c3d8'),amount);liquid.material.color.copy(liquidDay).lerp(new THREE.Color('#716781'),amount*.45);stream.material.color.copy(liquid.material.color);},
-  update(dt){if(pourTime<=0)return;pourTime=Math.max(0,pourTime-dt);const progress=1-pourTime/2.7;for(const tea of [liquid,liquidK]){tea.scale.y=Math.max(.08,progress);tea.position.y=1.465+tea.scale.y*.075;}stream.visible=pourTime>.45;stream.scale.y=.7+Math.sin(progress*20)*.06;if(pourTime===0){foam.visible=foamK.visible=!!foam.userData.showAfterPour;[...pearls,...pearlsK].forEach(pearl=>pearl.visible=!!pearl.userData.showAfterPour);decoration.visible=decorationK.visible=true;}}
+  update(dt){if(pourTime<=0)return;pourTime=Math.max(0,pourTime-dt);const progress=1-pourTime/2.7;for(const tea of [liquid,liquidK]){tea.scale.y=Math.max(.08,progress);tea.position.y=1.395+tea.scale.y*.075;}stream.visible=pourTime>.45;stream.scale.y=.7+Math.sin(progress*20)*.06;if(pourTime===0){foam.visible=foamK.visible=!!foam.userData.showAfterPour;[...pearls,...pearlsK].forEach(pearl=>pearl.visible=!!pearl.userData.showAfterPour);decoration.visible=decorationK.visible=true;}}
  };
 }
