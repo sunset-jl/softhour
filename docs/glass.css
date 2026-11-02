@@ -78,7 +78,15 @@ body .zoom-controls button:hover {background:var(--control-hover)}
 body :is(button,.upload-label):focus-visible,body .upload-label:focus-within {outline:2px solid #a081ae;outline-offset:3px}
 body.is-night :is(button,.upload-label):focus-visible,body.is-night .upload-label:focus-within {outline-color:#e0c5ee}
 body button:disabled {opacity:.45;cursor:default}
-body .modal-shell #boardLogin {display:inline-block;padding:8px 14px;text-decoration:none}
+/* Keep labels centered across the room controls and the different dialogs. */
+body button {text-align:center;vertical-align:middle}
+body :is(.topbar__reset,.scene-actions button,.scene-loader button,.zoom-controls button),
+body .modal-shell :is(.private-gate button,.board-toolbar button,.board-tabs button,.shared-note button,.board-compose button,.photo-tools button,.photo-job button,.photo-pager button,.record-library-actions button,.record-upload button,.record-retry,.upload-label,#photoBack,#boardLogin,.bed-prank-ok),
+body :is(.record-player-bar button,.globe-overlay button) {
+  display:inline-flex;align-items:center;justify-content:center;
+  gap:.35em;line-height:1.35;text-align:center;
+}
+body .modal-shell #boardLogin {display:inline-flex;padding:8px 14px;text-decoration:none}
 body .modal-shell #boardLogin[hidden] {display:none}
 @media(prefers-reduced-motion:reduce){body :is(button,.upload-label){transition:none}}
 /* Small cursor shell: transform-only tracking, with no expensive backdrop blur. */
