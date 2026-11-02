@@ -14,3 +14,5 @@
 @media(max-width:520px){.topbar__tools{gap:.3rem}.topbar__tools .topbar__reset{padding:.45rem .65rem;font-size:.65rem}}
 body.is-night .private-gate{background:linear-gradient(135deg,rgba(108,96,136,.45),rgba(46,42,73,.45));color:#f4e7ff}
 body.is-night .private-gate input,body.is-night .private-gate button{background:rgba(73,64,103,.6);color:#fff}
+/* Signed-in welcome copy sits directly on the shared glass dialog. */
+.private-gate:has(#privateSignout),body.is-night .private-gate:has(#privateSignout){border:0;border-radius:0;background:none;box-shadow:none;padding:.25rem 0 0}
