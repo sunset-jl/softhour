@@ -30,10 +30,26 @@ export function installCoffeeMachine(room,meshes){
  liquid.userData.action='coffeeMachine';liquid.visible=false;
  const stream=piece(new THREE.CylinderGeometry(.019,.013,.24,12),mat('#a47653','#9e8298'),1.07,1.69,-3.40);
  stream.visible=false;
- let pourTime=0,drink='coffee';
+ const foam=piece(new THREE.CylinderGeometry(.108,.108,.007,32),mat('#fff0cf','#c9b9d6'),1.07,1.564,-3.40);foam.visible=false;
+ const pearls=[];
+ for(const [x,z] of [[-.055,-.034],[.03,-.052],[.065,.025],[-.018,.062]]){const pearl=piece(new THREE.SphereGeometry(.018,10,8),mat('#514151','#353149'),1.07+x,1.566,-3.40+z);pearl.visible=false;pearls.push(pearl);}
+ const ink=document.createElement('canvas');ink.width=128;ink.height=128;
+ const decoration=new THREE.Mesh(new THREE.PlaneGeometry(.15,.15),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(ink),transparent:true,depthWrite:false,side:THREE.DoubleSide}));
+ decoration.rotation.x=-Math.PI/2;decoration.position.set(1.07,1.574,-3.40);decoration.visible=false;decoration.userData.action='coffeeMachine';root.add(decoration);meshes.push(decoration);
+ function paintDecoration(symbol,light){const context=ink.getContext('2d');context.clearRect(0,0,128,128);context.fillStyle=light?'#a46f86':'#fff0d3';if(symbol==='paw'){for(const [x,y,r] of [[34,39,11],[57,28,11],[81,31,11],[101,45,10],[66,76,27]]){context.beginPath();context.arc(x,y,r,0,Math.PI*2);context.fill();}}else{context.textAlign='center';context.textBaseline='middle';context.font='bold 86px serif';context.fillText(symbol,64,65);}decoration.material.map.needsUpdate=true;}
+ let pourTime=0,liquidDay=new THREE.Color('#8b6048');
  return {
-  brew(value){drink=value==='milkTea'?'milkTea':'coffee';pourTime=2.7;liquid.visible=true;liquid.scale.setScalar(.12);stream.visible=true;const c=drink==='milkTea'?'#d5aa84':'#8b6048';liquid.material.color.set(c);stream.material.color.set(c);},
-  setNight(amount){for(const c of colored){if(c.material===liquid.material||c.material===stream.material)continue;c.material.color.lerpColors(c.day,c.night,amount);}},
-  update(dt){if(pourTime<=0)return;pourTime=Math.max(0,pourTime-dt);const progress=1-pourTime/2.7;liquid.scale.set(Math.min(1,.12+progress*1.3),1,Math.min(1,.12+progress*1.3));stream.visible=pourTime>.45;stream.scale.y=.7+Math.sin(progress*20)*.06;}
+  brew(value){
+   const recipe=typeof value==='string'?{base:value,extras:[],decoration:'heart'}:value||{};
+   const base=recipe.base==='milkTea'?'#d5aa84':recipe.base==='milk'?'#eee0c7':'#8b6048';
+   liquidDay.set(base);if(recipe.extras?.includes('milk'))liquidDay.lerp(new THREE.Color('#f2dfc7'),.35);
+   pourTime=2.7;liquid.visible=true;liquid.scale.setScalar(.12);stream.visible=true;
+   const hasCream=recipe.extras?.includes('cream'),hasPearls=recipe.extras?.includes('pearls');foam.visible=false;pearls.forEach(pearl=>pearl.visible=false);decoration.visible=false;
+   paintDecoration(recipe.decoration==='star'?'✦':recipe.decoration==='paw'?'paw':'♥',hasCream);
+   this.setNight(document.body.classList.contains('is-night')?1:0);
+   foam.userData.showAfterPour=hasCream;pearls.forEach(pearl=>pearl.userData.showAfterPour=hasPearls);
+  },
+  setNight(amount){for(const c of colored){if(c.material===liquid.material||c.material===stream.material)continue;c.material.color.lerpColors(c.day,c.night,amount);}liquid.material.color.copy(liquidDay).lerp(new THREE.Color('#716781'),amount*.45);stream.material.color.copy(liquid.material.color);},
+  update(dt){if(pourTime<=0)return;pourTime=Math.max(0,pourTime-dt);const progress=1-pourTime/2.7;liquid.scale.set(Math.min(1,.12+progress*1.3),1,Math.min(1,.12+progress*1.3));stream.visible=pourTime>.45;stream.scale.y=.7+Math.sin(progress*20)*.06;if(pourTime===0){foam.visible=!!foam.userData.showAfterPour;pearls.forEach(pearl=>pearl.visible=!!pearl.userData.showAfterPour);decoration.visible=true;}}
  };
 }

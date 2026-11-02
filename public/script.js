@@ -3,6 +3,7 @@ import {mountRecords, unmountRecords} from './records.js';
 import { mountPhotos, unmountPhotos } from './photos.js';
 import { mountBoard, unmountBoard } from './board.js';
 import {cloud,getIdentity,showPrivateGate} from './cloud.js';
+import {mountDrinkStudio} from './drink-studio.js';
 const roomSection = document.getElementById('roomSection');
 const heroCopy = document.getElementById('heroCopy');
 const modalShell = document.getElementById('modalShell');
@@ -70,8 +71,7 @@ async function renderPrivateLogin(){
 async function updatePrivateLabel(){const member=await getIdentity(true);document.getElementById('privateLogin').textContent=member?`${member.slot} · 私人模式`:'J/K 登录';if(currentPanel==='privateLogin')renderPrivateLogin();}
 window.addEventListener('soft-hours:auth-change',updatePrivateLabel);updatePrivateLabel();
 function renderCoffeeMachine(){
-  panelBody.innerHTML='<div class="drink-choices"><button type="button" data-drink="coffee"><span aria-hidden="true">☕</span><strong>做一杯咖啡</strong><small>香浓、暖暖的</small></button><button type="button" data-drink="milkTea"><span aria-hidden="true">🧋</span><strong>做一杯奶茶</strong><small>甜甜、慢慢喝</small></button></div>';
-  panelBody.querySelectorAll('[data-drink]').forEach(button=>button.addEventListener('click',()=>{window.dispatchEvent(new CustomEvent('soft-hours:brew',{detail:button.dataset.drink}));closePanel();}));
+  mountDrinkStudio(panelBody,recipe=>window.dispatchEvent(new CustomEvent('soft-hours:brew',{detail:recipe})));
 }
 function openPanel(name) {
   const data = panels[name]; if (!data) return;
