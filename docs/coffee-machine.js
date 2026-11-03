@@ -26,6 +26,7 @@ export function installCoffeeMachine(room,meshes){
   cupPart(new THREE.PlaneGeometry(.14,.079),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(labelCanvas),transparent:true,side:THREE.DoubleSide,depthWrite:false}),.135,.13);
   return {x,z,base,height,group};
  });
+ const machineStart=meshes.length;
  roundedBox(.68,.65,.51,cream,cx,1.74,cz-.08);
  block(.61,.31,.035,blue,cx,1.88,cz+.195);
  block(.74,.065,.58,cream,cx,1.39,cz-.05);
@@ -41,11 +42,13 @@ export function installCoffeeMachine(room,meshes){
  piece(new THREE.SphereGeometry(.027,10,8),wood,cx+.13,1.90,cz+.239);
  block(.065,.31,.08,wood,cx+.385,1.78,cz+.04);
  piece(new THREE.SphereGeometry(.068,12,10),wood,cx+.385,1.98,cz+.04);
+ // Put the machine base on the cabinet without moving the glasses.
+ for(const mesh of meshes.slice(machineStart))mesh.position.y-=.14;
  // The tea sits inside the two transparent cups, one for each person.
  const liquid=piece(new THREE.CylinderGeometry(.108,.10,.17,32),mat('#8b6048','#604764'),cups[0].x,1.293,cups[0].z);
  liquid.userData.action='teaCupJ';liquid.visible=false;
  const liquidK=liquid.clone();liquidK.position.x=cups[1].x;liquidK.userData.action='teaCupK';root.add(liquidK);meshes.push(liquidK);
- const stream=piece(new THREE.CylinderGeometry(.019,.013,.40,12),mat('#a47653','#9e8298'),cups[0].x,1.61,-3.40);
+ const stream=piece(new THREE.CylinderGeometry(.019,.013,.28,12),mat('#a47653','#9e8298'),cups[0].x,1.50,-3.40);
  stream.visible=false;
  const foam=piece(new THREE.CylinderGeometry(.105,.105,.007,32),mat('#fff0cf','#c9b9d6'),cups[0].x,1.381,-3.40);foam.visible=false;
  const foamK=foam.clone();foamK.position.x=cups[1].x;root.add(foamK);meshes.push(foamK);
@@ -62,7 +65,7 @@ export function installCoffeeMachine(room,meshes){
  return {
   brew(value){
    const recipe=typeof value==='string'?{base:value,extras:[],decoration:'heart'}:value||{};
-   const base=recipe.base==='jasmine'?'#b7bb88':recipe.base==='green'?'#91b579':recipe.base==='oolong'?'#b9895d':recipe.base==='black'?'#a56f56':recipe.base==='milkTea'?'#d5aa84':recipe.base==='milk'?'#eee0c7':'#8b6048';
+   const base=recipe.base==='jasmine'?'#b7bb88':recipe.base==='green'?'#91b579':recipe.base==='oolong'?'#b9895d':recipe.base==='black'?'#a56f56':recipe.base==='milkTea'?'#d5aa84':recipe.base==='coffee'?'#805943':recipe.base==='orangeJuice'?'#eea646':recipe.base==='milk'?'#eee0c7':'#8b6048';
    liquidDay.set(base);if(recipe.flavor==='peach')liquidDay.lerp(new THREE.Color('#f29c9f'),.82);if(recipe.flavor==='grape')liquidDay.lerp(new THREE.Color('#9374b9'),.82);if(recipe.flavor==='lemon')liquidDay.lerp(new THREE.Color('#e9d269'),.82);
    pourTime=2.7;for(const tea of [liquid,liquidK]){tea.visible=true;tea.scale.set(.94,.08,.94);tea.position.y=1.218;}stream.visible=true;
    const hasCream=recipe.extras?.includes('cream'),hasPearls=recipe.extras?.includes('pearls');foam.visible=foamK.visible=false;[...pearls,...pearlsK].forEach(pearl=>pearl.visible=false);decoration.visible=decorationK.visible=false;
