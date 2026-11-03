@@ -265,6 +265,9 @@ async function startRoom() {
       const y=hit?room.worldToLocal(hit.point.clone()).y+.035:.035;cat.drop(Math.min(catObject.position.y,y));
     }else if(e.type==='pointerup'){talkToCat();cat.tap();}e.preventDefault();e.stopImmediatePropagation();}
   for(const type of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(type,endCatDrag,true);
+  const drinkButton=document.createElement('button');drinkButton.type='button';drinkButton.className='tea-cup-drink';drinkButton.textContent='一饮而尽！';drinkButton.hidden=true;area.append(drinkButton);
+  let selectedCup=0,cupButtonTimer=0;
+  drinkButton.onclick=()=>{coffeeMachine.drink(selectedCup);drinkButton.hidden=true;};
   const fingers = new Set(); let down = null; let dragged = false,lastCupClick='',lastCupAt=0;
   canvas.addEventListener('pointerdown', event => {
     fingers.add(event.pointerId); if (fingers.size > 1) dragged = true;
@@ -290,9 +293,9 @@ async function startRoom() {
     if (down && !dragged && !fingers.size && (event.button === 0 || event.pointerType === 'touch')) {
       const action = hitAt(event.clientX, event.clientY);
       if (focusTween) {}
-      else if(action==='teaCupJ'||action==='teaCupK') {const now=performance.now();if(lastCupClick===action&&now-lastCupAt<460&&coffeeMachine.spill(action==='teaCupK'?1:0)){lastCupClick='';setTimeout(()=>window.dispatchEvent(new CustomEvent('soft-hours:open',{detail:'spilledTea'})),1000);}else{lastCupClick=action;lastCupAt=now;}}
+      else if(action==='teaCupJ'||action==='teaCupK') {const now=performance.now(),index=action==='teaCupK'?1:0;if(lastCupClick===action&&now-lastCupAt<460&&coffeeMachine.spill(index)){clearTimeout(cupButtonTimer);drinkButton.hidden=true;lastCupClick='';setTimeout(()=>window.dispatchEvent(new CustomEvent('soft-hours:open',{detail:'spilledTea'})),1000);}else if(coffeeMachine.hasDrink(index)){lastCupClick=action;lastCupAt=now;clearTimeout(cupButtonTimer);const rect=area.getBoundingClientRect(),x=event.clientX-rect.left,y=event.clientY-rect.top;cupButtonTimer=setTimeout(()=>{selectedCup=index;drinkButton.style.left=`${Math.max(75,Math.min(rect.width-75,x))}px`;drinkButton.style.top=`${Math.max(60,y-58)}px`;drinkButton.hidden=false;lastCupClick='';},470);}}
       else if(category(action)&&approach(category(action))) {}
-      else if(!action) returnView();
+      else if(!action){drinkButton.hidden=true;returnView();}
       else if (action === 'wardrobeDoorLeft' || action === 'wardrobeDoorRight') wardrobe.toggle(action);
       else if(action==='wardrobe'&&!wardrobe.isOpen()) wardrobe.open();
       else if(action==='wardrobeAlbum'&&!wardrobe.isOpen()) wardrobe.open();

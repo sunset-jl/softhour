@@ -16,11 +16,15 @@ export function installCoffeeMachine(room,meshes){
  const cups=[1.07,.69].map((x,index)=>{
   const z=-3.40,base=1.228,height=.25;
   const contact=new THREE.Mesh(new THREE.CircleGeometry(.15,32),new THREE.MeshBasicMaterial({color:'#6b5d74',transparent:true,opacity:.16,depthWrite:false,side:THREE.DoubleSide}));contact.rotation.x=-Math.PI/2;contact.position.set(x,base-.004,z);root.add(contact);
-  const shell=piece(new THREE.CylinderGeometry(.127,.112,height,32,1,true),glass,x,base+height/2,z);shell.userData.action=index?'teaCupK':'teaCupJ';
+  const group=new THREE.Group();group.position.set(x,base,z);root.add(group);
+  const cupPart=(geometry,material,y,zOffset=0)=>{const mesh=new THREE.Mesh(geometry,material);mesh.position.set(0,y,zOffset);mesh.userData.action=index?'teaCupK':'teaCupJ';group.add(mesh);meshes.push(mesh);return mesh;};
+  const shell=cupPart(new THREE.CylinderGeometry(.127,.112,height,32,1,true),glass,height/2);
   shell.name=index?'glassCupK':'glassCupJ';
-  piece(new THREE.CylinderGeometry(.112,.112,.014,32),glassEdge,x,base+.008,z).userData.action=shell.userData.action;
-  const rim=piece(new THREE.TorusGeometry(.127,.009,8,32),glassEdge,x,base+height,z);rim.rotation.x=Math.PI/2;rim.userData.action=shell.userData.action;
-  return {x,z,base,height};
+  cupPart(new THREE.CylinderGeometry(.112,.112,.014,32),glassEdge,.008);
+  const rim=cupPart(new THREE.TorusGeometry(.127,.009,8,32),glassEdge,height);rim.rotation.x=Math.PI/2;
+  const labelCanvas=document.createElement('canvas');labelCanvas.width=128;labelCanvas.height=72;const labelInk=labelCanvas.getContext('2d');labelInk.fillStyle='#faf4e8';labelInk.fillRect(3,3,122,66);labelInk.strokeStyle='#c7abb8';labelInk.lineWidth=4;labelInk.strokeRect(3,3,122,66);labelInk.fillStyle='#79637d';labelInk.textAlign='center';labelInk.textBaseline='middle';labelInk.font='bold 44px Georgia';labelInk.fillText(index?'K':'J',64,37);
+  cupPart(new THREE.PlaneGeometry(.14,.079),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(labelCanvas),transparent:true,side:THREE.DoubleSide,depthWrite:false}),.135,.13);
+  return {x,z,base,height,group};
  });
  roundedBox(.68,.65,.51,cream,cx,1.74,cz-.08);
  block(.61,.31,.035,blue,cx,1.88,cz+.195);
@@ -42,7 +46,7 @@ export function installCoffeeMachine(room,meshes){
  const liquid=piece(new THREE.CylinderGeometry(.108,.10,.17,32),mat('#8b6048','#604764'),cups[0].x,1.323,cups[0].z);
  liquid.userData.action='teaCupJ';liquid.visible=false;
  const liquidK=liquid.clone();liquidK.position.x=cups[1].x;liquidK.userData.action='teaCupK';root.add(liquidK);meshes.push(liquidK);
- const stream=piece(new THREE.CylinderGeometry(.019,.013,.24,12),mat('#a47653','#9e8298'),1.07,1.69,-3.40);
+ const stream=piece(new THREE.CylinderGeometry(.019,.013,.40,12),mat('#a47653','#9e8298'),1.07,1.63,-3.40);
  stream.visible=false;
  const foam=piece(new THREE.CylinderGeometry(.105,.105,.007,32),mat('#fff0cf','#c9b9d6'),1.07,1.411,-3.40);foam.visible=false;
  const foamK=foam.clone();foamK.position.x=cups[1].x;root.add(foamK);meshes.push(foamK);
@@ -59,19 +63,22 @@ export function installCoffeeMachine(room,meshes){
  return {
   brew(value){
    const recipe=typeof value==='string'?{base:value,extras:[],decoration:'heart'}:value||{};
-   const base=recipe.base==='jasmine'?'#c8c893':recipe.base==='oolong'?'#b9895d':recipe.base==='black'?'#a56f56':recipe.base==='milkTea'?'#d5aa84':recipe.base==='milk'?'#eee0c7':'#8b6048';
+   const base=recipe.base==='jasmine'?'#b7bb88':recipe.base==='green'?'#91b579':recipe.base==='oolong'?'#b9895d':recipe.base==='black'?'#a56f56':recipe.base==='milkTea'?'#d5aa84':recipe.base==='milk'?'#eee0c7':'#8b6048';
    liquidDay.set(base);if(recipe.flavor==='peach')liquidDay.lerp(new THREE.Color('#f29c9f'),.82);if(recipe.flavor==='grape')liquidDay.lerp(new THREE.Color('#9374b9'),.82);if(recipe.flavor==='lemon')liquidDay.lerp(new THREE.Color('#e9d269'),.82);
    pourTime=2.7;for(const tea of [liquid,liquidK]){tea.visible=true;tea.scale.set(.94,.08,.94);tea.position.y=1.248;}stream.visible=true;
    const hasCream=recipe.extras?.includes('cream'),hasPearls=recipe.extras?.includes('pearls');foam.visible=foamK.visible=false;[...pearls,...pearlsK].forEach(pearl=>pearl.visible=false);decoration.visible=decorationK.visible=false;
    paintDecoration(recipe.flavor==='peach'?'♥':recipe.flavor==='grape'?'✦':recipe.flavor==='lemon'?'✿':'paw',hasCream);
    this.setNight(document.body.classList.contains('is-night')?1:0);
    foam.userData.showAfterPour=hasCream;[...pearls,...pearlsK].forEach(pearl=>pearl.userData.showAfterPour=hasPearls);
+   for(const cup of cups)cup.group.rotation.z=0;
    for(const effect of spills){effect.time=0;effect.flow.visible=effect.puddle.visible=false;effect.flow.material.color.copy(liquidDay);effect.puddle.material.color.copy(liquidDay);}
   },
-  spill(index){const tea=index?liquidK:liquid;if(!tea.visible||pourTime>0||spills[index].time>0)return false;spills[index].time=.95;spills[index].flow.visible=true;spills[index].puddle.visible=true;return true;},
+  hasDrink(index){return (index?liquidK:liquid).visible&&pourTime===0&&spills[index].time===0;},
+  drink(index){const tea=index?liquidK:liquid;if(!this.hasDrink(index))return false;tea.visible=false;(index?foamK:foam).visible=false;(index?pearlsK:pearls).forEach(p=>p.visible=false);(index?decorationK:decoration).visible=false;return true;},
+  spill(index){const tea=index?liquidK:liquid;if(!this.hasDrink(index))return false;spills[index].time=.95;spills[index].flow.visible=true;spills[index].puddle.visible=true;return true;},
   setNight(amount){for(const c of colored){if(c.material===liquid.material||c.material===stream.material)continue;c.material.color.lerpColors(c.day,c.night,amount);}glass.color.lerpColors(new THREE.Color('#e9f3f4'),new THREE.Color('#9ba8bf'),amount);glassEdge.color.lerpColors(new THREE.Color('#f8ffff'),new THREE.Color('#b6c3d8'),amount);liquid.material.color.copy(liquidDay).lerp(new THREE.Color('#716781'),amount*.45);stream.material.color.copy(liquid.material.color);},
-  update(dt){if(pourTime>0){pourTime=Math.max(0,pourTime-dt);const progress=1-pourTime/2.7;for(const tea of [liquid,liquidK]){tea.scale.y=Math.max(.08,progress);tea.position.y=1.248+tea.scale.y*.075;}stream.visible=pourTime>.45;stream.scale.y=.7+Math.sin(progress*20)*.06;if(pourTime===0){foam.visible=foamK.visible=!!foam.userData.showAfterPour;[...pearls,...pearlsK].forEach(pearl=>pearl.visible=!!pearl.userData.showAfterPour);decoration.visible=decorationK.visible=true;}}
-   spills.forEach((effect,index)=>{if(effect.time<=0)return;effect.time=Math.max(0,effect.time-dt);const progress=1-effect.time/.95,tea=index?liquidK:liquid;tea.scale.y=Math.max(.01,1-progress);tea.position.y=1.248+tea.scale.y*.075;effect.flow.material.opacity=Math.sin(progress*Math.PI)*.8;effect.puddle.material.opacity=Math.min(.6,progress*.6);effect.puddle.scale.setScalar(.2+progress*.8);if(effect.time===0){tea.visible=false;effect.flow.visible=false;(index?foamK:foam).visible=false;(index?pearlsK:pearls).forEach(p=>p.visible=false);(index?decorationK:decoration).visible=false;}});
+  update(dt){if(pourTime>0){pourTime=Math.max(0,pourTime-dt);const progress=1-pourTime/2.7;for(const tea of [liquid,liquidK]){tea.scale.y=Math.max(.08,progress);tea.position.y=1.248+tea.scale.y*.075;}stream.visible=pourTime>.45;stream.scale.y=1+Math.sin(progress*20)*.04;if(pourTime===0){foam.visible=foamK.visible=!!foam.userData.showAfterPour;[...pearls,...pearlsK].forEach(pearl=>pearl.visible=!!pearl.userData.showAfterPour);decoration.visible=decorationK.visible=true;}}
+   spills.forEach((effect,index)=>{if(effect.time<=0)return;effect.time=Math.max(0,effect.time-dt);const progress=1-effect.time/.95,tea=index?liquidK:liquid;tea.scale.y=Math.max(.01,1-progress);tea.position.y=1.248+tea.scale.y*.075;cups[index].group.rotation.z=(index?1:-1)*Math.sin(progress*Math.PI/2)*.72;effect.flow.material.opacity=Math.sin(progress*Math.PI)*.8;effect.puddle.material.opacity=Math.min(.6,progress*.6);effect.puddle.scale.setScalar(.2+progress*.8);if(effect.time===0){tea.visible=false;effect.flow.visible=false;(index?foamK:foam).visible=false;(index?pearlsK:pearls).forEach(p=>p.visible=false);(index?decorationK:decoration).visible=false;}});
   }
  };
 }

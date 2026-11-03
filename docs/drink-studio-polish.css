@@ -16,3 +16,12 @@
 .is-night .drink-finish{background:#3e3952f5}
 @media(max-width:520px){.drink-studio{min-height:345px}.drink-preview{height:315px;min-height:315px}.drink-maker{min-height:315px}.drink-maker__heading{font-size:17px}.drink-maker__hint,.drink-maker__name,.drink-maker__tuning label{font-size:12px}.drink-maker__steps{font-size:10px}.drink-maker__choices{min-height:120px;grid-auto-rows:minmax(52px,auto)}.drink-maker__option strong{font-size:12px}.drink-maker__actions button{font-size:12px}.drink-preview__caption{font-size:11px}}
 @media(max-width:390px){.drink-studio{min-height:0}.drink-preview{height:160px;min-height:160px}.drink-maker{min-height:285px}}
+.drink-preview{position:relative;display:block;overflow:hidden}
+.drink-preview__cup{position:absolute;top:63px;left:50%;margin:0;transform:translateX(-50%)}
+.drink-preview__caption{position:absolute;left:5%;right:5%;bottom:12px;max-width:none;margin:0}
+.drink-preview__liquid{background:linear-gradient(110deg,var(--drink-color),color-mix(in srgb,var(--drink-color) 35%,var(--drink-light)) 52%,var(--drink-light));opacity:.96}
+@media(max-width:520px){.drink-preview__cup{top:55px;transform:translateX(-50%) scale(.77);transform-origin:top center;margin:0}.drink-preview__caption{bottom:8px}}
+@media(max-width:390px){.drink-preview__cup{top:-3px;left:30%;transform:translateX(-50%) scale(.58)}.drink-preview__caption{left:51%;right:6%;top:50%;bottom:auto;transform:translateY(-50%);text-align:left}}
+.tea-cup-drink{position:absolute;z-index:12;transform:translateX(-50%);padding:10px 17px;border:1px solid #fff9;border-radius:99px;background:#f8e7e0e8;color:#765a7b;box-shadow:0 6px 20px #5a425836;font:600 14px 'Noto Sans SC',sans-serif;white-space:nowrap;cursor:pointer;pointer-events:auto}
+.tea-cup-drink[hidden]{display:none}
+.is-night .tea-cup-drink{background:#554c70e8;color:#f9ebff}
