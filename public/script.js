@@ -72,7 +72,9 @@ async function renderPrivateLogin(){
 async function updatePrivateLabel(){const member=await getIdentity(true);document.getElementById('privateLogin').textContent=member?`${member.slot} · 私人模式`:'J/K 登录';if(currentPanel==='privateLogin')renderPrivateLogin();}
 window.addEventListener('soft-hours:auth-change',updatePrivateLabel);updatePrivateLabel();
 function renderCoffeeMachine(){
-  mountDrinkStudio(panelBody,recipe=>window.dispatchEvent(new CustomEvent('soft-hours:brew',{detail:recipe})));
+  const cupIndex=window.softHoursDockedCup;
+  if(cupIndex!==0&&cupIndex!==1){panelBody.innerHTML='<p class="quick-drinks__hint">先把 J 或 K 的空杯拖到出水口下方，再选择饮料。</p>';return;}
+  mountDrinkStudio(panelBody,recipe=>window.dispatchEvent(new CustomEvent('soft-hours:brew',{detail:{...recipe,cupIndex}})),cupIndex);
 }
 function openPanel(name) {
   const data = panels[name]; if (!data) return;

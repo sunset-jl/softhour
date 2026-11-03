@@ -4,9 +4,9 @@ const drinks = [
   {id:'orangeJuice', name:'橙汁', note:'清新明亮', color:'#eea646', icon:'◉'}
 ];
 
-export function mountDrinkStudio(host,onBrew){
-  host.innerHTML='<div class="quick-drinks" aria-label="选择饮品"></div>';
-  const list=host.firstElementChild;
+export function mountDrinkStudio(host,onBrew,cupIndex=0){
+  host.innerHTML=`<p class="quick-drinks__hint">${cupIndex?'K':'J'} 的杯子已放好，选一杯喜欢的饮料。</p><div class="quick-drinks" aria-label="选择饮品"></div>`;
+  const list=host.querySelector('.quick-drinks');
   for(const drink of drinks){
     const button=document.createElement('button');
     button.type='button';

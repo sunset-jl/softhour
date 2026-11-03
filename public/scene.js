@@ -265,6 +265,29 @@ async function startRoom() {
       const y=hit?room.worldToLocal(hit.point.clone()).y+.035:.035;cat.drop(Math.min(catObject.position.y,y));
     }else if(e.type==='pointerup'){talkToCat();cat.tap();}e.preventDefault();e.stopImmediatePropagation();}
   for(const type of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(type,endCatDrag,true);
+  let cupDrag=null;
+  const cupPlane=new THREE.Plane(new THREE.Vector3(0,1,0),-room.localToWorld(new THREE.Vector3(0,1.198,0)).y);
+  function cupPoint(e){const r=canvas.getBoundingClientRect();pointer.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);raycaster.setFromCamera(pointer,camera);return raycaster.ray.intersectPlane(cupPlane,new THREE.Vector3());}
+  canvas.addEventListener('pointerdown',e=>{
+    const action=hitAt(e.clientX,e.clientY);
+    if(e.button!==0||(action!=='teaCupJ'&&action!=='teaCupK'))return;
+    const index=action==='teaCupK'?1:0,p=cupPoint(e);if(!p)return;
+    const origin=coffeeMachine.getPosition(index);
+    cupDrag={id:e.pointerId,index,startX:e.clientX,startY:e.clientY,offsetX:origin.x-p.x,offsetZ:origin.z-p.z,moved:false,enabled:controls.enabled};
+    controls.enabled=false;canvas.setPointerCapture(e.pointerId);hoverLabel.hidden=true;e.preventDefault();e.stopImmediatePropagation();
+  },true);
+  canvas.addEventListener('pointermove',e=>{
+    if(!cupDrag||cupDrag.id!==e.pointerId)return;
+    if(Math.hypot(e.clientX-cupDrag.startX,e.clientY-cupDrag.startY)>6)cupDrag.moved=true;
+    if(cupDrag.moved){const p=cupPoint(e);if(p){window.softHoursDockedCup=null;coffeeMachine.moveCup(cupDrag.index,p.x+cupDrag.offsetX,p.z+cupDrag.offsetZ);}canvas.style.cursor='grabbing';}
+    e.preventDefault();e.stopImmediatePropagation();
+  },true);
+  function endCupDrag(e){if(!cupDrag||cupDrag.id!==e.pointerId)return;const d=cupDrag;cupDrag=null;controls.enabled=d.enabled;if(canvas.hasPointerCapture(e.pointerId))canvas.releasePointerCapture(e.pointerId);canvas.style.cursor='grab';
+    if(d.moved){drinkButton.hidden=true;if(coffeeMachine.releaseCup(d.index)){window.softHoursDockedCup=d.index;window.dispatchEvent(new CustomEvent('soft-hours:open',{detail:'coffeeMachine'}));}}
+    else if(e.type==='pointerup'){const action=d.index?'teaCupK':'teaCupJ',now=performance.now();if(lastCupClick===action&&now-lastCupAt<460&&coffeeMachine.spill(d.index)){clearTimeout(cupButtonTimer);drinkButton.hidden=true;lastCupClick='';setTimeout(()=>window.dispatchEvent(new CustomEvent('soft-hours:open',{detail:'spilledTea'})),1000);}else if(coffeeMachine.hasDrink(d.index)){lastCupClick=action;lastCupAt=now;clearTimeout(cupButtonTimer);const rect=area.getBoundingClientRect(),x=e.clientX-rect.left,y=e.clientY-rect.top;cupButtonTimer=setTimeout(()=>{selectedCup=d.index;drinkButton.style.left=`${Math.max(75,Math.min(rect.width-75,x))}px`;drinkButton.style.top=`${Math.max(60,y-58)}px`;drinkButton.hidden=false;lastCupClick='';},470);}}
+    e.preventDefault();e.stopImmediatePropagation();
+  }
+  for(const type of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(type,endCupDrag,true);
   const drinkButton=document.createElement('button');drinkButton.type='button';drinkButton.className='tea-cup-drink';drinkButton.textContent='一饮而尽！';drinkButton.hidden=true;area.append(drinkButton);
   let selectedCup=0,cupButtonTimer=0;
   drinkButton.onclick=()=>{coffeeMachine.drink(selectedCup);drinkButton.hidden=true;};
@@ -293,7 +316,7 @@ async function startRoom() {
     if (down && !dragged && !fingers.size && (event.button === 0 || event.pointerType === 'touch')) {
       const action = hitAt(event.clientX, event.clientY);
       if (focusTween) {}
-      else if(action==='teaCupJ'||action==='teaCupK') {const now=performance.now(),index=action==='teaCupK'?1:0;if(lastCupClick===action&&now-lastCupAt<460&&coffeeMachine.spill(index)){clearTimeout(cupButtonTimer);drinkButton.hidden=true;lastCupClick='';setTimeout(()=>window.dispatchEvent(new CustomEvent('soft-hours:open',{detail:'spilledTea'})),1000);}else if(coffeeMachine.hasDrink(index)){lastCupClick=action;lastCupAt=now;clearTimeout(cupButtonTimer);const rect=area.getBoundingClientRect(),x=event.clientX-rect.left,y=event.clientY-rect.top;cupButtonTimer=setTimeout(()=>{selectedCup=index;drinkButton.style.left=`${Math.max(75,Math.min(rect.width-75,x))}px`;drinkButton.style.top=`${Math.max(60,y-58)}px`;drinkButton.hidden=false;lastCupClick='';},470);}}
+      else if(action==='teaCupJ'||action==='teaCupK') {}
       else if(category(action)&&approach(category(action))) {}
       else if(!action){drinkButton.hidden=true;returnView();}
       else if (action === 'wardrobeDoorLeft' || action === 'wardrobeDoorRight') wardrobe.toggle(action);
