@@ -4,7 +4,7 @@ let legacyRows=[];
 const queue=[];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const warmNames={889:'两口甜，刚刚好',890:'认真挑选的你',891:'路灯下，走向我',892:'那晚的背影',893:'逛店时的小惊喜',894:'隔着屏幕，也在一起',895:'通话里的小表情',896:'镜头里温柔的你',897:'把今天拼成两格',898:'同一刻的两个我们',899:'屏幕两端的日常',900:'又见你的笑',901:'留在相纸里的我们',902:'值得庆祝的一天',903:'这一刻，很闪亮'};
-function photoTitle(p){const match=String(p.name||p.path||'').match(/_(89\d|90[0-3])_121\.(?:jpe?g|png|webp)$/i);return match?warmNames[Number(match[1])]||p.name:p.name;}
+function photoTitle(p){const match=String(p.name||p.path||'').match(/_(88[9]|89\d|90[0-3])_121\.(?:jpe?g|png|webp)$/i);return match?warmNames[Number(match[1])]||p.name:p.name;}
 function savedDate(p,detail=false){const date=new Date(p.created);if(Number.isNaN(date.getTime()))return '存入小屋';return `存入小屋 · ${detail?date.toLocaleString('zh-CN',{year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'}):date.toLocaleDateString('zh-CN')}`;}
 function status(text){const el=host?.querySelector('#photoStatus');if(el)el.textContent=text;}
 function drawQueue(){const target=host?.querySelector('#photoQueue');if(target)target.innerHTML=queue.map((q,i)=>`<div class="photo-job"><span>${esc(q.file.name)}</span><small>${esc(q.status)}</small>${q.failed?`<button data-retry="${i}">重试</button>`:''}</div>`).join('');}
