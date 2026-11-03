@@ -28,7 +28,8 @@ export function installCoffeeMachine(room,meshes){
  for(const mesh of meshes.slice(machineStart))mesh.position.y-=.14;
  const stream=part(new THREE.CylinderGeometry(.018,.012,.28,12),new THREE.MeshBasicMaterial({color:'#d5aa84'}),spoutX,1.50,spoutZ);
  stream.visible=false;
- const homes=[{x:.57,z:-3.40},{x:.18,z:-3.40}];
+ // Keep both glasses to the right of the record player (its right edge is near x=0).
+ const homes=[{x:.68,z:-3.40},{x:.36,z:-3.40}];
  const cups=homes.map((home,index)=>{
   const action=index?'teaCupK':'teaCupJ',group=new THREE.Group();group.position.set(home.x,base,home.z);root.add(group);
   function cupPart(g,m,y,z=0){const obj=new THREE.Mesh(g,m);obj.position.set(0,y,z);obj.userData.action=action;group.add(obj);meshes.push(obj);return obj;}
@@ -52,7 +53,7 @@ export function installCoffeeMachine(room,meshes){
  return {
   getPosition(index){return cups[index].group.position.clone();},
   isDocked(index){return cups[index].docked;},
-  moveCup(index,x,z){const cup=cups[index];position(index,THREE.MathUtils.clamp(x,-.15,1.2),THREE.MathUtils.clamp(z,-3.67,-3.18));cup.docked=false;stream.visible=false;},
+  moveCup(index,x,z){const cup=cups[index];position(index,THREE.MathUtils.clamp(x,.33,1.2),THREE.MathUtils.clamp(z,-3.62,-3.25));cup.docked=false;stream.visible=false;},
   releaseCup(index){const cup=cups[index],p=cup.group.position;if(Math.hypot(p.x-spoutX,p.z-spoutZ)<.24&&!cups.some((other,i)=>i!==index&&other.docked)){position(index,spoutX,spoutZ);cup.docked=true;return true;}cup.docked=false;return false;},
   brew(value){const index=value?.cupIndex;if(index!==0&&index!==1||!cups[index].docked)return false;const cup=cups[index],palette={milkTea:'#d5aa84',coffee:'#805943',orangeJuice:'#eea646'};clearCup(cup);cup.drinkColor.set(palette[value.base]||palette.milkTea);colorCup(cup);cup.tea.visible=true;cup.tea.scale.y=.03;cup.tea.position.y=.02;cup.pouring=2.4;stream.visible=true;stream.material.color.copy(cup.tea.material.color);return true;},
   hasDrink(index){return cups[index].filled&&cups[index].pouring===0&&cups[index].spilling===0;},
