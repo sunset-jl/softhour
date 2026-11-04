@@ -17,7 +17,7 @@ html,body{height:100%;overflow:hidden;background:#f3e3d1}
 .room-sticky:after{display:none}.backdrop-glow{display:none}
 .hero-copy{position:fixed;top:70px;width:90vw;transform:translateX(-50%);opacity:1;will-change:auto}
 .hero-copy h1{font-size:clamp(68px,7.6vw,110px);-webkit-text-stroke:1.4px #aa8290}
-.hero-copy .eyebrow{color:#8f727c;font-size:9px;margin-bottom:8px}.hero-copy__sub{color:#8b727b;font-size:11px;margin-top:12px}
+.hero-copy .eyebrow{color:#8f727c;font-size:9px;margin-bottom:8px}.hero-copy__sub{color:#8b727b;font-size:clamp(14px,1.2vw,17px);line-height:1.7;margin-top:26px}
 .topbar{height:62px}.topbar__mark{color:#927c96}.topbar__caption{position:absolute;left:50%;transform:translateX(-50%);width:max-content;text-align:center;color:#866f7d;pointer-events:none}
 .topbar__reset{background:rgba(255,249,235,.75);border-color:#b8a0ac;color:#755e78;backdrop-filter:blur(8px)}.topbar__reset:hover{background:#fff5e5}
 .scene-area{inset:190px 0 113px}.scene-area canvas:focus-visible{outline:2px solid #aa8d9e;outline-offset:-4px}
