@@ -224,7 +224,7 @@ async function startRoom() {
     room.updateMatrixWorld(true);
     const center=name==='curtains'?new THREE.Vector3(-5.15,2.55,0):name==='letters'?envelope.getWorldPosition(new THREE.Vector3()):name==='coffeeMachine'?new THREE.Vector3(1.55,1.75,-3.25):name==='wardrobe'?new THREE.Vector3(3.9,1.72,-3.1):name==='storageBoxes'?new THREE.Vector3(3.9,3.55,-3.45):name==='drawers'?new THREE.Vector3(.76,.85,-2.75):new THREE.Vector3(-.65,1.3,-3.15);
     const aim=new THREE.Vector3(center.x,8.5,center.z);
-    moveView({position:aim.clone().add(new THREE.Vector3(7,0,24.65)),target:aim,focus:center,zoom:name==='letters'?3.5:name==='coffeeMachine'?3.2:name==='drawers'||name==='storageBoxes'?Math.min(3.5,camera.aspect<.8?3.3:3.1):Math.min(3.5,Math.max(2.3,camera.aspect<.8?3.3:2.7))});
+    moveView({position:aim.clone().add(name==='curtains'?new THREE.Vector3(24.5,0,3):new THREE.Vector3(7,0,24.65)),target:aim,focus:center,zoom:name==='curtains'?3.1:name==='letters'?3.5:name==='coffeeMachine'?3.2:name==='drawers'||name==='storageBoxes'?Math.min(3.5,camera.aspect<.8?3.3:3.1):Math.min(3.5,Math.max(2.3,camera.aspect<.8?3.3:2.7))});
     return true;
   }
   function returnView(){if(!savedView||focusTween)return;const view=savedView;savedView=null;focusedItem=null;controls.maxZoom=2.3;moveView(view);}
