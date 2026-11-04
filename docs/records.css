@@ -1,4 +1,6 @@
 .modal-shell.is-records .memory-panel{width:min(960px,94vw);max-width:960px;background:linear-gradient(130deg,#fff8e9c9,#eee7f1b8);}
+body .record-player-bar .record-return{padding:0;display:inline-flex;align-items:center;justify-content:center}
+body .record-player-bar .record-return .music-note-reference{width:23px;height:26px;transform:translate(1px,1px)}
 .record-fan{height:280px;position:relative;margin:24px 0 8px;isolation:isolate}
 .record-sleeve{position:absolute;left:50%;top:36px;width:174px;padding:10px;border:1px solid #a893a958;border-radius:3px;background:hsl(var(--hue) 34% 87%);color:#705d72;box-shadow:0 10px 25px #48344e20;text-align:left;transform:translateX(calc(-50% + (var(--i) - (var(--n) - 1)/2)*76px)) translateY(calc(abs(var(--i) - (var(--n) - 1)/2)*6px)) rotate(calc((var(--i) - (var(--n) - 1)/2)*8deg));transition:transform .3s,box-shadow .3s;cursor:pointer;transform-origin:center 130%;}
 .record-sleeve:hover,.record-sleeve:focus-visible{z-index:20;transform:translateX(calc(-50% + (var(--i) - (var(--n) - 1)/2)*76px)) translateY(-30px) rotate(0);box-shadow:0 18px 35px #48344e38;outline:2px solid #aa8eac;outline-offset:4px}
