@@ -1,5 +1,5 @@
 import {mountThings,unmountThings} from './little-things.js?v=pillow-local-1';
-import {mountRecords, unmountRecords} from './records.js?v=video-records-1';
+import {mountRecords, unmountRecords} from './records.js?v=record-icon-center-1';
 import { mountPhotos, unmountPhotos } from './photos.js';
 import { mountBoard, unmountBoard } from './board.js';
 import {cloud,getIdentity,showPrivateGate} from './cloud.js';
