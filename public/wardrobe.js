@@ -18,7 +18,7 @@ export function installWardrobe(room) {
     count:doors.length,
     isOpen(){return doors.some(d=>Math.abs(d.pivot.rotation.y)>.7);},
     open(){for(const d of doors)d.target=d.sign*Math.PI*.58;},
-    toggle(action){const door=doors.find(d=>d.action===action);if(door)door.target=door.target===0?door.sign*Math.PI*.58:0;},
+    toggle(){const shouldOpen=!doors.some(d=>d.target!==0);for(const door of doors)door.target=shouldOpen?door.sign*Math.PI*.58:0;},
     update(delta,reduced){for(const door of doors){door.pivot.rotation.y=reduced?door.target:THREE.MathUtils.damp(door.pivot.rotation.y,door.target,9,delta);if(Math.abs(door.pivot.rotation.y-door.target)<.0001)door.pivot.rotation.y=door.target;}}
   };
 }

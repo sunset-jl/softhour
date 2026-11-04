@@ -6,7 +6,7 @@ import {prepareBed,installBed} from './bed.js';
 import {installSnowglobe} from './snowglobe.js';
 import {prepareLittleThings,installLittleThings} from './little-scene.js';
 import { installTurntable } from './turntable.js';
-import { installWardrobe } from './wardrobe.js';
+import { installWardrobe } from './wardrobe.js?v=together-1';
 import { prepareWardrobeClothes } from './wardrobe-clothes.js';
 import { installCurtains } from './curtains.js?v=curtain-focus-2';
 import * as THREE from 'three';
