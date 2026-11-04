@@ -10,7 +10,7 @@ const roomRecords=[
  {id:'room-record-04',title:'夜晚的回声',day:'存入小屋',memory:'把那天的声音，安静地放在这里。',audio_url:'./assets/records/e0ba272daf49a3575be97f2e72380bd9.mp3'}
 ];
 const compact=matchMedia('(max-width:640px)');
-const pageSize=()=>compact.matches?3:7;
+const pageSize=()=>compact.matches?2:4;
 compact.addEventListener('change',()=>{page=0;if(host)draw();});
 const escape=v=>String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const url=(r,asset='audio')=>asset==='cover'?r.cover_url:r.audio_url;
