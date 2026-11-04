@@ -73,7 +73,7 @@ async function updatePrivateLabel(){const member=await getIdentity(true);documen
 window.addEventListener('soft-hours:auth-change',updatePrivateLabel);updatePrivateLabel();
 function renderCoffeeMachine(){
   const cupIndex=window.softHoursDockedCup;
-  if(cupIndex!==0&&cupIndex!==1){panelBody.innerHTML='<p class="quick-drinks__hint">先把 J 或 K 的空杯拖到出水口下方，再选择饮料。</p>';return;}
+  if(cupIndex!==0&&cupIndex!==1){panelBody.innerHTML='<p class="quick-drinks__hint">先把空杯拖到出水口，再选饮料。</p>';return;}
   mountDrinkStudio(panelBody,recipe=>window.dispatchEvent(new CustomEvent('soft-hours:brew',{detail:{...recipe,cupIndex}})),cupIndex);
 }
 function openPanel(name) {
