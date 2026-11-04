@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 // Deform the original painted cloth, keeping its outside edge attached to the rod.
-export function installCurtains({room, camera, canvas, controls, meshes, hoverLabel}) {
+export function installCurtains({room, camera, canvas, controls, meshes, hoverLabel, shouldApproach, onApproach}) {
   const cursor=document.createElement('div');
   cursor.className='curtain-cursor';cursor.hidden=true;cursor.setAttribute('aria-hidden','true');
   cursor.innerHTML='<span class="curtain-cursor__glass"><svg viewBox="0 0 24 16" aria-hidden="true"><path d="M3 8h18M7 4L3 8l4 4M17 4l4 4-4 4"/></svg></span>';
@@ -38,6 +38,7 @@ export function installCurtains({room, camera, canvas, controls, meshes, hoverLa
   canvas.addEventListener('pointerdown',e=>{
     if(drag){e.stopImmediatePropagation();return;}
     if(e.button!==0)return;const item=pick(e);if(!item)return;
+    if(shouldApproach?.()){hideCursor();onApproach?.();e.preventDefault();e.stopImmediatePropagation();return;}
     room.updateMatrixWorld(true);
     const a=item.mesh.localToWorld(new THREE.Vector3(0,0,item.anchor)).project(camera);
     const b=item.mesh.localToWorld(new THREE.Vector3(0,0,item.anchor+item.sign*(Math.abs(item.anchor)-item.width))).project(camera);

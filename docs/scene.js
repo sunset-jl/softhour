@@ -203,14 +203,14 @@ async function startRoom() {
   window.addEventListener('soft-hours:brew',e=>coffeeMachine.brew(e.detail));
   window.addEventListener('soft-hours:record-playback',e=>turntable.setPlaying(e.detail.playing));
   window.addEventListener('soft-hours:record-anchor',e=>{room.updateMatrixWorld(true);const p=turntable.anchor.project(camera),r=canvas.getBoundingClientRect();e.detail.x=r.left+(p.x+1)*r.width/2;e.detail.y=r.top+(1-p.y)*r.height/2;});
-  const curtains = installCurtains({room,camera,canvas,controls,meshes,hoverLabel});
+  const curtains = installCurtains({room,camera,canvas,controls,meshes,hoverLabel,shouldApproach:()=>focusedItem!=='curtains',onApproach:()=>approach('curtains')});
   curtainOpening.value.fromArray(curtains.lightOpening);
   const windowGlow = new THREE.Mesh(new THREE.PlaneGeometry(6.35,2.45),new THREE.MeshBasicMaterial({color:0x92afd9,transparent:true,opacity:0,side:THREE.DoubleSide,depthWrite:false}));
   windowGlow.rotation.y = Math.PI/2; windowGlow.position.set(-5.48,2.58,.05); room.add(windowGlow);
   function nightMode(night) { nightTarget = night ? 1 : 0; }
   nightMode(document.body.classList.contains('is-night'));
   window.addEventListener('soft-hours:night', event => nightMode(event.detail));
-  function category(action){return action==='coffeeMachine'?'coffeeMachine':action?.startsWith('drawer')?'drawers':action?.startsWith('storageBox')?'storageBoxes':action?.startsWith('wardrobe')?'wardrobe':action==='record'?'record':action==='letters'?'letters':null;}
+  function category(action){return action==='curtainLeft'||action==='curtainRight'?'curtains':action==='coffeeMachine'?'coffeeMachine':action?.startsWith('drawer')?'drawers':action?.startsWith('storageBox')?'storageBoxes':action?.startsWith('wardrobe')?'wardrobe':action==='record'?'record':action==='letters'?'letters':null;}
   function moveView(to){
     controls.enableDamping=false; controls.update(); controls.enableDamping=true;
     focusTween={time:0,from:{position:camera.position.clone(),target:controls.target.clone(),focus:roomFocus.clone(),zoom:camera.zoom},to};
@@ -222,7 +222,7 @@ async function startRoom() {
     if(!savedView)savedView={position:camera.position.clone(),target:controls.target.clone(),focus:roomFocus.clone(),zoom:camera.zoom};
     focusedItem=name; controls.maxZoom=3.5;
     room.updateMatrixWorld(true);
-    const center=name==='letters'?envelope.getWorldPosition(new THREE.Vector3()):name==='coffeeMachine'?new THREE.Vector3(1.55,1.75,-3.25):name==='wardrobe'?new THREE.Vector3(3.9,1.72,-3.1):name==='storageBoxes'?new THREE.Vector3(3.9,3.55,-3.45):name==='drawers'?new THREE.Vector3(.76,.85,-2.75):new THREE.Vector3(-.65,1.3,-3.15);
+    const center=name==='curtains'?new THREE.Vector3(-5.15,2.55,0):name==='letters'?envelope.getWorldPosition(new THREE.Vector3()):name==='coffeeMachine'?new THREE.Vector3(1.55,1.75,-3.25):name==='wardrobe'?new THREE.Vector3(3.9,1.72,-3.1):name==='storageBoxes'?new THREE.Vector3(3.9,3.55,-3.45):name==='drawers'?new THREE.Vector3(.76,.85,-2.75):new THREE.Vector3(-.65,1.3,-3.15);
     const aim=new THREE.Vector3(center.x,8.5,center.z);
     moveView({position:aim.clone().add(new THREE.Vector3(7,0,24.65)),target:aim,focus:center,zoom:name==='letters'?3.5:name==='coffeeMachine'?3.2:name==='drawers'||name==='storageBoxes'?Math.min(3.5,camera.aspect<.8?3.3:3.1):Math.min(3.5,Math.max(2.3,camera.aspect<.8?3.3:2.7))});
     return true;
