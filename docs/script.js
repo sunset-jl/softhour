@@ -1,4 +1,4 @@
-import {mountThings,unmountThings} from './little-things.js';
+import {mountThings,unmountThings} from './little-things.js?v=pillow-local-1';
 import {mountRecords, unmountRecords} from './records.js';
 import { mountPhotos, unmountPhotos } from './photos.js';
 import { mountBoard, unmountBoard } from './board.js';
