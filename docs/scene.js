@@ -8,7 +8,7 @@ import {prepareLittleThings,installLittleThings} from './little-scene.js';
 import { installTurntable } from './turntable.js';
 import { installWardrobe } from './wardrobe.js';
 import { prepareWardrobeClothes } from './wardrobe-clothes.js';
-import { installCurtains } from './curtains.js';
+import { installCurtains } from './curtains.js?v=curtain-focus-2';
 import * as THREE from 'three';
 import { OrbitControls } from './vendor/OrbitControls.js';
 import { GLTFLoader } from './vendor/loaders/GLTFLoader.js';
