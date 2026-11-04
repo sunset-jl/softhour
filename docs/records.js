@@ -1,6 +1,14 @@
 import {cloud,getIdentity,showPrivateGate,signedFile,uploadPrivate} from './cloud.js';
 const audio=new Audio();audio.preload='metadata';audio.volume=.7;
 let records=[],current=null,host=null,page=0,loading=false,flight=null,selecting=false;
+// These recordings are bundled from the videos placed in the room's media folder.
+// They are shown through the same private record-library view as uploaded records.
+const roomRecords=[
+ {id:'room-record-01',title:'午后的低语',day:'存入小屋',memory:'一段被好好留下的声音。',audio_url:'./assets/records/018efb7785e3e022e3ad461e083320a3.mp3'},
+ {id:'room-record-02',title:'一起听的六分钟',day:'存入小屋',memory:'这一段时间，留给你们慢慢听。',audio_url:'./assets/records/2f4629be736229d1c2a77ffba6a5f0c8.mp3'},
+ {id:'room-record-03',title:'短短的晴天',day:'存入小屋',memory:'四十三秒，也足够装下一点开心。',audio_url:'./assets/records/865b4bdf78419136cf0305da6ee17c58.mp3'},
+ {id:'room-record-04',title:'夜晚的回声',day:'存入小屋',memory:'把那天的声音，安静地放在这里。',audio_url:'./assets/records/e0ba272daf49a3575be97f2e72380bd9.mp3'}
+];
 const compact=matchMedia('(max-width:640px)');
 const pageSize=()=>compact.matches?3:7;
 compact.addEventListener('change',()=>{page=0;if(host)draw();});
@@ -39,7 +47,7 @@ async function select(r,button){
 export function unmountRecords(){host=null;bar.inert=false;}
 export async function mountRecords(container){host=container;page=0;bar.inert=true;drawLoading();if(!await showPrivateGate(container,()=>mountRecords(container)))return;refresh();}
 function drawLoading(){if(host)host.innerHTML='<p class="record-message" role="status">正在打开唱片架…</p>';}
-async function refresh(){const target=host;try{const {data,error}=await cloud.from('soft_hours_records').select('*').order('created',{ascending:false});if(error)throw error;records=await Promise.all(data.map(async r=>({...r,audio_url:await signedFile(r.audio_path),cover_url:r.cover_path?await signedFile(r.cover_path):null})));if(host===target&&host)draw();}catch(e){if(host===target&&host){host.innerHTML=`<p class="record-message" role="alert">${escape(e.message)}</p><button class="record-retry">重新连接</button>`;host.querySelector('button').onclick=refresh;}}}
+async function refresh(){const target=host;try{const {data,error}=await cloud.from('soft_hours_records').select('*').order('created',{ascending:false});if(error)throw error;const cloudRecords=await Promise.all(data.map(async r=>({...r,audio_url:await signedFile(r.audio_path),cover_url:r.cover_path?await signedFile(r.cover_path):null})));records=[...roomRecords,...cloudRecords];if(host===target&&host)draw();}catch(e){records=[...roomRecords];if(host===target&&host)draw();}}
 function draw(){if(!host)return;host.classList.remove('is-uploading');const count=pageSize(),visible=records.slice(page*count,page*count+count);
  host.innerHTML=`<div class="record-fan" aria-label="选择一张唱片">${visible.map((r,i)=>`<button class="record-sleeve ${r.id===current?.id?'is-current':''}" style="--i:${i};--n:${visible.length};--hue:${[268,36,190,334,90,25,230][i]}" data-record="${escape(r.id)}" aria-label="播放 ${escape(r.title)}"><span class="sleeve-art">${r.cover_mime?`<img src="${url(r,'cover')}" alt="${escape(r.title)}的封面"/>`:'<span class="sleeve-flower">✿</span>'}<span class="sleeve-stamp">J & K / ${String(page*count+i+1).padStart(2,'0')}</span></span><strong>${escape(r.title)}</strong><small>${escape(r.day||'SOUNDS WE KEPT')}</small></button>`).join('')}</div>
  <p class="record-caption" aria-live="polite">${records.length?'移到唱片上看看，点击把它放上唱片机。':'唱片架还是空的，放入第一段属于你们的声音吧。'}</p>
