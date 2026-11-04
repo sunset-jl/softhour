@@ -1,7 +1,11 @@
 let state=null,host=null,view=null,busy=false,timer=null,requesting=false,alive=true;
 const emit=(name,detail)=>window.dispatchEvent(new CustomEvent(name,{detail}));
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-async function api(body){const r=await fetch('/api/little-things',{method:body?'POST':'GET',headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined,cache:'no-store'});const d=await r.json();if(!r.ok)throw Error(d.error||'连接失败，请重试。');return d;}
+const localLettersKey='soft-hours-future-letters';
+const staticSite=location.hostname.endsWith('github.io');
+function localLetters(){try{return JSON.parse(localStorage.getItem(localLettersKey)||'[]');}catch{return [];}}
+function localApi(body){const now=Date.now(),letters=localLetters(),snapshot=()=>({now,me:'J',members:[],letters});if(!body||body.action==='heartbeat')return snapshot();if(body.action==='letter'){letters.unshift({id:body.id,title:body.title,body:body.body,unlock_at:body.unlock_at||0,mine:true,sender:'J',opened:0});localStorage.setItem(localLettersKey,JSON.stringify(letters));return snapshot();}if(body.action==='open'){const letter=letters.find(x=>x.id===body.id);if(!letter)throw Error('这封信暂时找不到了。');return {body:letter.body};}return snapshot();}
+async function api(body){if(staticSite)return localApi(body);const r=await fetch('/api/little-things',{method:body?'POST':'GET',headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined,cache:'no-store'});const text=await r.text();let d;try{d=JSON.parse(text);}catch{throw Error('未来来信的云端暂时不可用，请稍后再试。');}if(!r.ok)throw Error(d.error||'连接失败，请重试。');return d;}
 export async function refreshThings(){state=await api();emit('soft-hours:presence',state);return state;}
 async function heartbeat(){if(document.hidden||!alive||requesting)return;requesting=true;try{await api({action:'heartbeat'});await refreshThings();}catch{emit('soft-hours:presence',null);}finally{requesting=false;}}
 setInterval(heartbeat,25000);heartbeat();document.addEventListener('visibilitychange',()=>{if(!document.hidden)heartbeat();});window.addEventListener('pagehide',()=>{alive=false;});window.addEventListener('pageshow',()=>{alive=true;heartbeat();});
