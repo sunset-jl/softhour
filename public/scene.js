@@ -363,7 +363,7 @@ async function startRoom() {
     little.update(delta,reduced); bed.update(delta,reduced); if(cat.update(delta,reduced))talkAfterLanding();
     if(!catBubble.hidden){
       if(performance.now()>catBubbleUntil)catBubble.hidden=true;
-      else {const anchor=catObject.localToWorld(new THREE.Vector3(0,1.05,0)).project(camera),rect=area.getBoundingClientRect();catBubble.style.left=`${Math.max(115,Math.min(rect.width-115,(anchor.x+1)*rect.width/2))}px`;catBubble.style.top=`${Math.max(50,Math.min(rect.height-50,(1-anchor.y)*rect.height/2))}px`;}
+      else {const anchor=catObject.localToWorld(new THREE.Vector3(0,1.05,0)).project(camera),rect=area.getBoundingClientRect(),edge=rect.width<600?88:115;catBubble.style.left=`${Math.max(edge,Math.min(rect.width-edge,(anchor.x+1)*rect.width/2))}px`;catBubble.style.top=`${Math.max(42,Math.min(rect.height-42,(1-anchor.y)*rect.height/2))}px`;}
     }
     turntable.update(delta,reduced);
     nightUniform.value = reduced ? nightTarget : THREE.MathUtils.damp(nightUniform.value,nightTarget,5,delta);
