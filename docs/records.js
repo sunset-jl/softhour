@@ -7,10 +7,13 @@ const roomRecords=[
  {id:'room-record-01',title:'午后的低语',day:'存入小屋',memory:'一段被好好留下的声音。',audio_url:'./assets/records/018efb7785e3e022e3ad461e083320a3.mp3'},
  {id:'room-record-02',title:'一起听的六分钟',day:'存入小屋',memory:'这一段时间，留给你们慢慢听。',audio_url:'./assets/records/2f4629be736229d1c2a77ffba6a5f0c8.mp3'},
  {id:'room-record-03',title:'短短的晴天',day:'存入小屋',memory:'四十三秒，也足够装下一点开心。',audio_url:'./assets/records/865b4bdf78419136cf0305da6ee17c58.mp3'},
- {id:'room-record-04',title:'夜晚的回声',day:'存入小屋',memory:'把那天的声音，安静地放在这里。',audio_url:'./assets/records/e0ba272daf49a3575be97f2e72380bd9.mp3'}
+ {id:'room-record-04',title:'夜晚的回声',day:'存入小屋',memory:'把那天的声音，安静地放在这里。',audio_url:'./assets/records/e0ba272daf49a3575be97f2e72380bd9.mp3'},
+ {id:'room-record-05',title:'好想爱这个世界啊',day:'存入小屋',memory:'把想说的话，唱给这个世界听。',audio_url:'./assets/records/love-this-world.mp3'},
+ {id:'room-record-06',title:'好想我回来啊',day:'存入小屋',memory:'留一段声音，等回来的那一天。',audio_url:'./assets/records/hope-i-return.mp3'},
+ {id:'room-record-07',title:'十万毫升泪水',day:'存入小屋',memory:'很重的心事，也可以在这里慢慢放下。',audio_url:'./assets/records/hundred-thousand-tears.mp3'}
 ];
 const compact=matchMedia('(max-width:640px)');
-const pageSize=()=>compact.matches?2:4;
+const pageSize=()=>compact.matches?3:7;
 compact.addEventListener('change',()=>{page=0;if(host)draw();});
 const escape=v=>String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const url=(r,asset='audio')=>asset==='cover'?r.cover_url:r.audio_url;
