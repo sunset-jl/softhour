@@ -25,7 +25,7 @@ audio.addEventListener('pause',()=>{sync();if(current)status('已暂停 · '+cur
 audio.addEventListener('waiting',()=>{emit('soft-hours:record-playback',{playing:false});status('正在缓冲…');});
 audio.addEventListener('error',()=>{sync();emit('soft-hours:record-playback',{playing:false});status('音频未能播放，请重试或换一种格式');});
 bar.querySelector('.record-return').onclick=()=>emit('soft-hours:open','record');
-bar.querySelector('.record-toggle').onclick=()=>{if(audio.paused){if(audio.error){audio.load();}audio.play().catch(()=>status('请再次点播放，或检查音频格式'));}else audio.pause();};
+bar.querySelector('.record-toggle').onclick=()=>{const toggle=bar.querySelector('.record-toggle');if(audio.paused){if(audio.error){audio.load();}toggle.classList.add('is-playing');toggle.setAttribute('aria-label','暂停');audio.play().catch(()=>{sync();status('请再次点播放，或检查音频格式');});}else{toggle.classList.remove('is-playing');toggle.setAttribute('aria-label','播放');audio.pause();}};
 bar.querySelector('input').oninput=e=>audio.volume=Number(e.target.value);
 bar.querySelector('.record-prev').onclick=()=>step(-1);bar.querySelector('.record-next').onclick=()=>step(1);
 function step(n){if(records.length)select(records[(records.findIndex(r=>r.id===current?.id)+n+records.length)%records.length]);}
