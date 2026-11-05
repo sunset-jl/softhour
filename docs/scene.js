@@ -76,7 +76,7 @@ async function startRoom() {
   controls._dollyOut = factor => zoomBy(factor);
   controls._dollyIn = factor => zoomBy(1 / factor);
   controls._handleMouseWheel = ({ deltaY }) => {
-    const wheelSensitivity = 1.35;
+    const wheelSensitivity = 2;
     const scale = controls._getZoomScale(deltaY * wheelSensitivity);
     wheelZoomTarget = THREE.MathUtils.clamp(
       (wheelZoomTarget ?? camera.zoom) * (deltaY < 0 ? 1 / scale : scale),
