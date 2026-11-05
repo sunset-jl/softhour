@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 // Deform the original painted cloth, keeping its outside edge attached to the rod.
-import { curtainSound } from './room-sounds.js?v=room-sfx-1';
+import { curtainSound } from './room-sounds.js?v=room-sfx-cute-1';
 
 export function installCurtains({room, camera, canvas, controls, meshes, hoverLabel, shouldApproach, onApproach}) {
   const cursor=document.createElement('div');

@@ -31,14 +31,14 @@ function envelope(source, start, duration, volume, attack) {
   gain.gain.linearRampToValueAtTime(0, start + duration);
 }
 
-function texture(duration, frequency, volume, attack, endFrequency = frequency, delay = 0) {
+function texture(duration, frequency, volume, attack, endFrequency = frequency) {
   if (audio?.state !== 'running') return;
   if (!noise) {
     noise = audio.createBuffer(1, audio.sampleRate * 3, audio.sampleRate);
     const samples = noise.getChannelData(0);
     for (let i = 0; i < samples.length; i++) samples[i] = Math.random() * 2 - 1;
   }
-  const start = audio.currentTime + delay;
+  const start = audio.currentTime;
   const source = audio.createBufferSource();
   source.buffer = noise;
   const filter = audio.createBiquadFilter();
@@ -71,34 +71,49 @@ export function sipSound() {
 }
 
 export function placementSound() {
-  texture(0.13, 430, 0.09, 0.012, 215);
+  roomSound('place');
 }
 
-// Each layer is duration, start frequency, gain, attack, end frequency and delay.
+// Each note specifies MIDI pitch, duration, gain, delay, and an optional pitch glide.
 const effects = {
-  tap: [[.075, 950, .028, .009, 580]],
-  page: [[.21, 1700, .052, .045, 820]],
-  panelOpen: [[.20, 810, .041, .045, 1250]],
-  panelClose: [[.17, 950, .038, .03, 460]],
-  zoomIn: [[.15, 430, .035, .032, 760]],
-  zoomOut: [[.15, 740, .034, .032, 380]],
-  turn: [[.19, 640, .034, .06, 520]],
-  reset: [[.25, 550, .05, .05, 340]],
-  focus: [[.22, 490, .04, .045, 870]],
-  drawer: [[.25, 490, .095, .045, 680], [.1, 310, .065, .012, 200, .19]],
-  door: [[.25, 670, .07, .033, 415], [.1, 350, .065, .014, 250, .18]],
-  box: [[.18, 1250, .055, .03, 730], [.08, 470, .055, .01, 330, .13]],
-  lamp: [[.08, 2100, .085, .009, 650]],
-  fabric: [[.23, 980, .063, .055, 520]],
-  pillow: [[.14, 285, .079, .02, 165]],
-  paws: [[.075, 380, .051, .01, 230], [.07, 420, .037, .01, 275, .085]],
-  cup: [[.12, 1800, .072, .009, 1100], [.09, 820, .047, .014, 500, .055]],
-  spill: [[.58, 1470, .14, .038, 490], [.2, 680, .067, .02, 390, .27]],
-  record: [[.18, 1040, .075, .022, 540], [.10, 360, .064, .012, 250, .13]],
-  sparkle: [[.25, 1850, .062, .028, 1270], [.15, 2200, .04, .021, 1600, .105]],
-  camera: [[.065, 1860, .07, .008, 860], [.055, 1300, .055, .008, 600, .065]],
+  tap: [[74,.095,.028,0,-4]],
+  page: [[76,.11,.026,0,3],[81,.16,.019,.06]],
+  panelOpen: [[69,.15,.031],[76,.22,.023,.07]],
+  panelClose: [[76,.12,.024],[69,.17,.025,.065]],
+  zoomIn: [[71,.13,.024,0,5]],
+  zoomOut: [[76,.13,.024,0,-5]],
+  turn: [[69,.11,.021,0,2]],
+  reset: [[76,.12,.024],[73,.14,.025,.065],[69,.19,.024,.13]],
+  focus: [[69,.13,.026],[73,.17,.021,.065]],
+  drawer: [[64,.14,.04,0,4],[69,.18,.032,.10]],
+  door: [[69,.14,.036],[73,.14,.03,.085]],
+  box: [[73,.14,.034,0,-2],[81,.18,.024,.075]],
+  lamp: [[81,.17,.034],[85,.22,.02,.045]],
+  fabric: [[66,.15,.034,0,-4],[69,.12,.024,.095,3]],
+  pillow: [[57,.16,.048,0,-5]],
+  paws: [[64,.085,.036,0,-3],[67,.085,.027,.075,-3]],
+  cup: [[81,.14,.032],[76,.12,.018,.05]],
+  place: [[67,.13,.04,0,-4]],
+  spill: [[81,.17,.032,0,5],[77,.16,.033,.09,-5],[69,.22,.032,.18,-5]],
+  record: [[69,.16,.039],[73,.14,.026,.065],[76,.17,.019,.12]],
+  sparkle: [[76,.19,.035],[81,.22,.026,.055],[85,.27,.019,.115]],
+  camera: [[81,.085,.036,0,-3],[85,.13,.024,.065]],
 };
 const lastEffect = new Map();
+
+function pluck(pitch, duration, volume, delay = 0, glide = 0) {
+  const start = audio.currentTime + delay;
+  const oscillator = audio.createOscillator();
+  const frequency = 440 * 2 ** ((pitch - 69) / 12);
+  oscillator.type = 'sine';
+  oscillator.frequency.setValueAtTime(frequency, start);
+  if (glide) oscillator.frequency.exponentialRampToValueAtTime(
+    frequency * 2 ** (glide / 12), start + duration * .58
+  );
+  envelope(oscillator, start, duration, volume, .018);
+  oscillator.start(start);
+  oscillator.stop(start + duration);
+}
 
 export function roomSound(name) {
   const layers = effects[name];
@@ -107,7 +122,7 @@ export function roomSound(name) {
   const interval = name === 'zoomIn' || name === 'zoomOut' ? .22 : .10;
   if (now - (lastEffect.get(name) ?? -Infinity) < interval) return;
   lastEffect.set(name, now);
-  for (const layer of layers) texture(...layer);
+  for (const layer of layers) pluck(...layer);
 }
 
 document.addEventListener('click', event => {

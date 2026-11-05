@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { placementSound, roomSound } from './room-sounds.js?v=room-sfx-1';
+import { placementSound, roomSound } from './room-sounds.js?v=room-sfx-cute-1';
 
 const table = [
   new THREE.Vector3(.53, 1.198, -2.96),

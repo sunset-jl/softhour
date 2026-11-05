@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { roomSound } from './room-sounds.js?v=room-sfx-1';
+import { roomSound } from './room-sounds.js?v=room-sfx-cute-1';
 
 export function installCoffeeMachine(room,meshes){
  const root=new THREE.Group();root.name='Coffee machine';room.add(root);
