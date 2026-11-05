@@ -8,7 +8,8 @@ import {prepareLittleThings,installLittleThings} from './little-scene.js';
 import { installTurntable } from './turntable.js';
 import { installWardrobe } from './wardrobe.js?v=together-1';
 import { prepareWardrobeClothes } from './wardrobe-clothes.js';
-import { installCurtains } from './curtains.js?v=curtain-focus-2';
+import { installCurtains } from './curtains.js?v=room-sounds-1';
+import { meowSound, pourSound } from './room-sounds.js';
 import * as THREE from 'three';
 import { OrbitControls } from './vendor/OrbitControls.js';
 import { GLTFLoader } from './vendor/loaders/GLTFLoader.js';
@@ -47,7 +48,8 @@ async function startRoom() {
   controls.target.copy(target);
   controls.enableDamping = true; controls.dampingFactor = .1;
   controls.enablePan = false; controls.enableZoom = true;
-  controls.minZoom = .65; controls.maxZoom = 2.3; controls.zoomSpeed = .7;
+  const roomMaxZoom = 3.2;
+  controls.minZoom = .65; controls.maxZoom = roomMaxZoom; controls.zoomSpeed = .85;
   controls.minDistance = initialDistance; controls.maxDistance = initialDistance;
   controls.rotateSpeed = .5;
   controls.minPolarAngle = .35; controls.maxPolarAngle = 1.68;
@@ -76,7 +78,7 @@ async function startRoom() {
   zoomOut.addEventListener('click', () => zoomBy(1 / 1.15));
   let focusedItem=null, savedView=null, focusTween=null;
   function reset() {
-    focusedItem=null; savedView=null; focusTween=null; controls.maxZoom=2.3; controls.enabled=true; roomFocus.set(0,1.68,0);
+    focusedItem=null; savedView=null; focusTween=null; controls.maxZoom=roomMaxZoom; controls.enabled=true; roomFocus.set(0,1.68,0);
     controls.enableDamping = false; controls.update();
     camera.position.copy(initialPosition); camera.zoom = 1;
     controls.target.copy(target); camera.updateProjectionMatrix(); controls.update();
@@ -131,6 +133,7 @@ async function startRoom() {
   const catBubble=document.createElement('div');catBubble.className='cat-bubble';catBubble.hidden=true;catBubble.setAttribute('role','status');area.append(catBubble);
   let catBubbleUntil=0,lastCatWord='';
   function talkToCat(){
+    meowSound();
     const y=catObject.position.y,x=catObject.position.x,z=catObject.position.z;
     const place=y>1.4?'window':y>.8?(x>0?'high':'bed'):z>1.3?'rug':null;
     const words=place?catPlaceWords[place]:catWords;
@@ -200,7 +203,9 @@ async function startRoom() {
   },true);
   const turntable = installTurntable(room);
   const coffeeMachine=installCoffeeMachine(room,meshes);
-  window.addEventListener('soft-hours:brew',e=>coffeeMachine.brew(e.detail));
+  window.addEventListener('soft-hours:brew', e => {
+    if (coffeeMachine.brew(e.detail)) pourSound();
+  });
   window.addEventListener('soft-hours:record-playback',e=>turntable.setPlaying(e.detail.playing));
   window.addEventListener('soft-hours:record-anchor',e=>{room.updateMatrixWorld(true);const p=turntable.anchor.project(camera),r=canvas.getBoundingClientRect();e.detail.x=r.left+(p.x+1)*r.width/2;e.detail.y=r.top+(1-p.y)*r.height/2;});
   const curtains = installCurtains({room,camera,canvas,controls,meshes,hoverLabel,shouldApproach:()=>focusedItem!=='curtains',onApproach:()=>approach('curtains')});
@@ -227,7 +232,7 @@ async function startRoom() {
     moveView({position:aim.clone().add(name==='curtains'?new THREE.Vector3(24.5,0,3):new THREE.Vector3(7,0,24.65)),target:aim,focus:center,zoom:name==='curtains'?2.35:name==='letters'?3.5:name==='coffeeMachine'?3.2:name==='drawers'||name==='storageBoxes'?Math.min(3.5,camera.aspect<.8?3.3:3.1):Math.min(3.5,Math.max(2.3,camera.aspect<.8?3.3:2.7))});
     return true;
   }
-  function returnView(){if(!savedView||focusTween)return;const view=savedView;savedView=null;focusedItem=null;controls.maxZoom=2.3;moveView(view);}
+  function returnView(){if(!savedView||focusTween)return;const view=savedView;savedView=null;focusedItem=null;controls.maxZoom=roomMaxZoom;moveView(view);}
   window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('modalShell').hidden)returnView();},true);
   window.addEventListener('soft-hours:approach',e=>{if(!approach(e.detail))window.dispatchEvent(new CustomEvent('soft-hours:open',{detail:e.detail}));});
   const raycaster = new THREE.Raycaster(), pointer = new THREE.Vector2();

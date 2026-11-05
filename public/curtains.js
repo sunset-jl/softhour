@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 
 // Deform the original painted cloth, keeping its outside edge attached to the rod.
+import { curtainSound } from './room-sounds.js';
+
 export function installCurtains({room, camera, canvas, controls, meshes, hoverLabel, shouldApproach, onApproach}) {
   const cursor=document.createElement('div');
   cursor.className='curtain-cursor';cursor.hidden=true;cursor.setAttribute('aria-hidden','true');
@@ -51,7 +53,9 @@ export function installCurtains({room, camera, canvas, controls, meshes, hoverLa
   canvas.addEventListener('pointermove',e=>{
     if(!drag)return;e.stopImmediatePropagation();e.preventDefault();if(e.pointerId!==drag.id)return;
     const t=((e.clientX-drag.x)*drag.dx+(e.clientY-drag.y)*drag.dy)/(drag.dx*drag.dx+drag.dy*drag.dy);
+    const previous = drag.item.amount;
     apply(drag.item,drag.amount+t);showCursor(e,true);
+    if (Math.abs(previous - drag.item.amount) > 0.002) curtainSound();
   },true);
   for(const type of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(type,e=>{
     if(!drag)return;e.stopImmediatePropagation();if(e.pointerId!==drag.id)return;
