@@ -1,5 +1,5 @@
 const button = document.getElementById('roomMusic');
-const ambience = new Audio(new URL('./assets/soft-hours-quiet.mp3', import.meta.url));
+const ambience = new Audio(new URL('./assets/soft-hours-quiet.mp3?v=long-1', import.meta.url));
 ambience.preload = 'none';
 ambience.loop = true;
 
