@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 export function installOpenStorage(room){
+ const keepsakes = new Map();
  const source=room.getObjectByName('room'),g=source.geometry,parts=[],removed=new Set(),colored=[];
  function extract(a,b,action,pivot){
   const ids=[];for(const id of g.index.array)if(id>=a&&id<=b){ids.push(id);removed.add(id);}
@@ -13,7 +14,7 @@ export function installOpenStorage(room){
  }
  function box(parent,w,h,d,x,y,z,color,nightTint='#46516e'){const material=new THREE.MeshBasicMaterial({color}),m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);m.position.set(x,y,z);parent.add(m);colored.push({material,day:new THREE.Color(color),night:new THREE.Color(color).multiply(new THREE.Color(nightTint))});return m;}
  function fillDrawer(tray, index, x, floor){
-  if(index < 3) return;
+  if(index < 3) return null;
   const props = new THREE.Group();
   props.position.set(x, floor, -2.96);
   tray.add(props);
@@ -49,13 +50,21 @@ export function installOpenStorage(room){
    }
    box(props,.10,.038,.059,.15,.019,.08,'#e0abb7').rotation.y = -.22;
   }
+  return props;
  }
  for(let i=0;i<6;i++){
   const action='drawer'+i,pivot=new THREE.Group();room.add(pivot);extract(158619+i*210,158828+i*210,action,pivot);
   const x=.01+(i%3)*.75,y=.24+Math.floor(i/3)*.41;
   const tray=new THREE.Group();pivot.add(tray);box(tray,.65,.035,.65,x,y+.025,-3.08,'#d5ba87');box(tray,.035,.29,.65,x-.31,y+.16,-3.08,'#e5cda0');box(tray,.035,.29,.65,x+.31,y+.16,-3.08,'#e5cda0');box(tray,.65,.29,.035,x,y+.16,-3.4,'#d9c092');
-  fillDrawer(tray,i,x,y+.0425);
-  tray.traverse(o=>{if(o.isMesh)o.userData.action=action;});parts.push({pivot,action,open:false,kind:'drawer'});
+  const props=fillDrawer(tray,i,x,y+.0425);
+  tray.traverse(o=>{if(o.isMesh)o.userData.action=action;});
+  if (props && (i === 3 || i === 4)) {
+   const id = i === 3 ? 'arrangeLetter' : 'arrangeNotebook';
+   const item = { group: props, home: tray, position: props.position.clone(), pivot };
+   props.traverse(object => { if (object.isMesh) object.userData.action = id; });
+   keepsakes.set(id, item);
+  }
+  parts.push({pivot,action,open:false,kind:'drawer'});
  }
  for(let i=0;i<2;i++){
   const action='storageBox'+i,pivot=new THREE.Group(),x=i?4.44:3.34,y=i?3.55:3.58,z=i?-3.82:-3.87;room.add(pivot);
@@ -80,5 +89,5 @@ export function installOpenStorage(room){
  // Remove the small decorative purple block in front of the drawers.
  for(const id of g.index.array)if(id>=159879&&id<=160070)removed.add(id);
  const keep=[];for(let i=0;i<g.index.count;i+=3)if(!removed.has(g.index.array[i]))keep.push(g.index.array[i],g.index.array[i+1],g.index.array[i+2]);g.setIndex(keep);
- return {toggle(action){const p=parts.find(p=>p.action===action);if(p)p.open=!p.open;},setNight(amount){for(const c of colored)c.material.color.lerpColors(c.day,c.night,amount);},update(dt,reduced){for(const p of parts){const target=p.open?(p.kind==='drawer'?.66:-1.65):0;if(p.kind==='drawer')p.pivot.position.z=reduced?target:THREE.MathUtils.damp(p.pivot.position.z,target,9,dt);else p.pivot.rotation.x=reduced?target:THREE.MathUtils.damp(p.pivot.rotation.x,target,9,dt);}}};
+ return {keepsakes,toggle(action){const p=parts.find(p=>p.action===action);if(p)p.open=!p.open;},setNight(amount){for(const c of colored)c.material.color.lerpColors(c.day,c.night,amount);},update(dt,reduced){for(const p of parts){const target=p.open?(p.kind==='drawer'?.66:-1.65):0;if(p.kind==='drawer')p.pivot.position.z=reduced?target:THREE.MathUtils.damp(p.pivot.position.z,target,9,dt);else p.pivot.rotation.x=reduced?target:THREE.MathUtils.damp(p.pivot.rotation.x,target,9,dt);}}};
 }

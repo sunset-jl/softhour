@@ -1,5 +1,6 @@
-import {installOpenStorage} from './open-storage.js?v=drawer-finds-1';
-import {installCoffeeMachine} from './coffee-machine.js';
+import {installOpenStorage} from './open-storage.js?v=arrange-1';
+import {installCoffeeMachine} from './coffee-machine.js?v=arrange-1';
+import {installArrangement} from './room-arrangement.js';
 import {prepareCat} from './cat.js';
 import {removeLampPlants} from './remove-lamp-plants.js';
 import {prepareBed,installBed} from './bed.js';
@@ -8,8 +9,8 @@ import {prepareLittleThings,installLittleThings} from './little-scene.js';
 import { installTurntable } from './turntable.js';
 import { installWardrobe } from './wardrobe.js?v=together-1';
 import { prepareWardrobeClothes } from './wardrobe-clothes.js';
-import { installCurtains } from './curtains.js?v=natural-sounds-1';
-import { meowSound, pourSound } from './room-sounds.js?v=natural-sounds-1';
+import { installCurtains } from './curtains.js?v=arrange-1';
+import { meowSound, pourSound, sipSound } from './room-sounds.js?v=arrange-1';
 import * as THREE from 'three';
 import { OrbitControls } from './vendor/OrbitControls.js';
 import { GLTFLoader } from './vendor/loaders/GLTFLoader.js';
@@ -22,6 +23,7 @@ const zoomLevel = document.getElementById('zoomLevel');
 const labels = {teaCupJ:'茶杯',teaCupK:'茶杯',coffeeMachine:'饮品机',drawer0:'抽屉',drawer1:'抽屉',drawer2:'抽屉',drawer3:'抽屉',drawer4:'抽屉',drawer5:'抽屉',storageBox0:'收纳箱',storageBox1:'收纳箱',cat: '小猫',wardrobeAlbum:'相册 · 翻看照片',bed:'床铺',pillow:'抱枕 · 轻轻碰一下',letters:'信封 · 未来来信',presence:'J & K · 两杯热茶', wardrobeDoorLeft: '左柜门 · 点击开合', wardrobeDoorRight: '右柜门 · 点击开合', curtainLeft: '窗帘 · 左右拖动开合', curtainRight: '窗帘 · 左右拖动开合', wardrobe: '衣柜 · 翻看照片', record: '唱片机 · 听听我们的声音', lamp: '台灯 · 切换昼夜', board: '公告板 · 收藏回忆' };
 
 async function startRoom() {
+  Object.assign(labels, { arrangeLetter: '信封 · 拖到桌面或窗台', arrangeNotebook: '笔记本 · 拖到桌面或窗台' });
   const scene = new THREE.Scene();
   const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
@@ -272,6 +274,21 @@ async function startRoom() {
     while (object && !object.userData.action) object = object.parent;
     return labels[object?.userData.action] ? object.userData.action : null;
   }
+  const reaction = document.createElement('div');
+  reaction.className = 'little-toast';
+  reaction.setAttribute('role', 'status');
+  reaction.hidden = true;
+  document.body.append(reaction);
+  let reactionTimer;
+  function notify(message) {
+    clearTimeout(reactionTimer);
+    reaction.textContent = message;
+    reaction.hidden = false;
+    reactionTimer = setTimeout(() => { reaction.hidden = true; }, 3300);
+  }
+  const arrangement = installArrangement({
+    room, camera, canvas, controls, keepsakes: storage.keepsakes, hitAt, coffeeMachine, notify,
+  });
   let catDrag=null;
   const catPlane=new THREE.Plane(new THREE.Vector3(0,1,0),0);
   function dragPoint(e){const r=canvas.getBoundingClientRect();pointer.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);raycaster.setFromCamera(pointer,camera);return raycaster.ray.intersectPlane(catPlane,new THREE.Vector3());}
@@ -301,27 +318,57 @@ async function startRoom() {
   function cupPoint(e){const r=canvas.getBoundingClientRect();pointer.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);raycaster.setFromCamera(pointer,camera);return raycaster.ray.intersectPlane(cupPlane,new THREE.Vector3());}
   canvas.addEventListener('pointerdown',e=>{
     const action=hitAt(e.clientX,e.clientY);
-    if(e.button!==0||(action!=='teaCupJ'&&action!=='teaCupK'))return;
+    if(cupDrag||!e.isPrimary||!controls.enabled||e.button!==0||(action!=='teaCupJ'&&action!=='teaCupK'))return;
     const index=action==='teaCupK'?1:0,p=cupPoint(e);if(!p)return;
     const origin=coffeeMachine.getPosition(index);
+    if (!coffeeMachine.canMove(index)) return;
     cupDrag={id:e.pointerId,index,startX:e.clientX,startY:e.clientY,offsetX:origin.x-p.x,offsetZ:origin.z-p.z,moved:false,enabled:controls.enabled};
     controls.enabled=false;canvas.setPointerCapture(e.pointerId);hoverLabel.hidden=true;e.preventDefault();e.stopImmediatePropagation();
   },true);
   canvas.addEventListener('pointermove',e=>{
     if(!cupDrag||cupDrag.id!==e.pointerId)return;
     if(Math.hypot(e.clientX-cupDrag.startX,e.clientY-cupDrag.startY)>6)cupDrag.moved=true;
-    if(cupDrag.moved){const p=cupPoint(e);if(p){window.softHoursDockedCup=null;coffeeMachine.moveCup(cupDrag.index,p.x+cupDrag.offsetX,p.z+cupDrag.offsetZ);}canvas.style.cursor='grabbing';}
+    if (cupDrag.moved) {
+      const p = cupPoint(e);
+      arrangement.showCupTarget(cupDrag.index, true);
+      if (p && p.x > .08 && p.x < 1.5 && p.z > -3.9 && p.z < -2.92) {
+        window.softHoursDockedCup = null;
+        coffeeMachine.moveCup(cupDrag.index, p.x + cupDrag.offsetX, p.z + cupDrag.offsetZ);
+        cupDrag.movedOnTable = true;
+      }
+      canvas.style.cursor = 'grabbing';
+    }
     e.preventDefault();e.stopImmediatePropagation();
   },true);
   function endCupDrag(e){if(!cupDrag||cupDrag.id!==e.pointerId)return;const d=cupDrag;cupDrag=null;controls.enabled=d.enabled;if(canvas.hasPointerCapture(e.pointerId))canvas.releasePointerCapture(e.pointerId);canvas.style.cursor='grab';
-    if(d.moved){drinkButton.hidden=true;if(coffeeMachine.releaseCup(d.index)){window.softHoursDockedCup=d.index;window.dispatchEvent(new CustomEvent('soft-hours:open',{detail:'coffeeMachine'}));}}
+    if (d.moved) {
+      drinkButton.hidden = true;
+      clearTimeout(cupButtonTimer);
+      arrangement.showCupTarget(d.index, false);
+      if (e.type === 'pointerup' && arrangement.tryCupWindow(e, d.index)) {
+        window.softHoursDockedCup = null;
+      } else if (d.movedOnTable) {
+        const docked = e.type === 'pointerup' && coffeeMachine.releaseCup(d.index);
+        arrangement.saveCupOnTable(d.index);
+        if (docked) {
+          window.softHoursDockedCup = d.index;
+          window.dispatchEvent(new CustomEvent('soft-hours:open',{detail:'coffeeMachine'}));
+        }
+      }
+    }
     else if(e.type==='pointerup'){const action=d.index?'teaCupK':'teaCupJ',now=performance.now();if(lastCupClick===action&&now-lastCupAt<460&&coffeeMachine.spill(d.index)){clearTimeout(cupButtonTimer);drinkButton.hidden=true;lastCupClick='';setTimeout(()=>window.dispatchEvent(new CustomEvent('soft-hours:open',{detail:'spilledTea'})),1000);}else if(coffeeMachine.hasDrink(d.index)){lastCupClick=action;lastCupAt=now;clearTimeout(cupButtonTimer);const rect=area.getBoundingClientRect(),x=e.clientX-rect.left,y=e.clientY-rect.top;cupButtonTimer=setTimeout(()=>{selectedCup=d.index;drinkButton.style.left=`${Math.max(75,Math.min(rect.width-75,x))}px`;drinkButton.style.top=`${Math.max(60,y-58)}px`;drinkButton.hidden=false;lastCupClick='';},470);}}
     e.preventDefault();e.stopImmediatePropagation();
   }
   for(const type of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(type,endCupDrag,true);
   const drinkButton=document.createElement('button');drinkButton.type='button';drinkButton.className='tea-cup-drink';drinkButton.textContent='一饮而尽！';drinkButton.hidden=true;area.append(drinkButton);
   let selectedCup=0,cupButtonTimer=0;
-  drinkButton.onclick=()=>{coffeeMachine.drink(selectedCup);drinkButton.hidden=true;};
+  drinkButton.onclick=()=>{
+    if (coffeeMachine.drink(selectedCup)) {
+      sipSound();
+      notify('咕嘟。杯子说：续杯也不是不行。');
+    }
+    drinkButton.hidden=true;
+  };
   const fingers = new Set(); let down = null; let dragged = false,lastCupClick='',lastCupAt=0;
   canvas.addEventListener('pointerdown', event => {
     fingers.add(event.pointerId); if (fingers.size > 1) dragged = true;

@@ -64,3 +64,12 @@ export function pourSound() {
 export function meowSound() {
   playClip(meow);
 }
+
+export function sipSound() {
+  texture(0.24, 850, 0.075, 0.055, 1300);
+  setTimeout(() => texture(0.2, 460, 0.06, 0.035, 240), 170);
+}
+
+export function placementSound() {
+  texture(0.13, 430, 0.09, 0.012, 215);
+}

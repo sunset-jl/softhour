@@ -47,7 +47,7 @@ export function installCoffeeMachine(room,meshes){
   return {group,shadow,tea,foam,flow,puddle,home,docked:false,pouring:0,spilling:0,drinking:0,filled:false,drinkColor:new THREE.Color('#d5aa84')};
  });
  let night=0;
- function position(index,x,z){const cup=cups[index];cup.group.position.set(x,base,z);cup.shadow.position.set(x,base-.004,z);cup.flow.position.set(x+(index?-.15:.15),base+.11,z);cup.puddle.position.set(x+(index?-.22:.22),base+.003,z);}
+ function position(index,x,z,y=base){const cup=cups[index];cup.group.position.set(x,y,z);cup.shadow.position.set(x,y-.004,z);cup.flow.position.set(x+(index?-.15:.15),y+.11,z);cup.puddle.position.set(x+(index?-.22:.22),y+.003,z);}
  function clearCup(cup){cup.tea.visible=false;cup.foam.visible=false;cup.filled=false;cup.pouring=0;cup.spilling=0;cup.drinking=0;cup.flow.visible=false;cup.puddle.visible=false;cup.group.rotation.z=0;}
  function clearOfOther(index,x,z){
   const other=cups[1-index].group.position,minGap=.29;
@@ -68,6 +68,8 @@ export function installCoffeeMachine(room,meshes){
  return {
   getPosition(index){return cups[index].group.position.clone();},
   isDocked(index){return cups[index].docked;},
+  canMove(index){const cup=cups[index];return !cup.pouring&&!cup.spilling&&!cup.drinking;},
+  setDisplayPosition(index,x,y,z){position(index,x,z,y);cups[index].docked=false;},
   moveCup(index,x,z){const cup=cups[index],safe=clearOfOther(index,THREE.MathUtils.clamp(x,.33,1.2),THREE.MathUtils.clamp(z,-3.62,-3.25));position(index,safe.x,safe.z);cup.docked=false;stream.visible=false;},
   releaseCup(index){const cup=cups[index],p=cup.group.position,other=cups[1-index].group.position;if(Math.hypot(p.x-spoutX,p.z-spoutZ)<.24&&Math.hypot(other.x-spoutX,other.z-spoutZ)>=.29){position(index,spoutX,spoutZ);cup.docked=true;return true;}cup.docked=false;return false;},
   brew(value){const index=value?.cupIndex;if(index!==0&&index!==1||!cups[index].docked)return false;const cup=cups[index],palette={milkTea:'#d5aa84',coffee:'#805943',orangeJuice:'#eea646'};clearCup(cup);cup.drinkColor.set(palette[value.base]||palette.milkTea);colorCup(cup);cup.tea.visible=true;cup.tea.scale.y=.03;cup.tea.position.y=.02;cup.pouring=2.4;stream.visible=true;stream.material.color.copy(cup.tea.material.color);return true;},
