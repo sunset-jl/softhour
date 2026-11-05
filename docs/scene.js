@@ -1,16 +1,16 @@
 import {installOpenStorage} from './open-storage.js?v=arrange-1';
-import {installCoffeeMachine} from './coffee-machine.js?v=arrange-1';
-import {installArrangement} from './room-arrangement.js';
+import {installCoffeeMachine} from './coffee-machine.js?v=room-sfx-1';
+import {installArrangement} from './room-arrangement.js?v=room-sfx-1';
 import {prepareCat} from './cat.js';
 import {removeLampPlants} from './remove-lamp-plants.js';
 import {prepareBed,installBed} from './bed.js';
-import {installSnowglobe} from './snowglobe.js';
+import {installSnowglobe} from './snowglobe.js?v=room-sfx-1';
 import {prepareLittleThings,installLittleThings} from './little-scene.js';
 import { installTurntable } from './turntable.js';
 import { installWardrobe } from './wardrobe.js?v=together-1';
 import { prepareWardrobeClothes } from './wardrobe-clothes.js';
-import { installCurtains } from './curtains.js?v=arrange-1';
-import { meowSound, pourSound, sipSound } from './room-sounds.js?v=arrange-1';
+import { installCurtains } from './curtains.js?v=room-sfx-1';
+import { meowSound, pourSound, sipSound, roomSound } from './room-sounds.js?v=room-sfx-1';
 import * as THREE from 'three';
 import { OrbitControls } from './vendor/OrbitControls.js';
 import { GLTFLoader } from './vendor/loaders/GLTFLoader.js';
@@ -70,7 +70,9 @@ async function startRoom() {
   let wheelZoomTarget = null;
   function zoomBy(factor) {
     wheelZoomTarget = null;
-    camera.zoom = THREE.MathUtils.clamp(camera.zoom * factor, controls.minZoom, controls.maxZoom);
+    const nextZoom = THREE.MathUtils.clamp(camera.zoom * factor, controls.minZoom, controls.maxZoom);
+    if (nextZoom !== camera.zoom) roomSound(factor > 1 ? 'zoomIn' : 'zoomOut');
+    camera.zoom = nextZoom;
     zoomStatus();
   }
   // Adapt the bundled OrbitControls dolly hooks so wheel, pinch and middle-drag
@@ -78,18 +80,22 @@ async function startRoom() {
   controls._dollyOut = factor => zoomBy(factor);
   controls._dollyIn = factor => zoomBy(1 / factor);
   controls._handleMouseWheel = ({ deltaY }) => {
+    if (!deltaY) return;
     const wheelSensitivity = 2.5;
     const scale = controls._getZoomScale(deltaY * wheelSensitivity);
+    const previousZoom = wheelZoomTarget ?? camera.zoom;
     wheelZoomTarget = THREE.MathUtils.clamp(
-      (wheelZoomTarget ?? camera.zoom) * (deltaY < 0 ? 1 / scale : scale),
+      previousZoom * (deltaY < 0 ? 1 / scale : scale),
       controls.minZoom, controls.maxZoom
     );
+    if (wheelZoomTarget !== previousZoom) roomSound(deltaY < 0 ? 'zoomIn' : 'zoomOut');
   };
   controls.addEventListener('change', zoomStatus);
   zoomIn.addEventListener('click', () => zoomBy(1.15));
   zoomOut.addEventListener('click', () => zoomBy(1 / 1.15));
   let focusedItem=null, savedView=null, focusTween=null;
   function reset() {
+    roomSound('reset');
     wheelZoomTarget = null;
     focusedItem=null; savedView=null; focusTween=null; controls.maxZoom=roomMaxZoom; controls.enabled=true; roomFocus.set(0,1.68,0);
     controls.enableDamping = false; controls.update();
@@ -103,6 +109,7 @@ async function startRoom() {
       event.preventDefault(); event.key === '0' ? reset() : zoomBy(event.key === '-' ? 1 / 1.15 : 1.15);
     }
     if (event.key.startsWith('Arrow')) {
+      roomSound('turn');
       event.preventDefault();
       const sphere = new THREE.Spherical().setFromVector3(camera.position.clone().sub(controls.target));
       if (event.key === 'ArrowLeft') sphere.theta -= .1;
@@ -211,7 +218,7 @@ async function startRoom() {
   // Every album entry waits for physically open wardrobe doors.
   window.addEventListener('soft-hours:open',e=>{
     if(e.detail==='wardrobe'&&!wardrobe.isOpen()){
-      e.stopImmediatePropagation();wardrobe.open();
+      e.stopImmediatePropagation();wardrobe.open();roomSound('door');
     }
   },true);
   const turntable = installTurntable(room);
@@ -219,6 +226,7 @@ async function startRoom() {
   window.addEventListener('soft-hours:brew', e => {
     if (coffeeMachine.brew(e.detail)) pourSound();
   });
+  window.addEventListener('soft-hours:pillow', () => roomSound('pillow'));
   window.addEventListener('soft-hours:record-playback',e=>turntable.setPlaying(e.detail.playing));
   window.addEventListener('soft-hours:record-anchor',e=>{room.updateMatrixWorld(true);const p=turntable.anchor.project(camera),r=canvas.getBoundingClientRect();e.detail.x=r.left+(p.x+1)*r.width/2;e.detail.y=r.top+(1-p.y)*r.height/2;});
   const curtains = installCurtains({room,camera,canvas,controls,meshes,hoverLabel,shouldApproach:()=>focusedItem!=='curtains',onApproach:()=>approach('curtains')});
@@ -240,16 +248,18 @@ async function startRoom() {
     if(focusedItem===name)return false;
     if(!savedView)savedView={position:camera.position.clone(),target:controls.target.clone(),focus:roomFocus.clone(),zoom:camera.zoom};
     focusedItem=name; controls.maxZoom=3.5;
+    roomSound('focus');
     room.updateMatrixWorld(true);
     const center=name==='curtains'?new THREE.Vector3(-5.15,2.55,0):name==='letters'?envelope.getWorldPosition(new THREE.Vector3()):name==='coffeeMachine'?new THREE.Vector3(1.55,1.75,-3.25):name==='wardrobe'?new THREE.Vector3(3.9,1.72,-3.1):name==='storageBoxes'?new THREE.Vector3(3.9,3.55,-3.45):name==='drawers'?new THREE.Vector3(.76,.85,-2.75):new THREE.Vector3(-.65,1.3,-3.15);
     const aim=new THREE.Vector3(center.x,8.5,center.z);
     moveView({position:aim.clone().add(name==='curtains'?new THREE.Vector3(24.5,0,3):new THREE.Vector3(7,0,24.65)),target:aim,focus:center,zoom:name==='curtains'?2.35:name==='letters'?3.5:name==='coffeeMachine'?3.2:name==='drawers'||name==='storageBoxes'?Math.min(3.5,camera.aspect<.8?3.3:3.1):Math.min(3.5,Math.max(2.3,camera.aspect<.8?3.3:2.7))});
     return true;
   }
-  function returnView(){if(!savedView||focusTween)return;const view=savedView;savedView=null;focusedItem=null;controls.maxZoom=roomMaxZoom;moveView(view);}
+  function returnView(){if(!savedView||focusTween)return;const view=savedView;savedView=null;focusedItem=null;controls.maxZoom=roomMaxZoom;roomSound('reset');moveView(view);}
   function restoreRoomView() {
     if (!focusedItem && wheelZoomTarget === null && camera.zoom === 1 &&
         camera.position.equals(initialPosition) && controls.target.equals(target)) return;
+    roomSound('reset');
     focusedItem = null;
     savedView = null;
     controls.maxZoom = roomMaxZoom;
@@ -300,7 +310,7 @@ async function startRoom() {
   },true);
   canvas.addEventListener('pointermove',e=>{
     if(!catDrag||catDrag.id!==e.pointerId)return;
-    if(Math.hypot(e.clientX-catDrag.x,e.clientY-catDrag.y)>6)catDrag.moved=true;
+    if(!catDrag.moved&&Math.hypot(e.clientX-catDrag.x,e.clientY-catDrag.y)>6){catDrag.moved=true;meowSound();}
     if(catDrag.moved){cat.lift();const p=dragPoint(e);if(p){const local=room.worldToLocal(p.add(catDrag.offset));local.x=THREE.MathUtils.clamp(local.x,-4.2,4.2);local.z=THREE.MathUtils.clamp(local.z,-3.5,3.5);local.y=THREE.MathUtils.clamp(local.y,.035,5);catObject.position.copy(local);}}
     e.preventDefault();e.stopImmediatePropagation();
   },true);
@@ -327,7 +337,7 @@ async function startRoom() {
   },true);
   canvas.addEventListener('pointermove',e=>{
     if(!cupDrag||cupDrag.id!==e.pointerId)return;
-    if(Math.hypot(e.clientX-cupDrag.startX,e.clientY-cupDrag.startY)>6)cupDrag.moved=true;
+    if(!cupDrag.moved&&Math.hypot(e.clientX-cupDrag.startX,e.clientY-cupDrag.startY)>6){cupDrag.moved=true;roomSound('cup');}
     if (cupDrag.moved) {
       const p = cupPoint(e);
       arrangement.showCupTarget(cupDrag.index, true);
@@ -350,6 +360,7 @@ async function startRoom() {
       } else if (d.movedOnTable) {
         const docked = e.type === 'pointerup' && coffeeMachine.releaseCup(d.index);
         arrangement.saveCupOnTable(d.index);
+        if (e.type === 'pointerup') roomSound('cup');
         if (docked) {
           window.softHoursDockedCup = d.index;
           window.dispatchEvent(new CustomEvent('soft-hours:open',{detail:'coffeeMachine'}));
@@ -376,7 +387,13 @@ async function startRoom() {
     canvas.classList.add('is-dragging'); hoverLabel.hidden = true;
   });
   canvas.addEventListener('pointermove', event => {
-    if (down) { if (Math.hypot(event.clientX - down.x, event.clientY - down.y) > 6) dragged = true; return; }
+    if (down) {
+      if (!dragged && Math.hypot(event.clientX - down.x, event.clientY - down.y) > 6) {
+        dragged = true;
+        if (controls.enabled) roomSound('turn');
+      }
+      return;
+    }
     if (event.pointerType === 'touch') return;
     const action = hitAt(event.clientX, event.clientY);
     const isCurtain = action === 'curtainLeft' || action === 'curtainRight';
@@ -400,14 +417,16 @@ async function startRoom() {
         drinkButton.hidden = true;
         restoreRoomView();
       }
-      else if (action === 'wardrobeDoorLeft' || action === 'wardrobeDoorRight') wardrobe.toggle(action);
-      else if(action==='wardrobe'&&!wardrobe.isOpen()) wardrobe.open();
-      else if(action==='wardrobeAlbum'&&!wardrobe.isOpen()) wardrobe.open();
+      else if (action === 'wardrobeDoorLeft' || action === 'wardrobeDoorRight') { wardrobe.toggle(action); roomSound('door'); }
+      else if((action==='wardrobe'||action==='wardrobeAlbum')&&!wardrobe.isOpen()) { wardrobe.open(); roomSound('door'); }
       else if(action==='wardrobeAlbum') window.dispatchEvent(new CustomEvent('soft-hours:open',{detail:'wardrobe'}));
       else if (action === 'cat') {talkToCat();cat.tap();}
-      else if(action?.startsWith('drawer')||action?.startsWith('storageBox'))storage.toggle(action);
-      else if (action === 'bed') bed.toggle();
-      else if (action === 'pillow') little.tap();
+      else if(action?.startsWith('drawer')||action?.startsWith('storageBox')) {
+        storage.toggle(action);
+        roomSound(action.startsWith('drawer') ? 'drawer' : 'box');
+      }
+      else if (action === 'bed') { bed.toggle(); roomSound('fabric'); }
+      else if (action === 'pillow') { little.tap(); roomSound('pillow'); }
       else if (action === 'lamp') window.dispatchEvent(new Event('soft-hours:lamp'));
       else if (action) window.dispatchEvent(new CustomEvent('soft-hours:open', { detail: action }));
     }
@@ -448,7 +467,8 @@ async function startRoom() {
       if(p===1){focusTween=null;controls.enabled=true;controls.update();}
     }
     wardrobe.update(delta,reduced);storage.update(delta,reduced);coffeeMachine.update(delta);
-    little.update(delta,reduced); bed.update(delta,reduced); if(cat.update(delta,reduced))talkAfterLanding();
+    little.update(delta,reduced); bed.update(delta,reduced);
+    if(cat.update(delta,reduced)){roomSound('paws');talkAfterLanding();}
     if(!catBubble.hidden){
       if(performance.now()>catBubbleUntil)catBubble.hidden=true;
       else {const anchor=catObject.localToWorld(new THREE.Vector3(0,1.05,0)).project(camera),rect=area.getBoundingClientRect(),edge=rect.width<600?88:115;catBubble.style.left=`${Math.max(edge,Math.min(rect.width-edge,(anchor.x+1)*rect.width/2))}px`;catBubble.style.top=`${Math.max(42,Math.min(rect.height-42,(1-anchor.y)*rect.height/2))}px`;}

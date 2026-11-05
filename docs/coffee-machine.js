@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { roomSound } from './room-sounds.js?v=room-sfx-1';
 
 export function installCoffeeMachine(room,meshes){
  const root=new THREE.Group();root.name='Coffee machine';room.add(root);
@@ -75,7 +76,7 @@ export function installCoffeeMachine(room,meshes){
   brew(value){const index=value?.cupIndex;if(index!==0&&index!==1||!cups[index].docked)return false;const cup=cups[index],palette={milkTea:'#d5aa84',coffee:'#805943',orangeJuice:'#eea646'};clearCup(cup);cup.drinkColor.set(palette[value.base]||palette.milkTea);colorCup(cup);cup.tea.visible=true;cup.tea.scale.y=.03;cup.tea.position.y=.02;cup.pouring=2.4;stream.visible=true;stream.material.color.copy(cup.tea.material.color);return true;},
   hasDrink(index){return cups[index].filled&&cups[index].pouring===0&&cups[index].spilling===0&&cups[index].drinking===0;},
   drink(index){if(!this.hasDrink(index))return false;const cup=cups[index];cup.drinking=1.35;cup.filled=false;cup.foam.visible=false;return true;},
-  spill(index){if(!this.hasDrink(index))return false;const cup=cups[index];cup.spilling=.95;cup.flow.visible=true;cup.puddle.visible=true;return true;},
+  spill(index){if(!this.hasDrink(index))return false;const cup=cups[index];cup.spilling=.95;cup.flow.visible=true;cup.puddle.visible=true;roomSound('spill');return true;},
   setNight(amount){night=amount;for(const color of colors)color.m.color.lerpColors(color.day,color.night,amount);glass.color.lerpColors(new THREE.Color('#e9f3f4'),new THREE.Color('#9ba8bf'),amount);edge.color.lerpColors(new THREE.Color('#f8ffff'),new THREE.Color('#b6c3d8'),amount);for(const cup of cups)colorCup(cup);},
   update(dt){for(const cup of cups){if(cup.pouring>0){cup.pouring=Math.max(0,cup.pouring-dt);const progress=1-cup.pouring/2.4;cup.tea.scale.y=Math.max(.03,progress);cup.tea.position.y=.015+.085*cup.tea.scale.y;stream.visible=cup.pouring>.3;if(cup.pouring===0){cup.filled=true;stream.visible=false;}}if(cup.drinking>0){cup.drinking=Math.max(0,cup.drinking-dt);const level=cup.drinking/1.35;cup.tea.scale.y=Math.max(.01,level);cup.tea.position.y=.015+.085*cup.tea.scale.y;if(cup.drinking===0)cup.tea.visible=false;}if(cup.spilling>0){cup.spilling=Math.max(0,cup.spilling-dt);const progress=1-cup.spilling/.95;cup.tea.scale.y=Math.max(.01,1-progress);cup.group.rotation.z=(cups.indexOf(cup)?1:-1)*Math.sin(progress*Math.PI/2)*.72;cup.flow.material.opacity=Math.sin(progress*Math.PI)*.8;cup.puddle.material.opacity=Math.min(.6,progress*.6);cup.puddle.scale.setScalar(.2+progress*.8);if(cup.spilling===0){cup.tea.visible=false;cup.foam.visible=false;cup.flow.visible=false;cup.filled=false;}}}}
  };

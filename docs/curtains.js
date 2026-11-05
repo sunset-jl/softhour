@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 // Deform the original painted cloth, keeping its outside edge attached to the rod.
-import { curtainSound } from './room-sounds.js?v=arrange-1';
+import { curtainSound } from './room-sounds.js?v=room-sfx-1';
 
 export function installCurtains({room, camera, canvas, controls, meshes, hoverLabel, shouldApproach, onApproach}) {
   const cursor=document.createElement('div');
@@ -66,7 +66,7 @@ export function installCurtains({room, camera, canvas, controls, meshes, hoverLa
   canvas.addEventListener('wheel',()=>{if(!drag)hideCursor();},{passive:true});
   window.addEventListener('blur',finish);
   document.addEventListener('visibilitychange',()=>{if(document.hidden)finish();});
-  canvas.addEventListener('keydown',e=>{if(e.key.toLowerCase()==='c'){e.preventDefault();const amount=curtains.some(c=>c.amount<.5)?1:0;curtains.forEach(c=>apply(c,amount));save();}});
+  canvas.addEventListener('keydown',e=>{if(e.key.toLowerCase()==='c'){e.preventDefault();const amount=curtains.some(c=>c.amount<.5)?1:0;curtains.forEach(c=>apply(c,amount));if(curtains.length)curtainSound();save();}});
   return {get dragging(){return !!drag;},count:curtains.length,get lightOpening(){
     let min=-3.15,max=3.15;
     for(const c of curtains){const edge=c.anchor+c.sign*(c.width+(Math.abs(c.anchor)-c.width)*c.amount);if(c.anchor<0)min=edge;else max=edge;}

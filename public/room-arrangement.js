@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { placementSound } from './room-sounds.js?v=arrange-1';
+import { placementSound, roomSound } from './room-sounds.js?v=room-sfx-1';
 
 const table = [
   new THREE.Vector3(.53, 1.198, -2.96),
@@ -119,6 +119,7 @@ export function installArrangement({ room, camera, canvas, controls, keepsakes, 
     if (!drag.moved && Math.hypot(event.clientX - drag.x, event.clientY - drag.y) < 6) return;
     if (!drag.moved) {
       room.attach(drag.item.group);
+      roomSound('page');
       markers.forEach((mesh, index) => { mesh.visible = !occupied(drag.id, index); });
     }
     drag.moved = true;

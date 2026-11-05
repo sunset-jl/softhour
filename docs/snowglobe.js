@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { roomSound } from './room-sounds.js?v=room-sfx-1';
 import {OrbitControls} from './vendor/OrbitControls.js';
 
 export function installSnowglobe(room){
@@ -12,6 +13,24 @@ export function installSnowglobe(room){
   const main=document.querySelector('main'),bar=document.querySelector('.record-player-bar'),oldInert=main.inert,oldBar=bar?.inert,oldFocus=document.activeElement;
   main.inert=true;if(bar)bar.inert=true;
   const canvas=overlay.querySelector('canvas'),stage=overlay.querySelector('.globe-stage'),status=overlay.querySelector('.globe-status'),save=overlay.querySelector('.globe-save');
+  canvas.addEventListener('wheel', event => {
+    if (event.deltaY) roomSound(event.deltaY < 0 ? 'zoomIn' : 'zoomOut');
+  }, { passive: true });
+  let dragStart = null;
+  canvas.addEventListener('pointerdown', event => {
+    if (event.isPrimary && event.button === 0) dragStart = { x: event.clientX, y: event.clientY };
+  });
+  canvas.addEventListener('pointermove', event => {
+    if (!dragStart || Math.hypot(event.clientX - dragStart.x, event.clientY - dragStart.y) < 6) return;
+    dragStart = null;
+    roomSound('turn');
+  });
+  for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) {
+    canvas.addEventListener(type, () => { dragStart = null; });
+  }
+  canvas.addEventListener('keydown', event => {
+    if (event.key.startsWith('Arrow')) roomSound('turn');
+  });
   let renderer,controls,observer,frame,disposed=false,saving=false,url=null;
   const geometries=new Set(),materials=new Set(),textures=new Set();
   function clean(){if(disposed)return;disposed=true;cancelAnimationFrame(frame);observer?.disconnect();controls?.dispose();renderer?.dispose();renderer?.forceContextLoss();geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());if(url)URL.revokeObjectURL(url);document.removeEventListener('keydown',key);overlay.remove();main.inert=oldInert;if(bar)bar.inert=oldBar;document.body.classList.remove('is-globe');closeCurrent=null;oldFocus?.focus();}

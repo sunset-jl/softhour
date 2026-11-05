@@ -1,4 +1,5 @@
 import {cloud,getIdentity,showPrivateGate,signedFile,uploadPrivate} from './cloud.js';
+import {roomSound} from './room-sounds.js?v=room-sfx-1';
 const audio=new Audio();audio.preload='metadata';audio.volume=.7;
 let records=[],current=null,host=null,page=0,loading=false,flight=null,selecting=false;
 // These recordings are bundled from the videos placed in the room's media folder.
@@ -42,6 +43,7 @@ function step(n){if(records.length)select(records[(records.findIndex(r=>r.id===c
 async function select(r,button){
  if(loading||selecting)return;selecting=true;current=r;audio.pause();audio.src=url(r);bar.hidden=false;bar.querySelector('strong').textContent=r.title;status('正在放入唱片…');
  // Start from the user's click so playback remains permitted on mobile browsers.
+ roomSound('record');
  audio.play().catch(()=>status('已放入唱片 · 点击 ▷ 开始播放'));
  const rect=button?.getBoundingClientRect();
  if(button&&!matchMedia('(prefers-reduced-motion: reduce)').matches){

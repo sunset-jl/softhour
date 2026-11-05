@@ -1,5 +1,6 @@
 import {mountThings,unmountThings} from './little-things.js?v=letters-local-1';
-import {mountRecords, unmountRecords} from './records.js?v=room-music-1';
+import {mountRecords, unmountRecords} from './records.js?v=room-sfx-1';
+import {roomSound} from './room-sounds.js?v=room-sfx-1';
 import { mountPhotos, unmountPhotos } from './photos.js';
 import { mountBoard, unmountBoard } from './board.js';
 import {cloud,getIdentity,showPrivateGate} from './cloud.js';
@@ -27,6 +28,7 @@ function applyNight() {
 }
 applyNight();
 window.addEventListener('soft-hours:lamp', () => {
+  roomSound('lamp');
   isNight = !isNight;
   applyNight();
   try { localStorage.setItem('soft-hours-night', String(isNight)); } catch (_) {}
@@ -78,6 +80,7 @@ function renderCoffeeMachine(){
 }
 function openPanel(name) {
   const data = panels[name]; if (!data) return;
+  roomSound(name === 'letters' ? 'page' : 'panelOpen');
   unmountBoard(); unmountPhotos(); unmountRecords(); unmountThings();
   currentPanel = name;
   modalShell.classList.toggle('is-bed-prank',name==='bedPrank'||name==='spilledTea');
@@ -101,6 +104,7 @@ function openPanel(name) {
 }
 function closePanel() {
   if (!currentPanel) return;
+  roomSound('panelClose');
   unmountBoard(); unmountPhotos(); unmountRecords(); unmountThings();
   document.getElementById('audioPlayer')?.pause();
   if (localAudioUrl) { URL.revokeObjectURL(localAudioUrl); localAudioUrl = null; }
