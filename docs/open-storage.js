@@ -12,10 +12,50 @@ export function installOpenStorage(room){
   return mesh;
  }
  function box(parent,w,h,d,x,y,z,color,nightTint='#46516e'){const material=new THREE.MeshBasicMaterial({color}),m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);m.position.set(x,y,z);parent.add(m);colored.push({material,day:new THREE.Color(color),night:new THREE.Color(color).multiply(new THREE.Color(nightTint))});return m;}
+ function fillDrawer(tray, index, x, floor){
+  if(index < 3) return;
+  const props = new THREE.Group();
+  props.position.set(x, floor, -2.96);
+  tray.add(props);
+
+  if(index === 3){
+   // Two letters, slightly offset, with a rose-colored seal on top.
+   box(props,.35,.018,.23,-.045,.009,.015,'#c9b5d4').rotation.y = -.16;
+   const letter = new THREE.Group();
+   letter.position.set(.035,.018,-.025);
+   letter.rotation.y = .19;
+   props.add(letter);
+   box(letter,.35,.019,.23,0,.0095,0,'#f3e3c7');
+   box(letter,.19,.004,.009,-.078,.020,-.014,'#d0b59a').rotation.y = -.43;
+   box(letter,.19,.004,.009,.078,.020,-.014,'#d0b59a').rotation.y = .43;
+   box(letter,.048,.008,.048,0,.024,.021,'#be818d').rotation.y = Math.PI/4;
+  }else if(index === 4){
+   // A lavender notebook with cream page edges and a small cover label.
+   props.rotation.y = -.16;
+   box(props,.30,.013,.29,0,.0065,0,'#a999c2');
+   box(props,.28,.043,.27,0,.0345,0,'#eee0c1');
+   box(props,.30,.013,.29,0,.0625,0,'#bcaad7');
+   box(props,.022,.056,.29,-.14,.034,0,'#9d8cb7');
+   box(props,.105,.004,.063,.026,.071,-.025,'#f1ddbd');
+  }else{
+   // Two pastel pencils and an eraser.
+   const pencils = new THREE.Group();
+   pencils.rotation.y = .35;
+   props.add(pencils);
+   for(const [offset,color] of [[-.038,'#94ac9a'],[.038,'#cfa2b2']]){
+    box(pencils,.27,.028,.028,-.035,.014,offset,color);
+    box(pencils,.045,.024,.024,.122,.014,offset,'#e5c69f');
+    box(pencils,.015,.015,.015,.151,.014,offset,'#887477');
+   }
+   box(props,.10,.038,.059,.15,.019,.08,'#e0abb7').rotation.y = -.22;
+  }
+ }
  for(let i=0;i<6;i++){
   const action='drawer'+i,pivot=new THREE.Group();room.add(pivot);extract(158619+i*210,158828+i*210,action,pivot);
   const x=.01+(i%3)*.75,y=.24+Math.floor(i/3)*.41;
-  const tray=new THREE.Group();pivot.add(tray);box(tray,.65,.035,.65,x,y+.025,-3.08,'#d5ba87');box(tray,.035,.29,.65,x-.31,y+.16,-3.08,'#e5cda0');box(tray,.035,.29,.65,x+.31,y+.16,-3.08,'#e5cda0');box(tray,.65,.29,.035,x,y+.16,-3.4,'#d9c092');tray.traverse(o=>{if(o.isMesh)o.userData.action=action;});parts.push({pivot,action,open:false,kind:'drawer'});
+  const tray=new THREE.Group();pivot.add(tray);box(tray,.65,.035,.65,x,y+.025,-3.08,'#d5ba87');box(tray,.035,.29,.65,x-.31,y+.16,-3.08,'#e5cda0');box(tray,.035,.29,.65,x+.31,y+.16,-3.08,'#e5cda0');box(tray,.65,.29,.035,x,y+.16,-3.4,'#d9c092');
+  fillDrawer(tray,i,x,y+.0425);
+  tray.traverse(o=>{if(o.isMesh)o.userData.action=action;});parts.push({pivot,action,open:false,kind:'drawer'});
  }
  for(let i=0;i<2;i++){
   const action='storageBox'+i,pivot=new THREE.Group(),x=i?4.44:3.34,y=i?3.55:3.58,z=i?-3.82:-3.87;room.add(pivot);

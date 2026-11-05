@@ -1,4 +1,4 @@
-import {installOpenStorage} from './open-storage.js';
+import {installOpenStorage} from './open-storage.js?v=drawer-finds-1';
 import {installCoffeeMachine} from './coffee-machine.js';
 import {prepareCat} from './cat.js';
 import {removeLampPlants} from './remove-lamp-plants.js';
