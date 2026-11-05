@@ -23,6 +23,11 @@ bar.innerHTML='<button class="record-return" aria-label="打开唱片架"><svg v
 // Match the tall, slender beamed notes in the selected reference.
 bar.querySelector('.record-return').innerHTML='<svg class="music-note-reference" viewBox="0 0 32 36" aria-hidden="true"><path d="M9 25V7L27 3v18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="miter"/><path d="M9 7 27 3v4L9 11Z" fill="currentColor"/><ellipse cx="5.5" cy="26.5" rx="4.5" ry="3.2" transform="rotate(-20 5.5 26.5)" fill="currentColor"/><ellipse cx="23.5" cy="22.5" rx="4.5" ry="3.2" transform="rotate(-20 23.5 22.5)" fill="currentColor"/></svg>';
 document.body.append(bar);
+for (const event of ['play', 'pause', 'ended', 'error']) {
+  audio.addEventListener(event, () => {
+    emit('soft-hours:record-activity', !audio.paused && !audio.ended && !audio.error);
+  });
+}
 function status(message){bar.querySelector('[role=status]').textContent=message;}
 function sync(){const playing=!audio.paused&&!audio.ended;const toggle=bar.querySelector('.record-toggle');toggle.classList.toggle('is-playing',playing);toggle.setAttribute('aria-label',playing?'暂停':'播放');emit('soft-hours:record-playback',{playing});}
 audio.addEventListener('playing',()=>{sync();status('正在播放 · '+(current?.day||'我们的声音'));});
