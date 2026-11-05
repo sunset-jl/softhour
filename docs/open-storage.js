@@ -12,14 +12,36 @@ export function installOpenStorage(room){
   colored.push({material,day:material.color.clone(),night:material.color.clone().multiply(new THREE.Color(action==='storageBox0'?'#aab4cc':'#46516e'))});
   return mesh;
  }
- function box(parent,w,h,d,x,y,z,color,nightTint='#46516e'){const material=new THREE.MeshBasicMaterial({color}),m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);m.position.set(x,y,z);parent.add(m);colored.push({material,day:new THREE.Color(color),night:new THREE.Color(color).multiply(new THREE.Color(nightTint))});return m;}
+ function part(parent,geometry,x,y,z,color,nightTint='#46516e'){
+  const material = new THREE.MeshBasicMaterial({color});
+  const mesh = new THREE.Mesh(geometry, material);
+  mesh.position.set(x,y,z);
+  parent.add(mesh);
+  colored.push({material,day:new THREE.Color(color),night:new THREE.Color(color).multiply(new THREE.Color(nightTint))});
+  return mesh;
+ }
+ function box(parent,w,h,d,x,y,z,color,nightTint){
+  return part(parent,new THREE.BoxGeometry(w,h,d),x,y,z,color,nightTint);
+ }
  function fillDrawer(tray, index, x, floor){
-  if(index < 3) return null;
+  if(index === 0 || index === 2) return null;
   const props = new THREE.Group();
   props.position.set(x, floor, -2.96);
   tray.add(props);
 
-  if(index === 3){
+  if(index === 1){
+   // Rest the camera on its back so the lens is visible from above.
+   props.rotation.y = -.17;
+   box(props,.39,.076,.235,0,.038,0,'#d6b3c9');
+   box(props,.39,.012,.235,0,.082,0,'#f3dfc4');
+   const lens = (radius,height,y,color) =>
+    part(props,new THREE.CylinderGeometry(radius,radius,height,24),.015,y,.008,color);
+   lens(.091,.034,.105,'#87708f');
+   lens(.071,.015,.127,'#544962');
+   lens(.049,.007,.137,'#7586a0');
+   box(props,.062,.009,.032,-.13,.092,-.066,'#fff1d9');
+   box(props,.025,.010,.023,.141,.093,-.066,'#be777e');
+  }else if(index === 3){
    // Two letters, slightly offset, with a rose-colored seal on top.
    box(props,.35,.018,.23,-.045,.009,.015,'#c9b5d4').rotation.y = -.16;
    const letter = new THREE.Group();

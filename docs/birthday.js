@@ -1,4 +1,4 @@
-import { roomSound } from './room-sounds.js?v=room-sfx-cute-1';
+import { roomSound } from './room-sounds.js?v=drawer-camera-soft-cat-1';
 import { getIdentity } from './cloud.js';
 
 const dialog = document.getElementById('birthday');

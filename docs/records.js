@@ -1,5 +1,5 @@
 import {cloud,getIdentity,showPrivateGate,signedFile,uploadPrivate} from './cloud.js';
-import {roomSound} from './room-sounds.js?v=room-sfx-cute-1';
+import {roomSound} from './room-sounds.js?v=drawer-camera-soft-cat-1';
 const audio=new Audio();audio.preload='metadata';audio.volume=.7;
 let records=[],current=null,host=null,page=0,loading=false,flight=null,selecting=false;
 // These recordings are bundled from the videos placed in the room's media folder.

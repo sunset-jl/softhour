@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { roomSound } from './room-sounds.js?v=room-sfx-cute-1';
+import { roomSound } from './room-sounds.js?v=drawer-camera-soft-cat-1';
 import {OrbitControls} from './vendor/OrbitControls.js';
 
 export function installSnowglobe(room){

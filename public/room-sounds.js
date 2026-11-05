@@ -2,7 +2,7 @@ let audio;
 let noise;
 let lastRustle = -Infinity;
 // CC0 Freesound clips via ESC-50: tuberatanka (110011), edhutschek (214362).
-const meow = new Audio(new URL('./assets/room-cat-meow.wav', import.meta.url));
+const meow = new Audio(new URL('./assets/room-cat-meow.wav?v=softer-1', import.meta.url));
 const pour = new Audio(new URL('./assets/room-glass-pour.wav', import.meta.url));
 
 function playClip(clip) {
