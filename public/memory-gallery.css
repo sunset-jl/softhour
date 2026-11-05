@@ -1,0 +1,106 @@
+.modal-shell:has(.photo-viewer) .memory-panel {
+  width: min(490px, 95vw);
+  padding-top: 58px;
+  background: #fff6e47a;
+  border-color: #fff9eced;
+  backdrop-filter: blur(13px) saturate(125%);
+}
+@media (min-width: 900px) {
+  .modal-shell:has(.photo-viewer) .memory-panel { margin-right: 18vw; }
+}
+.modal-shell:has(.photo-viewer) .modal-scrim { background: #7d6b8112; backdrop-filter: none; }
+.is-night .modal-shell:has(.photo-viewer) .memory-panel { background: #4c426a9c; border-color: #d8c4eeaa; }
+.modal-shell:has(.photo-viewer) .memory-panel__scroll { padding: 0 22px 15px; }
+.modal-shell:has(.photo-viewer) :is(.memory-panel__number, .memory-panel__intro),
+.modal-shell.is-records:has(#panelBody:not(.is-uploading) .record-fan) :is(.memory-panel__number, .memory-panel__intro) { display: none; }
+.modal-shell:has(.photo-viewer) #panelTitle,
+.modal-shell.is-records:has(#panelBody:not(.is-uploading) .record-fan) #panelTitle {
+  position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%);
+}
+.photo-viewer { display: grid; grid-template-columns: minmax(58px, 25%) minmax(0, 1fr); gap: 14px; align-items: start; }
+.photo-viewer #photoGrid { display: grid; grid-template-columns: 1fr; gap: 7px; margin: 0; }
+.photo-viewer #photoGrid .album-thumb {
+  display: block; padding: 0; width: 100%; aspect-ratio: 1.22; overflow: hidden;
+  border: 1.5px solid #fff9; border-radius: 12px; transform: none; box-shadow: none; cursor: pointer;
+}
+.photo-viewer #photoGrid .album-thumb[aria-pressed="true"] { border-color: white; box-shadow: 0 0 0 2px #dfb4ff, 0 0 13px #ca9cfbd9; }
+.photo-viewer #photoGrid .album-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.album-main { margin: 0; min-width: 0; }
+.album-main #photoLarge {
+  width: 100%; max-height: 46svh; aspect-ratio: 1 / 1.05; object-fit: contain;
+  margin: 0; background: #e6d3e65e; border: 2px solid #fff8ed; border-radius: 17px;
+}
+.album-main #photoLarge[hidden] { display: none; }
+.album-main #photoName { margin: 7px 0 0; text-align: center; font-size: 11px; }
+.photo-viewer .photo-pager { gap: 14px; margin: 8px 0 0; }
+.photo-viewer .photo-pager button[data-photo-page] {
+  width: 35px; height: 35px; padding: 0; border: 1px solid #fff9; border-radius: 50%;
+  color: inherit; background: #fff8; font-size: 25px; cursor: pointer;
+}
+.photo-viewer .photo-pager button:disabled { opacity: .35; cursor: default; }
+.album-dots { display: flex; gap: 2px; }
+body .modal-shell .album-dots button { position: relative; width: 19px; height: 24px; padding: 0; background: transparent; border: 0; box-shadow: none; }
+.album-dots button::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #fff9ed; }
+.album-dots button[aria-pressed="true"]::after { background: #a777c6; }
+.album-tools { font-size: 11px; margin-top: 8px; }
+.album-tools summary { cursor: pointer; width: fit-content; }
+.photo-viewer ~ #photoStatus:empty { display: none; }
+.is-night .photo-viewer .photo-pager button[data-photo-page] { background: #d4baf344; }
+@media(max-width: 600px) {
+  .modal-shell:has(.photo-viewer) .memory-panel__scroll { padding-inline: 14px; }
+  .photo-viewer { gap: 9px; grid-template-columns: minmax(50px, 22%) minmax(0, 1fr); }
+}
+@media(max-height: 630px) {
+  .photo-viewer #photoGrid .album-thumb { max-height: 66px; }
+}
+
+.modal-shell.is-records:has(#panelBody:not(.is-uploading) .record-fan) { padding: 0; }
+.modal-shell.is-records:has(#panelBody:not(.is-uploading) .record-fan) .modal-scrim { backdrop-filter: blur(6px); background: #f9e9d427; }
+.is-night .modal-shell.is-records:has(#panelBody:not(.is-uploading) .record-fan) .modal-scrim { background: #1b163957; }
+.modal-shell.is-records:has(#panelBody:not(.is-uploading) .record-fan) .memory-panel {
+  width: 100%; max-width: none; height: 100%; max-height: none; padding: 0;
+  background: transparent; box-shadow: none; border: 0; backdrop-filter: none; border-radius: 0;
+}
+.modal-shell.is-records:has(#panelBody:not(.is-uploading) .record-fan) .memory-panel__close { top: max(18px, env(safe-area-inset-top)); right: clamp(15px, 3vw, 54px); width: 46px; height: 46px; }
+.modal-shell.is-records:has(#panelBody:not(.is-uploading) .record-fan) .memory-panel__scroll { height: 100%; display: grid; align-items: center; padding: 48px 0 12px; overflow-x: hidden; }
+.is-records .record-fan {
+  --cover: min(25vw, 42svh, 396px);
+  --spread: min(17vw, 28svh);
+  margin: 0; width: 100%; height: calc(var(--cover) + 6svh); position: relative;
+}
+.is-records .record-fan .record-sleeve {
+  position: absolute; top: 50%; left: 50%; width: var(--cover); aspect-ratio: 1; padding: 0;
+  border: 2px solid #fff8ed; border-radius: clamp(7px, 1vw, 17px); overflow: hidden; background: #e7d4df;
+  transform-origin: center; z-index: calc(5 - var(--distance));
+  transform: translate(-50%, -50%) translate(calc(var(--offset) * var(--spread)), calc(var(--distance) * 1.8svh))
+    rotate(calc(var(--offset) * 6deg)) scale(calc(1 - var(--distance) * .115));
+  box-shadow: 0 7px 18px #47385d38; cursor: pointer;
+}
+.is-records .record-fan .record-sleeve img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.is-records .record-fan .record-sleeve.is-centered {
+  border-width: 4px; z-index: 6; box-shadow: 0 0 0 2px #d8a9ff, 0 0 18px #d6a7ffcc;
+}
+.is-records .record-fan .record-sleeve:focus-visible { outline: 3px solid #784ca1; outline-offset: 3px; }
+.is-records .record-fan .record-sleeve:hover { filter: brightness(1.07); }
+body .is-records .record-fan :is(.record-page-prev,.record-page-next) {
+  position: absolute; z-index: 8; top: 50%; transform: translateY(-50%);
+  width: clamp(34px, 4vw, 56px); aspect-ratio: 1; padding: 0; border-radius: 50%;
+  color: #644c84; font-size: 26px; background: #f8edf4bc; border: 1px solid #fff9; cursor: pointer;
+}
+.record-fan .record-page-prev { left: max(10px, 2vw); }
+.record-fan .record-page-next { right: max(10px, 2vw); }
+.is-records .record-caption { margin: 4px auto 8px; width: fit-content; max-width: 84vw; padding: 6px 17px; border-radius: 18px; background: #fff6e3af; color: #5b456e; }
+.record-caption :is(strong,span) { display: block; }
+.record-caption span { font-size: 11px; }
+.is-night .is-records .record-caption { background: #4c426acc; color: #fff0fa; }
+@media(max-width:640px) {
+  .is-records .record-fan { --cover: min(49vw, 40svh); --spread: 22vw; }
+}
+
+.ledger-columns { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1rem; }
+.ledger-columns section { min-width: 0; padding: .8rem; border-radius: 1rem; background: #9989ac18; }
+.camera-preview { width: 100%; max-height: 46svh; display: block; object-fit: contain; border-radius: 12px; }
+.camera-actions { display:flex; flex-wrap:wrap; justify-content:center; gap:.5rem; margin-top:.65rem; }
+.camera-status { text-align:center; }
+body .is-records .record-fan :is(.record-page-prev,.record-page-next):hover { transform:translateY(-50%); }
+@media (max-width: 600px) { .ledger-columns { grid-template-columns:1fr; } }

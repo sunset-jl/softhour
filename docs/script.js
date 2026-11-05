@@ -1,10 +1,12 @@
 import {mountThings,unmountThings} from './little-things.js?v=letters-local-1';
-import {mountRecords, unmountRecords} from './records.js?v=drawer-camera-soft-cat-1';
-import {roomSound} from './room-sounds.js?v=drawer-camera-soft-cat-1';
-import { mountPhotos, unmountPhotos } from './photos.js';
-import { mountBoard, unmountBoard } from './board.js';
+import {mountRecords, unmountRecords} from './records.js?v=room-finds-2';
+import {roomSound} from './room-sounds.js?v=room-finds-2';
+import { mountPhotos, unmountPhotos } from './photos.js?v=room-finds-2';
+import { mountBoard, unmountBoard } from './board.js?v=room-finds-2';
 import {cloud,getIdentity,showPrivateGate} from './cloud.js';
 import {mountDrinkStudio} from './drink-studio.js';
+import {mountLedger} from './room-ledger.js?v=room-finds-2';
+import {mountRoomCamera} from './room-camera.js?v=room-finds-2';
 const roomSection = document.getElementById('roomSection');
 const heroCopy = document.getElementById('heroCopy');
 const modalShell = document.getElementById('modalShell');
@@ -39,6 +41,8 @@ document.getElementById('resetView').addEventListener('click', () => {
 });
 
 const panels = {
+  ledger:{number:'J & K',title:'我们的小账本',intro:'各记各的一笔，生活的开销都留在这里。'},
+  camera:{number:'SOFT HOURS CAMERA',title:'把小屋拍下来',intro:'把喜欢的角落留成一张照片。'},
   bedPrank:{number:'',title:'烤鱼女士禁止睡觉！',intro:''},
   spilledTea:{number:'',title:'你为什么要这样对我的奶茶！',intro:''},
   letters:{number:'04 / LETTERS TO TOMORROW',title:'未来来信',intro:'把今天想说的话，留给未来某一天的你。'},
@@ -82,6 +86,7 @@ function openPanel(name) {
   const data = panels[name]; if (!data) return;
   roomSound(name === 'letters' ? 'page' : 'panelOpen');
   unmountBoard(); unmountPhotos(); unmountRecords(); unmountThings();
+  panelBody.classList.remove("is-uploading");
   currentPanel = name;
   modalShell.classList.toggle('is-bed-prank',name==='bedPrank'||name==='spilledTea');
   modalShell.classList.toggle('is-board', name === 'board');
@@ -95,6 +100,11 @@ function openPanel(name) {
   if (name === 'board') renderBoard();
   if (name === 'privateLogin') renderPrivateLogin();
   if (name === 'coffeeMachine') renderCoffeeMachine();
+  if (name === 'camera') mountRoomCamera(panelBody);
+  if (name === 'ledger') {
+    const sheet=document.createElement('div');panelBody.replaceChildren(sheet);
+    mountLedger(sheet);
+  }
   if (['letters','presence','pillow'].includes(name)) mountThings(panelBody,name);
   modalShell.hidden = false; document.body.style.overflow = 'hidden';
   modalShell.querySelector('.memory-panel__scroll').scrollTop = 0;
@@ -104,6 +114,7 @@ function openPanel(name) {
 }
 function closePanel() {
   if (!currentPanel) return;
+  if (currentPanel==='camera') window.dispatchEvent(new Event('soft-hours:camera-closed'));
   roomSound('panelClose');
   unmountBoard(); unmountPhotos(); unmountRecords(); unmountThings();
   document.getElementById('audioPlayer')?.pause();

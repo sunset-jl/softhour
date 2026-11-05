@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { placementSound, roomSound } from './room-sounds.js?v=drawer-camera-soft-cat-1';
+import { placementSound, roomSound } from './room-sounds.js?v=room-finds-2';
 
 const table = [
   new THREE.Vector3(.53, 1.198, -2.96),
@@ -139,6 +139,10 @@ export function installArrangement({ room, camera, canvas, controls, keepsakes, 
     if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
     consume(event);
     if (event.type === 'pointerup' && !moved) {
+      if (id === 'arrangeNotebook') {
+        window.dispatchEvent(new CustomEvent('soft-hours:open',{detail:'ledger'}));
+        return;
+      }
       if (slots[layout[id]]) {
         delete layout[id];
         goHome(item);
@@ -161,6 +165,11 @@ export function installArrangement({ room, camera, canvas, controls, keepsakes, 
   for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) {
     canvas.addEventListener(type, finish, true);
   }
+  window.addEventListener('soft-hours:put-notebook-away',()=>{
+    const item=keepsakes.get('arrangeNotebook');
+    if(!item)return;
+    delete layout.arrangeNotebook;goHome(item);save();placementSound();
+  });
 
   return {
     showCupTarget(index, visible) {

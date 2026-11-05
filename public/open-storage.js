@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 export function installOpenStorage(room){
  const keepsakes = new Map();
+ const roundCushion = new THREE.Group();
+ const plants = new Map();
  const source=room.getObjectByName('room'),g=source.geometry,parts=[],removed=new Set(),colored=[];
  function extract(a,b,action,pivot){
   const ids=[];for(const id of g.index.array)if(id>=a&&id<=b){ids.push(id);removed.add(id);}
@@ -80,6 +82,7 @@ export function installOpenStorage(room){
   const tray=new THREE.Group();pivot.add(tray);box(tray,.65,.035,.65,x,y+.025,-3.08,'#d5ba87');box(tray,.035,.29,.65,x-.31,y+.16,-3.08,'#e5cda0');box(tray,.035,.29,.65,x+.31,y+.16,-3.08,'#e5cda0');box(tray,.65,.29,.035,x,y+.16,-3.4,'#d9c092');
   const props=fillDrawer(tray,i,x,y+.0425);
   tray.traverse(o=>{if(o.isMesh)o.userData.action=action;});
+  if (i === 1) props.traverse(object => { if (object.isMesh) object.userData.action = 'drawerCamera'; });
   if (props && (i === 3 || i === 4)) {
    const id = i === 3 ? 'arrangeLetter' : 'arrangeNotebook';
    const item = { group: props, home: tray, position: props.position.clone(), pivot };
@@ -106,10 +109,33 @@ export function installOpenStorage(room){
   // The darker inner panels make the open top read as a hollow container.
   box(body,.85,.31,.008,cx,cy+.205,cz-.318,inside,tint);box(body,.85,.31,.008,cx,cy+.205,cz+.318,inside,tint);
   box(body,.008,.31,.63,cx-.416,cy+.205,cz,inside,tint);box(body,.008,.31,.63,cx+.416,cy+.205,cz,inside,tint);
+  if(i===1){
+   const key=new THREE.Group();key.position.set(cx,cy+.017,cz);key.rotation.y=-.28;body.add(key);
+   const ring=part(key,new THREE.TorusGeometry(.105,.025,10,30),-.16,.025,0,'#eab75f');
+   ring.rotation.x=-Math.PI/2;
+   box(key,.32,.038,.043,.074,.025,0,'#dba34c');
+   box(key,.044,.038,.083,.17,.025,.027,'#eab75f');
+   box(key,.046,.038,.10,.23,.025,.034,'#eab75f');
+  }
   body.traverse(o=>{if(o.isMesh)o.userData.action=action;});parts.push({pivot,action,open:false,kind:'lid'});
+ }
+ room.add(roundCushion);
+ extract(215404,220109,'pillow',roundCushion);
+ for(const [id,base,first,top,last,position] of [
+  ['plantWindow',220110,220653,220654,222445,[-4.99,1.73,1.42]],
+  ['plantDesk',222446,222989,222990,224781,[-2.98,1.71,-3.48]],
+  ['plantShelf',224782,225325,225326,233497,[-1.56,3.82,-3.94]],
+ ]){
+  const pot=new THREE.Group(),leaves=new THREE.Group();
+  room.add(pot,leaves);
+  extract(base,first,id,pot);
+  const leaf=extract(top,last,id,leaves);
+  leaves.position.set(...position);
+  leaf.geometry.translate(...position.map(value=>-value));
+  plants.set(id,leaves);
  }
  // Remove the small decorative purple block in front of the drawers.
  for(const id of g.index.array)if(id>=159879&&id<=160070)removed.add(id);
  const keep=[];for(let i=0;i<g.index.count;i+=3)if(!removed.has(g.index.array[i]))keep.push(g.index.array[i],g.index.array[i+1],g.index.array[i+2]);g.setIndex(keep);
- return {keepsakes,toggle(action){const p=parts.find(p=>p.action===action);if(p)p.open=!p.open;},setNight(amount){for(const c of colored)c.material.color.lerpColors(c.day,c.night,amount);},update(dt,reduced){for(const p of parts){const target=p.open?(p.kind==='drawer'?.66:-1.65):0;if(p.kind==='drawer')p.pivot.position.z=reduced?target:THREE.MathUtils.damp(p.pivot.position.z,target,9,dt);else p.pivot.rotation.x=reduced?target:THREE.MathUtils.damp(p.pivot.rotation.x,target,9,dt);}}};
+ return {keepsakes,roundCushion,plants,toggle(action){const p=parts.find(p=>p.action===action);if(p)p.open=!p.open;},setNight(amount){for(const c of colored)c.material.color.lerpColors(c.day,c.night,amount);},update(dt,reduced){for(const p of parts){const target=p.open?(p.kind==='drawer'?.66:-1.65):0;if(p.kind==='drawer')p.pivot.position.z=reduced?target:THREE.MathUtils.damp(p.pivot.position.z,target,9,dt);else p.pivot.rotation.x=reduced?target:THREE.MathUtils.damp(p.pivot.rotation.x,target,9,dt);}}};
 }

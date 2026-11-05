@@ -4,6 +4,8 @@ let lastRustle = -Infinity;
 // CC0 Freesound clips via ESC-50: tuberatanka (110011), edhutschek (214362).
 const meow = new Audio(new URL('./assets/room-cat-meow.wav?v=softer-1', import.meta.url));
 const pour = new Audio(new URL('./assets/room-glass-pour.wav', import.meta.url));
+// "Water Sip" by SeanPorio, Freesound 519268 (CC0), trimmed and softened.
+const sip = new Audio(new URL('./assets/room-water-sip.wav', import.meta.url));
 
 function playClip(clip) {
   if (!clip.paused && !clip.ended) return;
@@ -66,9 +68,10 @@ export function meowSound() {
 }
 
 export function sipSound() {
-  texture(0.24, 850, 0.075, 0.055, 1300);
-  setTimeout(() => texture(0.2, 460, 0.06, 0.035, 240), 170);
+  playClip(sip);
 }
+
+export function mistSound() { texture(.38, 1700, .047, .07, 890); }
 
 export function placementSound() {
   roomSound('place');

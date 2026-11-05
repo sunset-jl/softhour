@@ -1,16 +1,17 @@
-import {installOpenStorage} from './open-storage.js?v=camera-drawer-1';
-import {installCoffeeMachine} from './coffee-machine.js?v=drawer-camera-soft-cat-1';
-import {installArrangement} from './room-arrangement.js?v=drawer-camera-soft-cat-1';
+import {installOpenStorage} from './open-storage.js?v=room-finds-2';
+import {installCoffeeMachine} from './coffee-machine.js?v=room-finds-2';
+import {installArrangement} from './room-arrangement.js?v=room-finds-2';
 import {prepareCat} from './cat.js';
 import {removeLampPlants} from './remove-lamp-plants.js';
 import {prepareBed,installBed} from './bed.js';
-import {installSnowglobe} from './snowglobe.js?v=drawer-camera-soft-cat-1';
-import {prepareLittleThings,installLittleThings} from './little-scene.js';
+import {installSnowglobe} from './snowglobe.js?v=room-finds-2';
+import {prepareLittleThings,installLittleThings} from './little-scene.js?v=room-finds-2';
 import { installTurntable } from './turntable.js';
 import { installWardrobe } from './wardrobe.js?v=together-1';
 import { prepareWardrobeClothes } from './wardrobe-clothes.js';
-import { installCurtains } from './curtains.js?v=drawer-camera-soft-cat-1';
-import { meowSound, pourSound, sipSound, roomSound } from './room-sounds.js?v=drawer-camera-soft-cat-1';
+import { installCurtains } from './curtains.js?v=room-finds-2';
+import { meowSound, pourSound, sipSound, roomSound } from './room-sounds.js?v=room-finds-2';
+import { installRoomProps } from './room-props.js?v=room-finds-2';
 import * as THREE from 'three';
 import { OrbitControls } from './vendor/OrbitControls.js';
 import { GLTFLoader } from './vendor/loaders/GLTFLoader.js';
@@ -213,6 +214,7 @@ async function startRoom() {
   const little = installLittleThings(room,envelope);
   window.dispatchEvent(new Event('soft-hours:things-ready'));
   const storage=installOpenStorage(room);
+  if (little.pillowPivot) storage.roundCushion.add(little.pillowPivot);
   room.traverse(o=>{if(o.isMesh&&!meshes.includes(o))meshes.push(o);});
   const wardrobe = installWardrobe(room);
   // Every album entry waits for physically open wardrobe doors.
@@ -296,6 +298,15 @@ async function startRoom() {
     reaction.hidden = false;
     reactionTimer = setTimeout(() => { reaction.hidden = true; }, 3300);
   }
+  Object.assign(labels, {drawerCamera:'相机 · 拍照', plantWindow:'窗边植物', plantDesk:'桌边植物', plantShelf:'书架植物', arrangeNotebook:'记账本 · 点击打开', pillow:'拖动圆抱枕'});
+  const roomProps = installRoomProps({
+    room, camera, canvas, controls, hitAt, cushion: storage.roundCushion, plants: storage.plants,
+    tapPillow: () => { little.tap(); roomSound('pillow'); }, notify,
+  });
+  window.addEventListener('soft-hours:camera-frame', event => {
+    renderer.render(scene,camera);
+    event.detail.frame=canvas;
+  });
   const arrangement = installArrangement({
     room, camera, canvas, controls, keepsakes: storage.keepsakes, hitAt, coffeeMachine, notify,
   });
@@ -415,18 +426,20 @@ async function startRoom() {
       else if(category(action)&&approach(category(action))) {}
       else if (action === undefined) {
         drinkButton.hidden = true;
+        roomProps.hideSprayer();
         restoreRoomView();
       }
       else if (action === 'wardrobeDoorLeft' || action === 'wardrobeDoorRight') { wardrobe.toggle(action); roomSound('door'); }
       else if((action==='wardrobe'||action==='wardrobeAlbum')&&!wardrobe.isOpen()) { wardrobe.open(); roomSound('door'); }
       else if(action==='wardrobeAlbum') window.dispatchEvent(new CustomEvent('soft-hours:open',{detail:'wardrobe'}));
       else if (action === 'cat') {talkToCat();cat.tap();}
+      else if (action === 'drawerCamera') window.dispatchEvent(new CustomEvent('soft-hours:open',{detail:'camera'}));
       else if(action?.startsWith('drawer')||action?.startsWith('storageBox')) {
         storage.toggle(action);
         roomSound(action.startsWith('drawer') ? 'drawer' : 'box');
       }
       else if (action === 'bed') { bed.toggle(); roomSound('fabric'); }
-      else if (action === 'pillow') { little.tap(); roomSound('pillow'); }
+      else if (storage.plants.has(action)) roomProps.showPlant(action);
       else if (action === 'lamp') window.dispatchEvent(new Event('soft-hours:lamp'));
       else if (action) window.dispatchEvent(new CustomEvent('soft-hours:open', { detail: action }));
     }
@@ -467,6 +480,7 @@ async function startRoom() {
       if(p===1){focusTween=null;controls.enabled=true;controls.update();}
     }
     wardrobe.update(delta,reduced);storage.update(delta,reduced);coffeeMachine.update(delta);
+    roomProps.update(delta,reduced);
     little.update(delta,reduced); bed.update(delta,reduced);
     if(cat.update(delta,reduced)){roomSound('paws');talkAfterLanding();}
     if(!catBubble.hidden){
