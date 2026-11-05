@@ -8,8 +8,8 @@ import {prepareLittleThings,installLittleThings} from './little-scene.js';
 import { installTurntable } from './turntable.js';
 import { installWardrobe } from './wardrobe.js?v=together-1';
 import { prepareWardrobeClothes } from './wardrobe-clothes.js';
-import { installCurtains } from './curtains.js?v=room-sounds-1';
-import { meowSound, pourSound } from './room-sounds.js';
+import { installCurtains } from './curtains.js?v=natural-sounds-1';
+import { meowSound, pourSound } from './room-sounds.js?v=natural-sounds-1';
 import * as THREE from 'three';
 import { OrbitControls } from './vendor/OrbitControls.js';
 import { GLTFLoader } from './vendor/loaders/GLTFLoader.js';
@@ -48,7 +48,7 @@ async function startRoom() {
   controls.target.copy(target);
   controls.enableDamping = true; controls.dampingFactor = .1;
   controls.enablePan = false; controls.enableZoom = true;
-  const roomMaxZoom = 3.2;
+  const roomMaxZoom = 4;
   controls.minZoom = .65; controls.maxZoom = roomMaxZoom; controls.zoomSpeed = .85;
   controls.minDistance = initialDistance; controls.maxDistance = initialDistance;
   controls.rotateSpeed = .5;
@@ -65,7 +65,9 @@ async function startRoom() {
     zoomOut.disabled = zoom <= controls.minZoom + .001;
     updateProjection();
   }
+  let wheelZoomTarget = null;
   function zoomBy(factor) {
+    wheelZoomTarget = null;
     camera.zoom = THREE.MathUtils.clamp(camera.zoom * factor, controls.minZoom, controls.maxZoom);
     zoomStatus();
   }
@@ -73,11 +75,19 @@ async function startRoom() {
   // use lens magnification, never moving the viewpoint toward the furniture.
   controls._dollyOut = factor => zoomBy(factor);
   controls._dollyIn = factor => zoomBy(1 / factor);
+  controls._handleMouseWheel = ({ deltaY }) => {
+    const scale = controls._getZoomScale(deltaY);
+    wheelZoomTarget = THREE.MathUtils.clamp(
+      (wheelZoomTarget ?? camera.zoom) * (deltaY < 0 ? 1 / scale : scale),
+      controls.minZoom, controls.maxZoom
+    );
+  };
   controls.addEventListener('change', zoomStatus);
   zoomIn.addEventListener('click', () => zoomBy(1.15));
   zoomOut.addEventListener('click', () => zoomBy(1 / 1.15));
   let focusedItem=null, savedView=null, focusTween=null;
   function reset() {
+    wheelZoomTarget = null;
     focusedItem=null; savedView=null; focusTween=null; controls.maxZoom=roomMaxZoom; controls.enabled=true; roomFocus.set(0,1.68,0);
     controls.enableDamping = false; controls.update();
     camera.position.copy(initialPosition); camera.zoom = 1;
@@ -217,6 +227,7 @@ async function startRoom() {
   window.addEventListener('soft-hours:night', event => nightMode(event.detail));
   function category(action){return action==='curtainLeft'||action==='curtainRight'?'curtains':action==='coffeeMachine'?'coffeeMachine':action?.startsWith('drawer')?'drawers':action?.startsWith('storageBox')?'storageBoxes':action?.startsWith('wardrobe')?'wardrobe':action==='record'?'record':action==='letters'?'letters':null;}
   function moveView(to){
+    wheelZoomTarget = null;
     controls.enableDamping=false; controls.update(); controls.enableDamping=true;
     focusTween={time:0,from:{position:camera.position.clone(),target:controls.target.clone(),focus:roomFocus.clone(),zoom:camera.zoom},to};
     controls.enabled=false; hoverLabel.hidden=true;
@@ -359,6 +370,13 @@ async function startRoom() {
     const now = performance.now(), delta = Math.min((now-previousTime)/1000,.1); previousTime=now;
     if (document.hidden || document.body.classList.contains('is-globe') || (modal && !modal.hidden)) return;
     const reduced = motionPreference.matches;
+    if (wheelZoomTarget !== null && controls.enabled && !focusTween) {
+      const next = THREE.MathUtils.damp(camera.zoom, wheelZoomTarget, 22, delta);
+      const settled = reduced || Math.abs(next - wheelZoomTarget) < 0.001;
+      camera.zoom = settled ? wheelZoomTarget : next;
+      if (settled) wheelZoomTarget = null;
+      zoomStatus();
+    }
     if(focusTween){
       const t=focusTween;t.time+=delta;const p=reduced?1:Math.min(1,t.time/.65),e=p*p*(3-2*p);
       camera.position.lerpVectors(t.from.position,t.to.position,e);controls.target.lerpVectors(t.from.target,t.to.target,e);roomFocus.lerpVectors(t.from.focus,t.to.focus,e);camera.zoom=THREE.MathUtils.lerp(t.from.zoom,t.to.zoom,e);camera.lookAt(controls.target);zoomStatus();

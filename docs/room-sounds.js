@@ -1,7 +1,15 @@
 let audio;
 let noise;
 let lastRustle = -Infinity;
-let lastMeow = -Infinity;
+// CC0 Freesound clips via ESC-50: tuberatanka (110011), edhutschek (214362).
+const meow = new Audio(new URL('./assets/room-cat-meow.wav', import.meta.url));
+const pour = new Audio(new URL('./assets/room-glass-pour.wav', import.meta.url));
+
+function playClip(clip) {
+  if (!clip.paused && !clip.ended) return;
+  clip.currentTime = 0;
+  clip.play().catch(() => {});
+}
 
 function enableSound() {
   const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -50,24 +58,9 @@ export function curtainSound() {
 }
 
 export function pourSound() {
-  texture(2.1, 600, 0.13, 0.15, 1550);
+  playClip(pour);
 }
 
 export function meowSound() {
-  if (audio?.state !== 'running' || audio.currentTime - lastMeow < 0.65) return;
-  const start = audio.currentTime;
-  lastMeow = start;
-  const voice = audio.createOscillator();
-  voice.type = 'triangle';
-  voice.frequency.setValueAtTime(520, start);
-  voice.frequency.exponentialRampToValueAtTime(790, start + 0.13);
-  voice.frequency.exponentialRampToValueAtTime(395, start + 0.42);
-  const resonance = audio.createBiquadFilter();
-  resonance.type = 'lowpass';
-  resonance.frequency.setValueAtTime(2100, start);
-  resonance.frequency.exponentialRampToValueAtTime(950, start + 0.42);
-  voice.connect(resonance);
-  envelope(resonance, start, 0.45, 0.085, 0.045);
-  voice.start(start);
-  voice.stop(start + 0.45);
+  playClip(meow);
 }
