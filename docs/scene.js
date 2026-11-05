@@ -76,7 +76,7 @@ async function startRoom() {
   controls._dollyOut = factor => zoomBy(factor);
   controls._dollyIn = factor => zoomBy(1 / factor);
   controls._handleMouseWheel = ({ deltaY }) => {
-    const wheelSensitivity = 2;
+    const wheelSensitivity = 2.5;
     const scale = controls._getZoomScale(deltaY * wheelSensitivity);
     wheelZoomTarget = THREE.MathUtils.clamp(
       (wheelZoomTarget ?? camera.zoom) * (deltaY < 0 ? 1 / scale : scale),
@@ -245,6 +245,19 @@ async function startRoom() {
     return true;
   }
   function returnView(){if(!savedView||focusTween)return;const view=savedView;savedView=null;focusedItem=null;controls.maxZoom=roomMaxZoom;moveView(view);}
+  function restoreRoomView() {
+    if (!focusedItem && wheelZoomTarget === null && camera.zoom === 1 &&
+        camera.position.equals(initialPosition) && controls.target.equals(target)) return;
+    focusedItem = null;
+    savedView = null;
+    controls.maxZoom = roomMaxZoom;
+    moveView({
+      position: initialPosition,
+      target,
+      focus: new THREE.Vector3(0, 1.68, 0),
+      zoom: 1,
+    });
+  }
   window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('modalShell').hidden)returnView();},true);
   window.addEventListener('soft-hours:approach',e=>{if(!approach(e.detail))window.dispatchEvent(new CustomEvent('soft-hours:open',{detail:e.detail}));});
   const raycaster = new THREE.Raycaster(), pointer = new THREE.Vector2();
@@ -253,7 +266,8 @@ async function startRoom() {
     pointer.set((x - rect.left) / rect.width * 2 - 1, -(y - rect.top) / rect.height * 2 + 1);
     raycaster.setFromCamera(pointer, camera);
     const hit = raycaster.intersectObjects(meshes, false)[0];
-    if (!hit) return null;
+    // Distinguish the empty background from non-interactive room surfaces.
+    if (!hit) return undefined;
     let object = hit.object;
     while (object && !object.userData.action) object = object.parent;
     return labels[object?.userData.action] ? object.userData.action : null;
@@ -335,7 +349,10 @@ async function startRoom() {
       if (focusTween) {}
       else if(action==='teaCupJ'||action==='teaCupK') {}
       else if(category(action)&&approach(category(action))) {}
-      else if(!action){drinkButton.hidden=true;returnView();}
+      else if (action === undefined) {
+        drinkButton.hidden = true;
+        restoreRoomView();
+      }
       else if (action === 'wardrobeDoorLeft' || action === 'wardrobeDoorRight') wardrobe.toggle(action);
       else if(action==='wardrobe'&&!wardrobe.isOpen()) wardrobe.open();
       else if(action==='wardrobeAlbum'&&!wardrobe.isOpen()) wardrobe.open();
