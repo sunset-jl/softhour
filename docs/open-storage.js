@@ -35,6 +35,7 @@ export function installOpenStorage(room){
   if(index === 0){
    // Rounded lilac base, glass globe, and a centered capsule outlet.
    props.rotation.y = -.08;
+   props.position.z = -3.12;
    const baseProfile=[[0,0],[.117,0],[.132,.008],[.136,.025],[.125,.074],[.106,.098],[0,.098]];
    part(props,new THREE.LatheGeometry(baseProfile.map(([radius,y])=>new THREE.Vector2(radius,y)),32),0,0,0,'#c5a9da');
    const globe=part(props,new THREE.SphereGeometry(.113,32,20),0,.181,0,'#e7d9f4');

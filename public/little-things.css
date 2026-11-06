@@ -2,8 +2,8 @@
 .scene-actions{max-width:calc(100vw - 32px);width:max-content;flex-wrap:wrap;justify-content:center}.scene-actions button{white-space:nowrap}@media(max-width:600px){.scene-actions{gap:5px}.scene-actions button{padding:7px 9px;font-size:10px}}
 /* Lift the pillow hint whenever the active player bar is visible. */
 .record-player-bar:not([hidden])~.little-toast,.little-toast:has(~.record-player-bar:not([hidden])){bottom:220px}
-.comfort-stage{position:relative;width:min(248px,41svh,100%);aspect-ratio:1;margin:-8px auto 8px;--capsule-travel:clamp(18px,5.6svh,37px)}
-.comfort-preview{display:block;width:100%;height:100%;object-fit:contain;transform-origin:50% 78%;filter:drop-shadow(0 6px 6px #5e456326)}
+.comfort-stage{position:relative;width:min(248px,41svh,100%);aspect-ratio:.91;margin:-8px auto 8px;--capsule-travel:clamp(18px,5.6svh,37px)}
+.comfort-preview{display:block;width:100%;height:auto;aspect-ratio:1;object-fit:contain;transform-origin:50% 78%;filter:drop-shadow(0 6px 6px #5e456326)}
 .comfort-stage[data-phase="shake"] .comfort-preview{animation:comfort-shake .46s ease-in-out}
 .comfort-capsule{position:absolute;left:50%;top:76%;width:26px;height:26px;visibility:hidden;transform:translate(-50%,var(--capsule-travel));pointer-events:none}
 .comfort-capsule i{position:absolute;left:0;width:100%;height:50%;box-shadow:inset 0 0 0 1px #9b779d61}

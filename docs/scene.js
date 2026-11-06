@@ -1,4 +1,4 @@
-import {installOpenStorage} from './open-storage.js?v=capsule-draw-1';
+import {installOpenStorage} from './open-storage.js?v=capsule-draw-2';
 import {installCoffeeMachine} from './coffee-machine.js?v=room-finds-2';
 import {installArrangement} from './room-arrangement.js?v=room-finds-2';
 import {prepareCat} from './cat.js';
@@ -248,7 +248,7 @@ async function startRoom() {
     focusTween={time:0,from:{position:camera.position.clone(),target:controls.target.clone(),focus:roomFocus.clone(),zoom:camera.zoom},to};
     controls.enabled=false; hoverLabel.hidden=true;
   }
-  function approach(name){
+  function approach(name, action){
     if(focusTween)return true;
     if(focusedItem===name)return false;
     if(!savedView)savedView={position:camera.position.clone(),target:controls.target.clone(),focus:roomFocus.clone(),zoom:camera.zoom};
@@ -256,7 +256,8 @@ async function startRoom() {
     roomSound('focus');
     room.updateMatrixWorld(true);
     const center=name==='curtains'?new THREE.Vector3(-5.15,2.55,0):name==='letters'?envelope.getWorldPosition(new THREE.Vector3()):name==='coffeeMachine'?new THREE.Vector3(1.55,1.75,-3.25):name==='wardrobe'?new THREE.Vector3(3.9,1.72,-3.1):name==='storageBoxes'?new THREE.Vector3(3.9,3.55,-3.45):name==='drawers'?new THREE.Vector3(.76,.85,-2.75):new THREE.Vector3(-.65,1.3,-3.15);
-    const aim=new THREE.Vector3(center.x,name==='storageBoxes'?28:8.5,center.z);
+    const height=name==='storageBoxes'?28:action==='drawer0'?13:8.5;
+    const aim=new THREE.Vector3(center.x,height,center.z);
     moveView({position:aim.clone().add(name==='curtains'?new THREE.Vector3(24.5,0,3):new THREE.Vector3(7,0,24.65)),target:aim,focus:center,zoom:name==='curtains'?2.35:name==='letters'?3.5:name==='coffeeMachine'?3.2:name==='drawers'||name==='storageBoxes'?Math.min(3.5,camera.aspect<.8?3.3:3.1):Math.min(3.5,Math.max(2.3,camera.aspect<.8?3.3:2.7))});
     return true;
   }
@@ -449,7 +450,7 @@ async function startRoom() {
       const action = hitAt(event.clientX, event.clientY);
       if (focusTween) {}
       else if(action==='teaCupJ'||action==='teaCupK') {}
-      else if(category(action)&&approach(category(action))) {}
+      else if(category(action)&&approach(category(action),action)) {}
       else if (action === undefined) {
         drinkButton.hidden = true;
         roomProps.hideSprayer();
