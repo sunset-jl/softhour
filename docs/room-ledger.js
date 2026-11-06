@@ -9,7 +9,14 @@ const money = new Intl.NumberFormat('zh-CN', {style:'currency', currency:'CNY'})
 const formatMoney = cents => money.format(cents / 100);
 const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const validAmount = cents => Number.isSafeInteger(cents) && cents > 0 && cents <= maxCents;
-const amountField = '<input name="amount" type="number" min=".01" max="999999" step=".01" inputmode="decimal" required>';
+const amountField = '<input name="amount" inputmode="decimal" maxlength="24" required>';
+const rowFields = 'id,body,author,author_slot,created';
+
+function parseAmount(value){
+  const amount = value.normalize('NFKC').trim().replace(/^¥\s*|\s*元$/g, '');
+  if(!/^(?:\d+|\d{1,3}(?:,\d{3})+|\d{1,3}(?: \d{3})+)?(?:\.\d{1,2})?$/.test(amount)) return NaN;
+  return Math.round(Number(amount.replace(/[, ]/g, '')) * 100);
+}
 
 let stopRefreshing;
 export function unmountLedger(){
@@ -47,17 +54,19 @@ export async function mountLedger(host){
       <p data-goal-summary>正在打开小账本…</p>
       <details class="ledger-goal-settings" hidden>
         <summary>设定目标</summary>
-        <form class="ledger-form" data-goal-form>
+        <form class="ledger-form" data-goal-form novalidate>
           <label>目标名称<input name="item" maxlength="60" required placeholder="例如：一起去看海"></label>
           <label>目标金额（元）${amountField}</label>
           <button type="submit">保存目标</button>
+          <p class="ledger-form-status" role="status"></p>
         </form>
       </details>
     </section>
-    <form class="ledger-form" data-contribution-form hidden>
+    <form class="ledger-form" data-contribution-form novalidate hidden>
       <label>备注（选填）<input name="item" maxlength="60" placeholder="例如：今天又靠近一点"></label>
       <label>这次存入（元）${amountField}</label>
       <button type="submit">记一笔</button>
+      <p class="ledger-form-status" role="status"></p>
     </form>
     <div class="ledger-columns" hidden>${slots.map(slot => `<section aria-label="${slot} 的存入记录"><h3>${slot} <small data-total="${slot}"></small></h3><ul data-entries="${slot}"></ul></section>`).join('')}</div>
     <details class="ledger-history" hidden><summary>以前的账目</summary><ul></ul></details>
@@ -74,8 +83,18 @@ export async function mountLedger(host){
   let active = true;
   let revision = 0;
   let snapshot = '';
+  let displayedRows = [];
   let goal = null;
   let busy = false;
+  const pending = new Map();
+
+  function applyRows(rows){
+    const next = JSON.stringify(rows);
+    if(next === snapshot) return;
+    render(rows);
+    displayedRows = rows;
+    snapshot = next;
+  }
 
   function renderRows(rows, old = false){
     return rows.map(row => `<li><span>${old ? escape(row.author_slot) + ' · ' : ''}${escape(row.item)}
@@ -119,16 +138,15 @@ export async function mountLedger(host){
       const rows = [];
       const pageSize = 500;
       for(let start = 0; ; start += pageSize){
-        const {data, error} = await notes.select('id,body,author,author_slot,created').eq('deleted',false)
+        const {data, error} = await notes.select(rowFields).eq('deleted',false)
           .like('body',ledgerPrefix+'%').order('created',{ascending:false}).order('id',{ascending:false})
-          .range(start,start+pageSize-1);
+          .range(start,start+pageSize-1).abortSignal(AbortSignal.timeout(12000));
         if(!active || request !== revision) return;
         if(error) throw error;
         rows.push(...data);
         if(data.length < pageSize) break;
       }
-      const next = JSON.stringify(rows);
-      if(next !== snapshot){render(rows);snapshot = next;}
+      applyRows(rows);
       if(!retry.hidden)status.textContent = '';
       retry.hidden = true;
     } catch {
@@ -157,18 +175,58 @@ export async function mountLedger(host){
     }
   }
 
-  function write(form, type){
-    const item = form.elements.item.value.trim() || (type === 'contribution' ? '存了一笔' : '');
-    const cents = Math.round(Number(form.elements.amount.value) * 100);
-    if(!item || !validAmount(cents)) return;
-    save(form.querySelector('button'), async () => {
-      const result = await notes.insert({id:crypto.randomUUID(),body:ledgerPrefix+JSON.stringify({type,item,cents}),author:member.user.id,author_slot:member.slot});
-      if(!result.error){
-        form.reset();
-        if(type === 'goal') goalSettings.open = false;
+  async function write(form, type){
+    if(busy) return;
+    const {item: nameInput, amount: amountInput} = form.elements;
+    const feedback = form.querySelector('.ledger-form-status');
+    const item = nameInput.value.trim() || (type === 'contribution' ? '存了一笔' : '');
+    const cents = parseAmount(amountInput.value);
+    if(!item || !validAmount(cents)){
+      feedback.textContent = item ? '请输入 0.01 到 999,999 元，最多两位小数。' : '先写一个目标名称。';
+      (item ? amountInput : nameInput).focus();
+      return;
+    }
+
+    const button = form.querySelector('button');
+    const label = button.textContent;
+    const body = ledgerPrefix+JSON.stringify({type,item,cents});
+    const previous = pending.get(type);
+    const id = previous?.body === body ? previous.id : crypto.randomUUID();
+    pending.set(type, {id,body});
+    busy = true;
+    button.disabled = true;
+    button.textContent = '正在保存…';
+    nameInput.readOnly = amountInput.readOnly = true;
+    feedback.textContent = '';
+    status.textContent = '';
+    try {
+      let {data, error} = await notes.insert({id,body,author:member.user.id,author_slot:member.slot,deleted:false})
+        .select(rowFields).abortSignal(AbortSignal.timeout(12000)).single();
+      if(error?.code === '23505'){
+        ({data,error} = await notes.select(rowFields).eq('id',id).eq('author',member.user.id).eq('body',body)
+          .eq('deleted',false).abortSignal(AbortSignal.timeout(12000)).single());
       }
-      return result;
-    }, type === 'goal' ? '共同目标已保存。' : '又向目标靠近了一点。');
+      if(error || !data) throw error || Error('Missing saved row');
+      if(!active) return;
+      // Show the confirmed write immediately and invalidate older reads.
+      revision++;
+      applyRows([data,...displayedRows.filter(row => row.id !== id)]);
+      pending.delete(type);
+      form.reset();
+      if(type === 'goal') goalSettings.open = false;
+      retry.hidden = true;
+      status.textContent = type === 'goal' ? '共同目标已保存。' : '又向目标靠近了一点。';
+    } catch(error) {
+      if(!active) return;
+      feedback.textContent = ['42501','PGRST301','PGRST303'].includes(error.code)
+        ? '当前登录状态无法保存，请重新登录 J/K 后再试。'
+        : '暂时无法确认保存，请检查网络后再点一次。';
+    } finally {
+      busy = false;
+      button.disabled = false;
+      button.textContent = label;
+      nameInput.readOnly = amountInput.readOnly = false;
+    }
   }
 
   goalSettings.querySelector('summary').onclick = () => {

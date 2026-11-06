@@ -125,6 +125,9 @@ body .is-records .record-fan :is(.record-page-prev,.record-page-next) {
 .is-night .ledger-meter i { background: linear-gradient(90deg,#b398e1,#efb9ce); }
 .ledger-form { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,.7fr) auto; align-items: end; gap: 6px; }
 .ledger-goal .ledger-form { margin-top: 8px; }
+.ledger-form .ledger-form-status { grid-column: 1 / -1; margin: 0; font-size: .78rem; color: #8c405c; }
+.is-night .ledger-form .ledger-form-status { color: #ffc2d5; }
+.ledger-form-status:empty { display: none; }
 .ledger-form label { display: grid; gap: 3px; min-width: 0; font-size: .78rem; }
 .ledger-form input { width: 100%; padding: 7px; color: inherit; background: #a88eb71e; border: 1px solid #a88eb76b; border-radius: 9px; font: inherit; }
 .room-ledger button { padding: 6px 9px; font-size: .76rem; cursor: pointer; }

@@ -5,7 +5,7 @@ import { mountPhotos, unmountPhotos } from './photos.js?v=room-finds-2';
 import { mountBoard, unmountBoard } from './board.js?v=room-finds-2';
 import {cloud,getIdentity,showPrivateGate} from './cloud.js';
 import {mountDrinkStudio} from './drink-studio.js';
-import {mountLedger, unmountLedger} from './room-ledger.js?v=shared-goal-1';
+import {mountLedger, unmountLedger} from './room-ledger.js?v=goal-save-2';
 import {mountRoomCamera} from './room-camera.js?v=room-finds-2';
 const roomSection = document.getElementById('roomSection');
 const heroCopy = document.getElementById('heroCopy');
