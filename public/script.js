@@ -7,7 +7,7 @@ import {cloud,getIdentity,showPrivateGate} from './cloud.js';
 import {mountDrinkStudio} from './drink-studio.js';
 import {mountLedger, unmountLedger} from './room-ledger.js?v=ledger-controls-1';
 import {mountRoomCamera} from './room-camera.js?v=room-finds-2';
-import {mountRoomUpdates, updateRoomNotice} from './room-updates.js?v=5';
+import {mountRoomUpdates, updateRoomNotice} from './room-updates.js?v=6';
 import {setDoorbellMember} from './doorbell-presence.js?v=1';
 import {mountComfortMachine, unmountComfortMachine} from './comfort-machine.js?v=3';
 const roomSection = document.getElementById('roomSection');
@@ -44,7 +44,7 @@ document.getElementById('resetView').addEventListener('click', () => {
 });
 
 const panels = {
-  comfortMachine:{number:'✦',title:'安慰抽奖机',intro:'抽一张纸条，陪你待一会儿。'},
+  comfortMachine:{number:'✦',title:'抽奖机',intro:'抽一张纸条，陪你待一会儿。'},
   updates:{number:'SOFT HOURS',title:'小屋更新',intro:'看看最近多了哪些可以探索的角落。'},
   ledger:{number:'J & K',title:'我们的小账本',intro:'定一个共同目标，每存一笔就离它近一点。'},
   camera:{number:'SOFT HOURS CAMERA',title:'把小屋拍下来',intro:'把喜欢的角落留成一张照片。'},

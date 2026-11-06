@@ -305,7 +305,7 @@ async function startRoom() {
     reaction.hidden = false;
     reactionTimer = setTimeout(() => { reaction.hidden = true; }, 3300);
   }
-  Object.assign(labels, {drawerCamera:'相机 · 拍照', comfortMachine:'安慰抽奖机', goldKey:'金钥匙', doorbell:'窗边门铃', plantWindow:'窗边植物', plantDesk:'桌边植物', plantShelf:'书架植物', arrangeNotebook:'记账本 · 点击打开', pillow:'拖动圆抱枕'});
+  Object.assign(labels, {drawerCamera:'相机 · 拍照', comfortMachine:'抽奖机', goldKey:'金钥匙', doorbell:'窗边门铃', plantWindow:'窗边植物', plantDesk:'桌边植物', plantShelf:'书架植物', arrangeNotebook:'记账本 · 点击打开', pillow:'拖动圆抱枕'});
   const roomProps = installRoomProps({
     room, camera, canvas, controls, hitAt, cushion: storage.roundCushion, plants: storage.plants,
     tapPillow: () => { little.tap(); roomSound('pillow'); }, notify,
