@@ -12,7 +12,7 @@ import { prepareWardrobeClothes } from './wardrobe-clothes.js';
 import { installCurtains } from './curtains.js?v=room-finds-2';
 import { meowSound, pourSound, sipSound, roomSound } from './room-sounds.js?v=room-finds-2';
 import { installRoomProps } from './room-props.js?v=room-finds-2';
-import { installDoorbell } from './doorbell-scene.js?v=2';
+import { installDoorbell } from './doorbell-scene.js?v=3';
 import { ringDoorbell } from './doorbell-presence.js?v=1';
 import * as THREE from 'three';
 import { OrbitControls } from './vendor/OrbitControls.js';

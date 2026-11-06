@@ -2,12 +2,8 @@
   position: absolute; z-index: 4; pointer-events: none;
   transform: translate(-50%, -100%); color: #775877;
 }
-.doorbell-marker[hidden], .doorbell-paper[hidden] { display: none; }
-.doorbell-star {
-  display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%;
-  background: #fff0cce8; border: 1px solid #fff8e6; color: #946636;
-  box-shadow: 0 0 12px #f8d99db3;
-}
+.doorbell-marker[hidden] { display: none; }
+.doorbell-online-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 .doorbell-paper {
   position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
   white-space: nowrap; padding: 7px 12px; border: 1px solid #fffbef;

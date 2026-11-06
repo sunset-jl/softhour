@@ -30,11 +30,31 @@ export function installDoorbell(room, camera, area){
   piece(swing,new THREE.TorusGeometry(.154,.018,8,24),'#f4d08d',0,-.282,0).rotation.x=Math.PI/2;
   piece(swing,new THREE.SphereGeometry(.041,12,8),'#d7a86b',0,-.305,0);
 
+  const starBadge = new THREE.Group();
+  starBadge.name = 'Doorbell online star';
+  starBadge.position.set(.105,.035,.036);
+  starBadge.visible = false;
+  mount.add(starBadge);
+  piece(starBadge,new THREE.CircleGeometry(.074,24),'#fff5df',0,0,0);
+  piece(starBadge,new THREE.CircleGeometry(.061,24),'#ffe9ad',0,0,.002);
+  const star = new THREE.Shape();
+  star.moveTo(0,.041);
+  star.quadraticCurveTo(.009,.010,.037,0);
+  star.quadraticCurveTo(.009,-.010,0,-.041);
+  star.quadraticCurveTo(-.009,-.010,-.037,0);
+  star.quadraticCurveTo(-.009,.010,0,.041);
+  piece(starBadge,new THREE.ShapeGeometry(star),'#976032',0,0,.004);
+  // A decorative indicator should never intercept the bell's click target.
+  for(const mesh of starBadge.children)mesh.raycast=()=>{};
+
   const marker = document.createElement('div');
   marker.className='doorbell-marker';
   marker.hidden=true;
-  marker.innerHTML='<span class="doorbell-star" aria-label="J 和 K 都在小屋里" role="img">✦</span><span class="doorbell-paper" role="status" hidden></span>';
-  area.append(marker);
+  marker.innerHTML='<span class="doorbell-paper" role="status"></span>';
+  const onlineLabel = document.createElement('span');
+  onlineLabel.className='doorbell-online-label';
+  onlineLabel.setAttribute('aria-live','polite');
+  area.append(marker,onlineLabel);
   const paper = marker.querySelector('.doorbell-paper');
   const projected = new THREE.Vector3();
   return {
@@ -42,12 +62,15 @@ export function installDoorbell(room, camera, area){
       const state=doorbellState();
       const ringing=Math.max(0,state.ringUntil-performance.now())/750;
       swing.rotation.z=reduced?0:Math.sin((1-ringing)*Math.PI*7)*.23*ringing;
-      marker.hidden=!state.together;
-      if(!state.together)return;
-      const fresh=state.arrivalAt!==0&&Date.now()-state.arrivalAt<4500;
-      paper.hidden=!fresh;
+      if(starBadge.visible!==state.together){
+        starBadge.visible=state.together;
+        onlineLabel.textContent=state.together?'J 和 K 都在小屋里':'';
+      }
+      const fresh=state.together&&state.arrivalAt!==0&&Date.now()-state.arrivalAt<4500;
+      marker.hidden=!fresh;
       if(fresh&&!paper.textContent)paper.textContent='你等的人，刚刚到了。✦';
       else if(!fresh&&paper.textContent)paper.textContent='';
+      if(!fresh)return;
       projected.set(0,.13,.25);
       mount.localToWorld(projected).project(camera);
       const width=area.clientWidth,height=area.clientHeight,edge=Math.min(108,width/2);
