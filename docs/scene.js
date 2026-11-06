@@ -12,7 +12,7 @@ import { prepareWardrobeClothes } from './wardrobe-clothes.js';
 import { installCurtains } from './curtains.js?v=room-finds-2';
 import { meowSound, pourSound, sipSound, roomSound } from './room-sounds.js?v=room-finds-2';
 import { installRoomProps } from './room-props.js?v=room-finds-2';
-import { installRugCorner } from './rug-corner.js?v=2';
+import { installRugCorner } from './rug-corner.js?v=3';
 import { armSlapAudio, openRugRoachGame } from './rug-roach-game.js?v=1';
 import { installDoorbell } from './doorbell-scene.js?v=3';
 import { ringDoorbell } from './doorbell-presence.js?v=1';
@@ -220,6 +220,29 @@ async function startRoom() {
   window.dispatchEvent(new Event('soft-hours:things-ready'));
   const storage=installOpenStorage(room);
   const rug=installRugCorner(room,openRugRoachGame);
+  const rugHint=document.createElement('button');
+  rugHint.type='button';
+  rugHint.className='rug-corner-hint';
+  rugHint.textContent='敢不敢看看下面有什么？';
+  rugHint.hidden=true;
+  area.append(rugHint);
+  const hintPoint=new THREE.Vector3();
+  function positionRugHint(){
+    room.localToWorld(hintPoint.set(2.75,.20,3.29)).project(camera);
+    const width=area.clientWidth,height=area.clientHeight;
+    const edge=Math.min(width/2,103);
+    rugHint.style.left=`${THREE.MathUtils.clamp((hintPoint.x+1)*width/2,edge,width-edge)}px`;
+    rugHint.style.top=`${THREE.MathUtils.clamp((1-hintPoint.y)*height/2,75,Math.max(75,height-25))}px`;
+  }
+  function tapRug(){
+    if(!rug.isOpen&&rugHint.hidden){
+      positionRugHint();rugHint.hidden=false;roomSound('page');return;
+    }
+    rugHint.hidden=true;
+    if(rug.toggle())armSlapAudio();
+    roomSound('fabric');
+  }
+  rugHint.onclick=tapRug;
   if (little.pillowPivot) storage.roundCushion.add(little.pillowPivot);
   room.traverse(o=>{if(o.isMesh&&!meshes.includes(o))meshes.push(o);});
   const wardrobe = installWardrobe(room);
@@ -470,7 +493,7 @@ async function startRoom() {
         roomSound(action.startsWith('drawer') ? 'drawer' : 'box');
       }
       else if (action === 'bed') { bed.toggle(); roomSound('fabric'); }
-      else if (action === 'rugCorner') { if(rug.toggle())armSlapAudio();roomSound('fabric'); }
+      else if (action === 'rugCorner') tapRug();
       else if (storage.plants.has(action)) roomProps.showPlant(action);
       else if (action === 'lamp') window.dispatchEvent(new Event('soft-hours:lamp'));
       else if (action) window.dispatchEvent(new CustomEvent('soft-hours:open', { detail: action }));
@@ -530,6 +553,7 @@ async function startRoom() {
     const gap = Math.max(0,curtainOpening.value.y-curtainOpening.value.x);
     windowGlow.material.opacity = nightUniform.value * .36 * THREE.MathUtils.smoothstep(gap,0,4.6);
     if (!curtains.dragging && !focusTween) controls.update();
+    if(!rugHint.hidden)positionRugHint();
     doorbell.update(reduced);
     renderer.render(scene, camera);
   });

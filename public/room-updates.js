@@ -1,6 +1,6 @@
 // Add an entry with a unique, stable ID when a new feature ships.
 const updates = [
-  {id:'rug-roach-game', title:'拖鞋大作战', description:'掀开地毯，拖鞋会飞到屏幕上。点中跑来跑去的蟑螂，把小屋收拾干净。'},
+  {id:'rug-roach-game', title:'拖鞋大作战', description:'点地毯看提示，再点一下掀开它。拖鞋会飞到屏幕上，帮你收拾到处爬的蟑螂。'},
   {id:'comfort-machine', title:'抽屉里的抽奖机', description:'拉开柜子最下面一排左侧的抽屉，点一下圆形小机器，再按「抽」，打开扭蛋里的安慰纸条。'},
   {id:'desktop-app', title:'把小屋装到桌面', description:'在 Edge 或 Chrome 的菜单里安装 Soft Hours，之后就能点桌面上的小屋图标进入。'},
   {id:'window-doorbell', title:'窗边多了一只小门铃', description:'对方刚到时，铃声和窗边纸条会提醒你。两个人都在时，小星星会亮起。'},

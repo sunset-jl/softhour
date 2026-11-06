@@ -69,6 +69,7 @@ export function installRugCorner(room,onReveal){
 
   let opened=false, progress=0, pendingReveal=false;
   return {
+    get isOpen(){return opened;},
     toggle(){opened=!opened;pendingReveal=opened;return opened;},
     update(delta,reduced,night){
       const target=opened?1:0;

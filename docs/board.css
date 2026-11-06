@@ -13,3 +13,46 @@
 .board-compose label{margin-bottom:6px}
 .board-compose small{margin-top:5px}
 .scene-actions [data-action="board"].has-unread:after{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:#bf8795;margin-left:5px;vertical-align:middle}
+
+/* Keep the dialog and both sets of controls in place as notes change. */
+.modal-shell.is-board:has(.board-content) .memory-panel {
+  height: min(720px, calc(100svh - 28px));
+}
+.modal-shell.is-board:has(.board-content) .memory-panel__scroll {
+  display: flex; flex: 1; flex-direction: column; min-height: 0; overflow: hidden;
+}
+.is-board:has(.board-content) .memory-panel__scroll > :not(#panelBody) { flex-shrink: 0; }
+.is-board:has(.board-content) #panelBody {
+  display: flex; flex: 1; flex-direction: column; min-height: 0;
+}
+.board-content { flex: 1; min-height: 0; margin: 2px 0; }
+.board-content #boardList { height: 100%; }
+.board-content .board-compose { max-height: 100%; margin: 0; overflow-y: auto; }
+.board-content .shared-note {
+  display: flex; flex-direction: column; box-sizing: border-box;
+  height: 100%; min-height: 0; margin: 0 2px; content-visibility: visible;
+}
+.board-content .shared-note > :not(.board-reading) { flex-shrink: 0; }
+.board-reading { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.board-reading:focus-visible { outline: 1px solid currentColor; outline-offset: -1px; }
+.board-content .shared-note footer {
+  display: grid; grid-template-columns: repeat(3,minmax(0,1fr)) minmax(0,2fr) minmax(0,1fr);
+  align-items: center; gap: 4px; width: min(100%, 290px); height: 34px;
+}
+.board-content .shared-note footer button { grid-row: 1; padding: 4px 2px; line-height: 1.15; }
+.shared-note footer [data-op="reply"] { grid-column: 1; }
+.shared-note footer [data-op="edit"] { grid-column: 2; }
+.shared-note footer [data-op="pin"] { grid-column: 3; }
+.shared-note footer [data-op="archive"] { grid-column: 4; }
+.shared-note footer [data-op="delete"] { grid-column: 5; }
+.is-board #boardPager { flex: 0 0 34px; margin: 6px 0 0; }
+.is-board #boardPager[hidden] { display: flex; visibility: hidden; }
+.is-board #boardPager span { width: 60px; text-align: center; font-variant-numeric: tabular-nums; }
+@media (max-height: 620px) {
+  .modal-shell.is-board:has(.board-content) .memory-panel { padding-top: 37px; }
+  .modal-shell.is-board:has(.board-content) .memory-panel__scroll { padding-bottom: 10px; }
+  .is-board:has(.board-content) .memory-panel__number { display: none; }
+  .is-board:has(.board-content) .memory-panel__intro { margin-bottom: 4px; }
+  .is-board:has(.board-content) .board-tabs { margin: 4px 0; }
+  .board-content .shared-note { padding: 10px; }
+}
