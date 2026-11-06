@@ -7,6 +7,7 @@ import {cloud,getIdentity,showPrivateGate} from './cloud.js';
 import {mountDrinkStudio} from './drink-studio.js';
 import {mountLedger, unmountLedger} from './room-ledger.js?v=ledger-controls-1';
 import {mountRoomCamera} from './room-camera.js?v=room-finds-2';
+import {mountRoomUpdates, updateRoomNotice} from './room-updates.js?v=1';
 const roomSection = document.getElementById('roomSection');
 const heroCopy = document.getElementById('heroCopy');
 const modalShell = document.getElementById('modalShell');
@@ -41,6 +42,7 @@ document.getElementById('resetView').addEventListener('click', () => {
 });
 
 const panels = {
+  updates:{number:'SOFT HOURS',title:'小屋更新',intro:'看看最近多了哪些可以探索的角落。'},
   ledger:{number:'J & K',title:'我们的小账本',intro:'定一个共同目标，每存一笔就离它近一点。'},
   camera:{number:'SOFT HOURS CAMERA',title:'把小屋拍下来',intro:'把喜欢的角落留成一张照片。'},
   goldKey:{number:'✦',title:'新地图，敬请期待',intro:'这把金钥匙，还藏着一扇没打开的门。'},
@@ -76,7 +78,7 @@ async function renderPrivateLogin(){
   };
   panelBody.querySelector('#privateSignout').onclick=async()=>{await cloud.auth.signOut();renderPrivateLogin();};
 }
-async function updatePrivateLabel(){const member=await getIdentity(true);document.getElementById('privateLogin').textContent=member?`${member.slot} · 私人模式`:'J/K 登录';if(currentPanel==='privateLogin')renderPrivateLogin();}
+async function updatePrivateLabel(){const member=await getIdentity(true);document.getElementById('privateLogin').textContent=member?`${member.slot} · 私人模式`:'J/K 登录';updateRoomNotice(member);if(currentPanel==='privateLogin')renderPrivateLogin();}
 window.addEventListener('soft-hours:auth-change',updatePrivateLabel);updatePrivateLabel();
 function renderCoffeeMachine(){
   const cupIndex=window.softHoursDockedCup;
@@ -103,6 +105,7 @@ function openPanel(name) {
   if (name === 'privateLogin') renderPrivateLogin();
   if (name === 'coffeeMachine') renderCoffeeMachine();
   if (name === 'camera') mountRoomCamera(panelBody);
+  if (name === 'updates') mountRoomUpdates(panelBody);
   if (name === 'ledger') {
     const sheet=document.createElement('div');panelBody.replaceChildren(sheet);
     mountLedger(sheet);
@@ -137,6 +140,7 @@ document.querySelectorAll('[data-action]').forEach(button => button.addEventList
 }));
 document.getElementById('closePanel').addEventListener('click', closePanel);
 document.getElementById('privateLogin').addEventListener('click',()=>openPanel('privateLogin'));
+document.getElementById('roomUpdates').addEventListener('click',()=>openPanel('updates'));
 modalShell.addEventListener('click', event => { if (event.target.matches('[data-close]')) closePanel(); });
 document.addEventListener('keydown', event => {
   if (event.key === 'Escape') closePanel();

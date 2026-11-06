@@ -1,0 +1,26 @@
+.topbar__identity { position: relative; }
+body .topbar .room-updates-button {
+  position: absolute; top: calc(100% + 4px); left: 0;
+  width: 31px; height: 31px; padding: 0; line-height: 1;
+}
+body .topbar .room-updates-button[hidden],
+.room-updates-badge[hidden] { display: none; }
+.room-updates-button span { margin: 0; }
+.room-updates-badge {
+  position: absolute; top: -6px; left: calc(100% - 6px);
+  padding: 3px 5px; border-radius: 999px; color: #633d66; background: #f5d0e5;
+  font-size: 10px; letter-spacing: 0; white-space: nowrap;
+  animation: room-updates-in .3s ease-out both;
+}
+.is-night .room-updates-badge { color: #442c58; background: #e9c9ff; }
+@keyframes room-updates-in {
+  from { opacity: 0; transform: translateY(4px) scale(.8); }
+  to { opacity: 1; transform: none; }
+}
+.room-updates-list { list-style: none; display: grid; gap: 10px; padding: 0; margin: 0; }
+.room-updates-list li { padding: 12px; border-radius: 12px; background: #9989ac22; }
+.room-updates-list h3, .room-updates-list p { margin: 0; }
+.room-updates-list h3 { display: flex; align-items: center; gap: 8px; font-size: .95rem; }
+.room-updates-list h3 span { padding: 2px 6px; border-radius: 999px; color: #633d66; background: #f5d0e5; font-size: .68rem; }
+.room-updates-list p { margin-top: 5px; font-size: .83rem; line-height: 1.6; }
+@media (prefers-reduced-motion: reduce) { .room-updates-badge { animation: none; } }

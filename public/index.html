@@ -13,10 +13,11 @@
   <link rel="stylesheet" href="./coffee-machine.css" /><link rel="stylesheet" href="./drink-studio.css" /><link rel="stylesheet" href="./drink-studio-polish.css" /><link rel="stylesheet" href="./private-gate.css" />
   <script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
   <script type="module" src="./scene.js?v=key-teaser-1"></script>
-  <script type="module" src="./script.js?v=key-teaser-1"></script>
+  <script type="module" src="./script.js?v=room-updates-1"></script>
   <script type="module" src="./room-music.js?v=long-1"></script>
-  <link rel="stylesheet" href="./birthday.css?v=1" />
-  <script type="module" src="./birthday.js?v=room-finds-2"></script>
+  <link rel="stylesheet" href="./birthday.css?v=birthday-day-1" />
+  <link rel="stylesheet" href="./room-updates.css?v=1" />
+  <script type="module" src="./birthday.js?v=birthday-day-1"></script>
 <link rel="stylesheet" href="./records.css?v=reference-beamed-notes-20261105">
 <link rel="stylesheet" href="./little-things.css?v=toast-player-spacing-1">
 <link rel="stylesheet" href="./snowglobe.css?v=room-finds-2"><link rel="stylesheet" href="./hand-cursor.css?v=cat-bubble-mobile-1"><script type="module" src="./hand-cursor.js"></script><link rel="stylesheet" href="./memory-gallery.css?v=goal-save-2"></head>
@@ -26,7 +27,10 @@
       <div class="room-sticky">
         <div class="backdrop-glow" aria-hidden="true"></div>
         <header class="topbar">
-          <span class="topbar__mark" aria-label="J and K">J<span>&amp;</span>K</span>
+          <div class="topbar__identity">
+            <span class="topbar__mark" aria-label="J and K">J<span>&amp;</span>K</span>
+            <button id="roomUpdates" class="topbar__reset room-updates-button" type="button" aria-label="小屋更新" hidden><span aria-hidden="true">✦</span><span class="room-updates-badge" aria-hidden="true" hidden>新</span></button>
+          </div>
           <div class="topbar__tools"><button id="roomMusic" class="topbar__reset" type="button" aria-pressed="false">音乐关</button><button id="privateLogin" class="topbar__reset" type="button">J/K 登录</button><button id="resetView" class="topbar__reset" type="button">回到原位 <span aria-hidden="true">↗</span></button></div>
         </header>
 
@@ -57,13 +61,14 @@
   </main>
 
   <dialog class="birthday" id="birthday" aria-labelledby="birthdayTitle">
+    <div class="birthday-danmaku" id="birthdayDanmaku" aria-hidden="true"></div>
     <div class="birthday__card">
       <p class="birthday__eyebrow">SOFT HOURS · 寄给今天的你</p>
       <div id="birthdayEnvelope">
         <div class="birthday__envelope" aria-hidden="true"><span>✦</span></div>
-        <h2 id="birthdayTitle">今天有一封信给你</h2>
+        <h2 id="birthdayTitle">生日快乐！</h2>
         <p class="birthday__copy">小屋替你留了一个小惊喜。</p>
-        <button id="birthdayOpen" type="button" autofocus>拆开看看</button>
+        <button id="birthdayOpen" type="button" autofocus>拆开生日信</button>
       </div>
       <div id="birthdayWish" hidden>
         <div class="birthday__stars" aria-hidden="true"><i>✦</i><i>✧</i><i>✦</i><i>✧</i></div>

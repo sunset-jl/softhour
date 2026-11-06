@@ -6,28 +6,51 @@ const envelope = document.getElementById('birthdayEnvelope');
 const wish = document.getElementById('birthdayWish');
 const greeting = document.getElementById('birthdayGreeting');
 const modal = document.getElementById('modalShell');
-const replay = new URLSearchParams(location.search).get('birthday') === '1';
+const danmaku = document.getElementById('birthdayDanmaku');
+const celebrationDay = '2026-11-06';
+const beijingDate = new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit'
+});
 
 let shown = false;
-let seenKey;
 let checkVersion = 0;
+
+function isCelebrationDay(now = new Date()) {
+  const parts = Object.fromEntries(beijingDate.formatToParts(now).map(({type,value}) => [type,value]));
+  return [parts.year, parts.month, parts.day].join('-') === celebrationDay;
+}
+
+function launchDanmaku() {
+  const messages = ['✦ 生日快乐！', '今天的小屋为你亮灯 ✧', '🎂 生日快乐呀！', '✿ 愿你每天都有小惊喜'];
+  danmaku.replaceChildren(...messages.map((message,index) => {
+    const line = document.createElement('span');
+    line.textContent = message;
+    line.style.setProperty('--lane', ['12%', '24%', '74%', '86%'][index]);
+    line.style.setProperty('--delay', `${index * .45}s`);
+    return line;
+  }));
+}
 
 async function checkBirthdayAccess() {
   const version = ++checkVersion;
-  if (typeof dialog.showModal !== 'function' || !modal.hidden) return;
+  if (typeof dialog.showModal !== 'function') return;
+  if (!isCelebrationDay()) {
+    if (dialog.open) dialog.close();
+    return;
+  }
+  if (!modal.hidden) return;
   const member = await getIdentity(true).catch(() => null);
-  if (version !== checkVersion || !modal.hidden) return;
-  if (member?.slot !== 'K') {
+  if (version !== checkVersion || !modal.hidden || !isCelebrationDay()) return;
+  if (!['J','K'].includes(member?.slot)) {
     if (dialog.open) dialog.close();
     return;
   }
   if (shown || dialog.open) return;
-  const key = `soft-hours-birthday-k-seen-v2:${member.user.id}`;
-  try {
-    if (!replay && sessionStorage.getItem(key) === 'yes') return;
-  } catch {}
+  envelope.hidden = false;
+  wish.hidden = true;
+  dialog.setAttribute('aria-labelledby', 'birthdayTitle');
+  launchDanmaku();
   dialog.showModal();
-  seenKey = key;
   shown = true;
 }
 
@@ -41,9 +64,7 @@ document.getElementById('birthdayOpen').addEventListener('click', () => {
 
 document.getElementById('birthdayEnter').addEventListener('click', () => dialog.close());
 dialog.addEventListener('close', () => {
-  if (seenKey) {
-    try { sessionStorage.setItem(seenKey, 'yes'); } catch {}
-  }
+  danmaku.replaceChildren();
   document.getElementById('roomCanvas')?.focus({ preventScroll: true });
 });
 
@@ -54,5 +75,14 @@ new MutationObserver(() => {
 window.addEventListener('soft-hours:auth-change', () => {
   ++checkVersion;
   setTimeout(checkBirthdayAccess, 0);
+});
+window.addEventListener('pageshow', event => {
+  if (event.persisted) {
+    shown = dialog.open;
+    checkBirthdayAccess();
+  }
+});
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) checkBirthdayAccess();
 });
 checkBirthdayAccess();

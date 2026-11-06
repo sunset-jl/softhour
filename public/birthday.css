@@ -3,6 +3,7 @@
   width: min(430px, calc(100% - 32px));
   max-height: calc(100dvh - 32px);
   padding: 0;
+  overflow: visible;
   border: 1px solid #eddfd4;
   border-radius: 26px;
   color: #5d4965;
@@ -15,7 +16,11 @@
 }
 .birthday__card {
   position: relative;
+  z-index: 1;
   overflow: hidden;
+  max-height: calc(100dvh - 34px);
+  overflow-y: auto;
+  border-radius: inherit;
   padding: clamp(24px, 7vw, 40px);
   text-align: center;
   background: radial-gradient(ellipse at top, #ffe5ed 0%, transparent 68%);
@@ -95,3 +100,19 @@
   to { opacity: 1; transform: none; }
 }
 @media (prefers-reduced-motion: reduce) { .birthday__stars i { animation: none; } }
+
+.birthday-danmaku { position: fixed; inset: 0; overflow: hidden; pointer-events: none; }
+.birthday-danmaku span {
+  position: absolute; top: var(--lane); left: 100%;
+  white-space: nowrap; padding: 6px 13px; border-radius: 24px;
+  color: #604266; background: #fff0f4ed; font-size: clamp(15px, 3vw, 25px);
+  font-weight: 600; box-shadow: 0 3px 16px #59334a26;
+  animation: birthday-danmaku-pass 7s linear var(--delay) both;
+}
+@keyframes birthday-danmaku-pass {
+  to { transform: translateX(calc(-100vw - 100%)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .birthday-danmaku span { left: 50%; animation: none; transform: translateX(-50%); }
+  .birthday-danmaku span:nth-child(even) { display: none; }
+}
