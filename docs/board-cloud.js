@@ -1,11 +1,12 @@
 import {cloud,getIdentity} from './cloud.js';
 import {ledgerPrefix} from './room-ledger.js?v=room-finds-2';
+import {doorbellPresenceMarker} from './doorbell-presence.js?v=1';
 function fail(error){if(error)throw Object.assign(new Error(error.message||'保存失败，请重试。'),{status:error.code==='23505'?409:400});}
 export async function boardApi(p){
   const me=await getIdentity();if(!me)throw Object.assign(new Error('请先登录小屋。'),{status:401});
   const notes=cloud.from('soft_hours_notes'),replies=cloud.from('soft_hours_replies'),reads=cloud.from('soft_hours_reads');
   if(!p){
-    const [n,r,v]=await Promise.all([notes.select('*').eq('deleted',false).not('body','like',ledgerPrefix+'%').order('pinned',{ascending:false}).order('created',{ascending:false}),replies.select('*').order('created'),reads.select('*')]);fail(n.error);fail(r.error);fail(v.error);
+    const [n,r,v]=await Promise.all([notes.select('*').eq('deleted',false).neq('body',doorbellPresenceMarker).not('body','like',ledgerPrefix+'%').order('pinned',{ascending:false}).order('created',{ascending:false}),replies.select('*').order('created'),reads.select('*')]);fail(n.error);fail(r.error);fail(v.error);
     return {me:me.slot,partnerReady:true,notes:n.data.map(item=>{const own=v.data.find(x=>x.note===item.id&&x.reader===me.user.id);const other=v.data.filter(x=>x.note===item.id&&x.reader!==me.user.id).reduce((max,x)=>Math.max(max,x.version),0);return {...item,mine:item.author===me.user.id,seen_version:own?.version||0,other_seen:other};}),replies:r.data};
   }
   if(p.action==='read'){

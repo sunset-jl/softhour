@@ -1,0 +1,23 @@
+.doorbell-marker {
+  position: absolute; z-index: 4; pointer-events: none;
+  transform: translate(-50%, -100%); color: #775877;
+}
+.doorbell-marker[hidden], .doorbell-paper[hidden] { display: none; }
+.doorbell-star {
+  display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%;
+  background: #fff0cce8; border: 1px solid #fff8e6; color: #946636;
+  box-shadow: 0 0 12px #f8d99db3;
+}
+.doorbell-paper {
+  position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+  white-space: nowrap; padding: 7px 12px; border: 1px solid #fffbef;
+  border-radius: 10px; background: #fff5e9ed; font-size: 12px;
+  box-shadow: 0 5px 16px #59415830; animation: doorbell-paper-pass 4.5s ease both;
+}
+.is-night .doorbell-paper { background: #51435ded; color: #fff0f5; border-color: #d6bfe5; }
+@keyframes doorbell-paper-pass {
+  from { opacity: 0; transform: translate(-50%, 5px); }
+  8%, 86% { opacity: 1; transform: translateX(-50%); }
+  to { opacity: 0; transform: translate(-50%, -3px); }
+}
+@media (prefers-reduced-motion: reduce) { .doorbell-paper { animation: none; } }

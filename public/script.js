@@ -2,12 +2,13 @@ import {mountThings,unmountThings} from './little-things.js?v=letters-local-1';
 import {mountRecords, unmountRecords} from './records.js?v=shared-goal-1';
 import {roomSound} from './room-sounds.js?v=room-finds-2';
 import { mountPhotos, unmountPhotos } from './photos.js?v=album-open-1';
-import { mountBoard, unmountBoard } from './board.js?v=room-finds-2';
+import { mountBoard, unmountBoard } from './board.js?v=doorbell-1';
 import {cloud,getIdentity,showPrivateGate} from './cloud.js';
 import {mountDrinkStudio} from './drink-studio.js';
 import {mountLedger, unmountLedger} from './room-ledger.js?v=ledger-controls-1';
 import {mountRoomCamera} from './room-camera.js?v=room-finds-2';
-import {mountRoomUpdates, updateRoomNotice} from './room-updates.js?v=1';
+import {mountRoomUpdates, updateRoomNotice} from './room-updates.js?v=2';
+import {setDoorbellMember} from './doorbell-presence.js?v=1';
 const roomSection = document.getElementById('roomSection');
 const heroCopy = document.getElementById('heroCopy');
 const modalShell = document.getElementById('modalShell');
@@ -78,7 +79,7 @@ async function renderPrivateLogin(){
   };
   panelBody.querySelector('#privateSignout').onclick=async()=>{await cloud.auth.signOut();renderPrivateLogin();};
 }
-async function updatePrivateLabel(){const member=await getIdentity(true);document.getElementById('privateLogin').textContent=member?`${member.slot} · 私人模式`:'J/K 登录';updateRoomNotice(member);if(currentPanel==='privateLogin')renderPrivateLogin();}
+async function updatePrivateLabel(){const member=await getIdentity(true);document.getElementById('privateLogin').textContent=member?`${member.slot} · 私人模式`:'J/K 登录';updateRoomNotice(member);setDoorbellMember(member);if(currentPanel==='privateLogin')renderPrivateLogin();}
 window.addEventListener('soft-hours:auth-change',updatePrivateLabel);updatePrivateLabel();
 function renderCoffeeMachine(){
   const cupIndex=window.softHoursDockedCup;

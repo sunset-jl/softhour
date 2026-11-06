@@ -12,6 +12,8 @@ import { prepareWardrobeClothes } from './wardrobe-clothes.js';
 import { installCurtains } from './curtains.js?v=room-finds-2';
 import { meowSound, pourSound, sipSound, roomSound } from './room-sounds.js?v=room-finds-2';
 import { installRoomProps } from './room-props.js?v=room-finds-2';
+import { installDoorbell } from './doorbell-scene.js?v=1';
+import { ringDoorbell } from './doorbell-presence.js?v=1';
 import * as THREE from 'three';
 import { OrbitControls } from './vendor/OrbitControls.js';
 import { GLTFLoader } from './vendor/loaders/GLTFLoader.js';
@@ -164,6 +166,7 @@ async function startRoom() {
   }
   function talkAfterLanding(){const choices=catLandingWords.filter(word=>word!==lastCatWord),next=choices[Math.floor(Math.random()*choices.length)];lastCatWord=next;catBubble.textContent=next;catBubble.hidden=false;catBubbleUntil=performance.now()+3400;}
   const envelope = prepareLittleThings(room);
+  const doorbell = installDoorbell(room,camera,area);
   prepareWardrobeClothes(room);
   room.traverse(object => {
     if (!object.isMesh) return;
@@ -300,7 +303,7 @@ async function startRoom() {
     reaction.hidden = false;
     reactionTimer = setTimeout(() => { reaction.hidden = true; }, 3300);
   }
-  Object.assign(labels, {drawerCamera:'相机 · 拍照', goldKey:'金钥匙', plantWindow:'窗边植物', plantDesk:'桌边植物', plantShelf:'书架植物', arrangeNotebook:'记账本 · 点击打开', pillow:'拖动圆抱枕'});
+  Object.assign(labels, {drawerCamera:'相机 · 拍照', goldKey:'金钥匙', doorbell:'窗边门铃', plantWindow:'窗边植物', plantDesk:'桌边植物', plantShelf:'书架植物', arrangeNotebook:'记账本 · 点击打开', pillow:'拖动圆抱枕'});
   const roomProps = installRoomProps({
     room, camera, canvas, controls, hitAt, cushion: storage.roundCushion, plants: storage.plants,
     tapPillow: () => { little.tap(); roomSound('pillow'); }, notify,
@@ -435,6 +438,7 @@ async function startRoom() {
       else if((action==='wardrobe'||action==='wardrobeAlbum')&&!wardrobe.isOpen()) { wardrobe.open(); roomSound('door'); }
       else if(action==='wardrobeAlbum') window.dispatchEvent(new CustomEvent('soft-hours:open',{detail:'wardrobe'}));
       else if (action === 'cat') {talkToCat();cat.tap();}
+      else if (action === 'doorbell') ringDoorbell();
       else if (action === 'drawerCamera') window.dispatchEvent(new CustomEvent('soft-hours:open',{detail:'camera'}));
       else if(action?.startsWith('drawer')||action?.startsWith('storageBox')) {
         storage.toggle(action);
@@ -498,7 +502,9 @@ async function startRoom() {
     curtainOpening.value.y = reduced ? aperture[1] : THREE.MathUtils.damp(curtainOpening.value.y,aperture[1],14,delta);
     const gap = Math.max(0,curtainOpening.value.y-curtainOpening.value.x);
     windowGlow.material.opacity = nightUniform.value * .36 * THREE.MathUtils.smoothstep(gap,0,4.6);
-    if (!curtains.dragging && !focusTween) controls.update(); renderer.render(scene, camera);
+    if (!curtains.dragging && !focusTween) controls.update();
+    doorbell.update(reduced);
+    renderer.render(scene, camera);
   });
   loader.hidden = true;
   installSnowglobe(room);
