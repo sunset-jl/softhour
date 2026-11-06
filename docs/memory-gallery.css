@@ -62,11 +62,17 @@ body .modal-shell .album-dots button { position: relative; width: 19px; height: 
   background: transparent; box-shadow: none; border: 0; backdrop-filter: none; border-radius: 0;
 }
 .modal-shell.is-records:has(#panelBody:not(.is-uploading) .record-fan) .memory-panel__close { top: max(18px, env(safe-area-inset-top)); right: clamp(15px, 3vw, 54px); width: 46px; height: 46px; }
-.modal-shell.is-records:has(#panelBody:not(.is-uploading) .record-fan) .memory-panel__scroll { height: 100%; display: grid; align-items: center; padding: 48px 0 12px; overflow-x: hidden; }
-.is-records .record-fan {
+.modal-shell.is-records {
   --cover: min(25vw, 42svh, 396px);
   --spread: min(17vw, 28svh);
-  margin: 0; width: 100%; height: calc(var(--cover) + 6svh); position: relative;
+  --fan-height: calc(var(--cover) + 6svh);
+  --fan-center: max(42svh, calc(48px + var(--fan-height) / 2));
+}
+.modal-shell.is-records:has(#panelBody:not(.is-uploading) .record-fan) .memory-panel__scroll {
+  height: 100%; padding: calc(var(--fan-center) - var(--fan-height) / 2) 0 12px; overflow-x: hidden;
+}
+.is-records .record-fan {
+  margin: 0; width: 100%; height: var(--fan-height); position: relative;
 }
 .is-records .record-fan .record-sleeve {
   position: absolute; top: 50%; left: 50%; width: var(--cover); aspect-ratio: 1; padding: 0;
@@ -74,7 +80,11 @@ body .modal-shell .album-dots button { position: relative; width: 19px; height: 
   transform-origin: center; z-index: calc(5 - var(--distance));
   transform: translate(-50%, -50%) translate(calc(var(--offset) * var(--spread)), calc(var(--distance) * 1.8svh))
     rotate(calc(var(--offset) * 6deg)) scale(calc(1 - var(--distance) * .115));
+  transition: transform 220ms cubic-bezier(.2,.75,.25,1);
   box-shadow: 0 7px 18px #47385d38; cursor: pointer;
+}
+@media (prefers-reduced-motion: reduce) {
+  .is-records .record-fan .record-sleeve { transition: none; }
 }
 .is-records .record-fan .record-sleeve img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .is-records .record-fan .record-sleeve.is-centered {
@@ -83,7 +93,8 @@ body .modal-shell .album-dots button { position: relative; width: 19px; height: 
 .is-records .record-fan .record-sleeve:focus-visible { outline: 3px solid #784ca1; outline-offset: 3px; }
 .is-records .record-fan .record-sleeve:hover { filter: brightness(1.07); }
 body .is-records .record-fan :is(.record-page-prev,.record-page-next) {
-  position: absolute; z-index: 8; top: 50%; transform: translateY(-50%);
+  position: fixed; z-index: 8; top: var(--fan-center); translate: 0 -50%;
+  display: grid; place-items: center; line-height: 1;
   width: clamp(34px, 4vw, 56px); aspect-ratio: 1; padding: 0; border-radius: 50%;
   color: #644c84; font-size: 26px; background: #f8edf4bc; border: 1px solid #fff9; cursor: pointer;
 }
@@ -94,7 +105,7 @@ body .is-records .record-fan :is(.record-page-prev,.record-page-next) {
 .record-caption span { font-size: 11px; }
 .is-night .is-records .record-caption { background: #4c426acc; color: #fff0fa; }
 @media(max-width:640px) {
-  .is-records .record-fan { --cover: min(49vw, 40svh); --spread: 22vw; }
+  .modal-shell.is-records { --cover: min(49vw, 40svh); --spread: 22vw; }
 }
 
 .ledger-columns { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1rem; }
@@ -102,5 +113,4 @@ body .is-records .record-fan :is(.record-page-prev,.record-page-next) {
 .camera-preview { width: 100%; max-height: 46svh; display: block; object-fit: contain; border-radius: 12px; }
 .camera-actions { display:flex; flex-wrap:wrap; justify-content:center; gap:.5rem; margin-top:.65rem; }
 .camera-status { text-align:center; }
-body .is-records .record-fan :is(.record-page-prev,.record-page-next):hover { transform:translateY(-50%); }
 @media (max-width: 600px) { .ledger-columns { grid-template-columns:1fr; } }

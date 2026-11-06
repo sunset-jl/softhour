@@ -1,5 +1,5 @@
 import {mountThings,unmountThings} from './little-things.js?v=letters-local-1';
-import {mountRecords, unmountRecords} from './records.js?v=room-finds-2';
+import {mountRecords, unmountRecords} from './records.js?v=record-glide-1';
 import {roomSound} from './room-sounds.js?v=room-finds-2';
 import { mountPhotos, unmountPhotos } from './photos.js?v=room-finds-2';
 import { mountBoard, unmountBoard } from './board.js?v=room-finds-2';
