@@ -26,12 +26,26 @@ export function installOpenStorage(room){
   return part(parent,new THREE.BoxGeometry(w,h,d),x,y,z,color,nightTint);
  }
  function fillDrawer(tray, index, x, floor){
-  if(index === 0 || index === 2) return null;
+  if(index === 2) return null;
   const props = new THREE.Group();
   props.position.set(x, floor, -2.96);
   tray.add(props);
 
-  if(index === 1){
+  if(index === 0){
+   // A tiny capsule machine with a pastel window and a gold crank.
+   props.rotation.y = -.08;
+   box(props,.32,.055,.245,0,.028,0,'#a78ebf');
+   box(props,.29,.105,.22,0,.105,0,'#d5badf');
+   const window=part(props,new THREE.SphereGeometry(.115,24,16),0,.185,.013,'#f3e3f2');
+   window.scale.set(1,.70,.84);
+   for(const [x,y,color] of [[-.05,.172,'#e8b5bc'],[.05,.177,'#d6c3e8'],[0,.215,'#f5d490']]){
+    part(props,new THREE.SphereGeometry(.026,12,8),x,y,.092,color);
+   }
+   box(props,.25,.022,.18,0,.257,0,'#baa0ce');
+   box(props,.103,.023,.01,-.037,.074,.114,'#886b9d');
+   const crank=part(props,new THREE.CylinderGeometry(.029,.029,.023,16),.077,.111,.118,'#edc686');
+   crank.rotation.x=Math.PI/2;
+  }else if(index === 1){
    // Rest the camera on its back so the lens is visible from above.
    props.rotation.y = -.17;
    box(props,.39,.076,.235,0,.038,0,'#d6b3c9');
@@ -82,6 +96,7 @@ export function installOpenStorage(room){
   const tray=new THREE.Group();pivot.add(tray);box(tray,.65,.035,.65,x,y+.025,-3.08,'#d5ba87');box(tray,.035,.29,.65,x-.31,y+.16,-3.08,'#e5cda0');box(tray,.035,.29,.65,x+.31,y+.16,-3.08,'#e5cda0');box(tray,.65,.29,.035,x,y+.16,-3.4,'#d9c092');
   const props=fillDrawer(tray,i,x,y+.0425);
   tray.traverse(o=>{if(o.isMesh)o.userData.action=action;});
+  if (i === 0) props.traverse(object => { if (object.isMesh) object.userData.action = 'comfortMachine'; });
   if (i === 1) props.traverse(object => { if (object.isMesh) object.userData.action = 'drawerCamera'; });
   if (props && (i === 3 || i === 4)) {
    const id = i === 3 ? 'arrangeLetter' : 'arrangeNotebook';

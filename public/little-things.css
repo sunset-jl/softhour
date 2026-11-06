@@ -2,4 +2,7 @@
 .scene-actions{max-width:calc(100vw - 32px);width:max-content;flex-wrap:wrap;justify-content:center}.scene-actions button{white-space:nowrap}@media(max-width:600px){.scene-actions{gap:5px}.scene-actions button{padding:7px 9px;font-size:10px}}
 /* Lift the pillow hint whenever the active player bar is visible. */
 .record-player-bar:not([hidden])~.little-toast,.little-toast:has(~.record-player-bar:not([hidden])){bottom:220px}
+.pillow-note.comfort-note{margin:12px 0 16px;padding:18px;text-align:left;transform:rotate(-1deg);font-size:clamp(16px,4vw,20px);line-height:1.7}
+.comfort-actions{display:flex;justify-content:center}
+.comfort-actions button{padding:8px 16px;cursor:pointer}
 @media(max-width:640px){.record-player-bar:not([hidden])~.little-toast,.little-toast:has(~.record-player-bar:not([hidden])){bottom:245px}}

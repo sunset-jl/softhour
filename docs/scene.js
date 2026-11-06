@@ -1,4 +1,4 @@
-import {installOpenStorage} from './open-storage.js?v=key-teaser-1';
+import {installOpenStorage} from './open-storage.js?v=comfort-machine-1';
 import {installCoffeeMachine} from './coffee-machine.js?v=room-finds-2';
 import {installArrangement} from './room-arrangement.js?v=room-finds-2';
 import {prepareCat} from './cat.js';
@@ -289,6 +289,7 @@ async function startRoom() {
     while (object && !object.userData.action) object = object.parent;
     const action=object?.userData.action;
     if(action==='goldKey'&&!storage.isOpen('storageBox1'))return 'storageBox1';
+    if(action==='comfortMachine'&&!storage.isOpen('drawer0'))return 'drawer0';
     return labels[action] ? action : null;
   }
   const reaction = document.createElement('div');
@@ -303,7 +304,7 @@ async function startRoom() {
     reaction.hidden = false;
     reactionTimer = setTimeout(() => { reaction.hidden = true; }, 3300);
   }
-  Object.assign(labels, {drawerCamera:'相机 · 拍照', goldKey:'金钥匙', doorbell:'窗边门铃', plantWindow:'窗边植物', plantDesk:'桌边植物', plantShelf:'书架植物', arrangeNotebook:'记账本 · 点击打开', pillow:'拖动圆抱枕'});
+  Object.assign(labels, {drawerCamera:'相机 · 拍照', comfortMachine:'安慰抽奖机', goldKey:'金钥匙', doorbell:'窗边门铃', plantWindow:'窗边植物', plantDesk:'桌边植物', plantShelf:'书架植物', arrangeNotebook:'记账本 · 点击打开', pillow:'拖动圆抱枕'});
   const roomProps = installRoomProps({
     room, camera, canvas, controls, hitAt, cushion: storage.roundCushion, plants: storage.plants,
     tapPillow: () => { little.tap(); roomSound('pillow'); }, notify,
