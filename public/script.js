@@ -7,7 +7,7 @@ import {cloud,getIdentity,showPrivateGate} from './cloud.js';
 import {mountDrinkStudio} from './drink-studio.js';
 import {mountLedger, unmountLedger} from './room-ledger.js?v=ledger-controls-1';
 import {mountRoomCamera} from './room-camera.js?v=room-finds-2';
-import {mountRoomUpdates, updateRoomNotice} from './room-updates.js?v=2';
+import {mountRoomUpdates, updateRoomNotice} from './room-updates.js?v=3';
 import {setDoorbellMember} from './doorbell-presence.js?v=1';
 const roomSection = document.getElementById('roomSection');
 const heroCopy = document.getElementById('heroCopy');

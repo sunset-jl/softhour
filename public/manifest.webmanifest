@@ -1,0 +1,17 @@
+{
+  "id": "./",
+  "name": "Soft Hours",
+  "short_name": "Soft Hours",
+  "lang": "zh-CN",
+  "description": "一间收藏友谊回忆的互动小房间。",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "theme_color": "#302943",
+  "background_color": "#302943",
+  "icons": [
+    {"src": "./assets/soft-hours-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "./assets/soft-hours-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "./assets/soft-hours-icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}
