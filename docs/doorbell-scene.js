@@ -4,7 +4,7 @@ import { doorbellState } from './doorbell-presence.js?v=1';
 export function installDoorbell(room, camera, area){
   const mount = new THREE.Group();
   mount.name = 'Window doorbell';
-  mount.position.set(-5.19,3.02,3.56);
+  mount.position.set(-5.19,3.02,3.74);
   mount.rotation.y = Math.PI / 2;
   mount.userData.action = 'doorbell';
   room.add(mount);
