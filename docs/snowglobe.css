@@ -5,8 +5,8 @@
 
 .globe-entry{display:inline-flex;align-items:center;justify-content:center;gap:7px;text-align:center;line-height:1.2}.globe-entry span{display:inline-flex;align-items:center;justify-content:center;margin:0;line-height:1;width:23px;height:23px;flex-shrink:0}
 /* Place the keepsake action beside the room, clear of the title and top bar. */
-.globe-entry{top:auto;right:auto;left:clamp(18px,4vw,66px);bottom:76px}
-@media(max-width:600px){.globe-entry{top:auto;right:auto;left:16px;bottom:136px}}
+.globe-entry{top:auto;right:auto;left:clamp(18px,4vw,66px);bottom:64px}
+@media(max-width:600px){.globe-entry{top:auto;right:auto;left:16px;bottom:124px}}
 .globe-stage.has-selfie{width:min(100%,58vh);margin:0 auto;aspect-ratio:18/17;border-radius:18px;overflow:hidden}
 .globe-stage.has-selfie canvas{position:relative}
 .globe-selfie-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
