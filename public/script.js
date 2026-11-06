@@ -1,11 +1,11 @@
 import {mountThings,unmountThings} from './little-things.js?v=letters-local-1';
-import {mountRecords, unmountRecords} from './records.js?v=record-glide-1';
+import {mountRecords, unmountRecords} from './records.js?v=shared-goal-1';
 import {roomSound} from './room-sounds.js?v=room-finds-2';
 import { mountPhotos, unmountPhotos } from './photos.js?v=room-finds-2';
 import { mountBoard, unmountBoard } from './board.js?v=room-finds-2';
 import {cloud,getIdentity,showPrivateGate} from './cloud.js';
 import {mountDrinkStudio} from './drink-studio.js';
-import {mountLedger} from './room-ledger.js?v=room-finds-2';
+import {mountLedger, unmountLedger} from './room-ledger.js?v=shared-goal-1';
 import {mountRoomCamera} from './room-camera.js?v=room-finds-2';
 const roomSection = document.getElementById('roomSection');
 const heroCopy = document.getElementById('heroCopy');
@@ -41,7 +41,7 @@ document.getElementById('resetView').addEventListener('click', () => {
 });
 
 const panels = {
-  ledger:{number:'J & K',title:'我们的小账本',intro:'各记各的一笔，生活的开销都留在这里。'},
+  ledger:{number:'J & K',title:'我们的小账本',intro:'定一个共同目标，每存一笔就离它近一点。'},
   camera:{number:'SOFT HOURS CAMERA',title:'把小屋拍下来',intro:'把喜欢的角落留成一张照片。'},
   bedPrank:{number:'',title:'烤鱼女士禁止睡觉！',intro:''},
   spilledTea:{number:'',title:'你为什么要这样对我的奶茶！',intro:''},
@@ -85,7 +85,7 @@ function renderCoffeeMachine(){
 function openPanel(name) {
   const data = panels[name]; if (!data) return;
   roomSound(name === 'letters' ? 'page' : 'panelOpen');
-  unmountBoard(); unmountPhotos(); unmountRecords(); unmountThings();
+  unmountBoard(); unmountPhotos(); unmountRecords(); unmountThings(); unmountLedger();
   panelBody.classList.remove("is-uploading");
   currentPanel = name;
   modalShell.classList.toggle('is-bed-prank',name==='bedPrank'||name==='spilledTea');
@@ -116,7 +116,7 @@ function closePanel() {
   if (!currentPanel) return;
   if (currentPanel==='camera') window.dispatchEvent(new Event('soft-hours:camera-closed'));
   roomSound('panelClose');
-  unmountBoard(); unmountPhotos(); unmountRecords(); unmountThings();
+  unmountBoard(); unmountPhotos(); unmountRecords(); unmountThings(); unmountLedger();
   document.getElementById('audioPlayer')?.pause();
   if (localAudioUrl) { URL.revokeObjectURL(localAudioUrl); localAudioUrl = null; }
   photoUrls.forEach(URL.revokeObjectURL); photoUrls = [];

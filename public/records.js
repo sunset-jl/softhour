@@ -72,9 +72,9 @@ function draw(){
  let fan=host.querySelector('.record-fan');
  if(!fan){
   host.innerHTML=`<div class="record-fan" aria-label="浏览唱片">
-   <button class="record-page-prev" type="button" aria-label="上一张唱片">‹</button>
+   <button class="record-page-prev" type="button" aria-label="上一张唱片"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button>
    <div class="record-sleeves"></div>
-   <button class="record-page-next" type="button" aria-label="下一张唱片">›</button>
+   <button class="record-page-next" type="button" aria-label="下一张唱片"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
   </div>
   <p class="record-caption" aria-live="polite"><strong></strong><span></span></p>
   <div class="record-library-actions"><button class="record-add">＋ 收进一张唱片</button></div><div class="record-form-slot"></div>`;

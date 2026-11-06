@@ -100,6 +100,10 @@ body .is-records .record-fan :is(.record-page-prev,.record-page-next) {
 }
 .record-fan .record-page-prev { left: max(10px, 2vw); }
 .record-fan .record-page-next { right: max(10px, 2vw); }
+.record-fan :is(.record-page-prev,.record-page-next) svg {
+  display: block; width: 24px; height: 24px; fill: none; stroke: currentColor;
+  stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; pointer-events: none;
+}
 .is-records .record-caption { margin: 4px auto 8px; width: fit-content; max-width: 84vw; padding: 6px 17px; border-radius: 18px; background: #fff6e3af; color: #5b456e; }
 .record-caption :is(strong,span) { display: block; }
 .record-caption span { font-size: 11px; }
@@ -108,9 +112,35 @@ body .is-records .record-fan :is(.record-page-prev,.record-page-next) {
   .modal-shell.is-records { --cover: min(49vw, 40svh); --spread: 22vw; }
 }
 
-.ledger-columns { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1rem; }
-.ledger-columns section { min-width: 0; padding: .8rem; border-radius: 1rem; background: #9989ac18; }
+.room-ledger { display: grid; gap: 12px; }
+.room-ledger [hidden] { display: none; }
+.ledger-goal, .ledger-columns section { min-width: 0; padding: .75rem; border-radius: 1rem; background: #9989ac18; }
+.ledger-goal h3, .ledger-columns h3, .ledger-goal p, .ledger-status { margin: 0; }
+.ledger-goal h3 { overflow-wrap: anywhere; }
+.ledger-goal p, .ledger-status { font-size: .85rem; }
+.ledger-status:empty { display: none; }
+.ledger-goal summary, .ledger-history summary { width: fit-content; margin-top: 6px; cursor: pointer; font-size: .85rem; }
+.ledger-meter { height: 9px; margin: 9px 0; overflow: hidden; border-radius: 20px; background: #82689542; }
+.ledger-meter i { display: block; width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg,#9278bd,#c493ad); transition: width .28s ease; }
+.is-night .ledger-meter i { background: linear-gradient(90deg,#b398e1,#efb9ce); }
+.ledger-form { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,.7fr) auto; align-items: end; gap: 6px; }
+.ledger-goal .ledger-form { margin-top: 8px; }
+.ledger-form label { display: grid; gap: 3px; min-width: 0; font-size: .78rem; }
+.ledger-form input { width: 100%; padding: 7px; color: inherit; background: #a88eb71e; border: 1px solid #a88eb76b; border-radius: 9px; font: inherit; }
+.room-ledger button { padding: 6px 9px; font-size: .76rem; cursor: pointer; }
+.ledger-columns { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .6rem; }
+.ledger-columns h3 { display: flex; align-items: center; justify-content: space-between; gap: 4px; }
+.room-ledger ul { list-style: none; margin: 5px 0 0; padding: 0; }
+.room-ledger li { display: flex; align-items: baseline; gap: .35rem; padding: 4px 0; font-size: .75rem; }
+.room-ledger li span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.room-ledger li small { display: block; opacity: .8; }
+.ledger-actions { display: flex; justify-content: flex-end; gap: 6px; }
+@media (prefers-reduced-motion: reduce) { .ledger-meter i { transition: none; } }
 .camera-preview { width: 100%; max-height: 46svh; display: block; object-fit: contain; border-radius: 12px; }
 .camera-actions { display:flex; flex-wrap:wrap; justify-content:center; gap:.5rem; margin-top:.65rem; }
 .camera-status { text-align:center; }
-@media (max-width: 600px) { .ledger-columns { grid-template-columns:1fr; } }
+@media (max-width: 480px) {
+  .ledger-columns { grid-template-columns: 1fr; }
+  .ledger-form { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .ledger-form button { grid-column: 1 / -1; justify-self: end; }
+}
