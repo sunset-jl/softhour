@@ -12,7 +12,8 @@ import { prepareWardrobeClothes } from './wardrobe-clothes.js';
 import { installCurtains } from './curtains.js?v=room-finds-2';
 import { meowSound, pourSound, sipSound, roomSound } from './room-sounds.js?v=room-finds-2';
 import { installRoomProps } from './room-props.js?v=room-finds-2';
-import { installRugCorner } from './rug-corner.js?v=1';
+import { installRugCorner } from './rug-corner.js?v=2';
+import { armSlapAudio, openRugRoachGame } from './rug-roach-game.js?v=1';
 import { installDoorbell } from './doorbell-scene.js?v=3';
 import { ringDoorbell } from './doorbell-presence.js?v=1';
 import * as THREE from 'three';
@@ -218,7 +219,7 @@ async function startRoom() {
   const little = installLittleThings(room,envelope);
   window.dispatchEvent(new Event('soft-hours:things-ready'));
   const storage=installOpenStorage(room);
-  const rug=installRugCorner(room);
+  const rug=installRugCorner(room,openRugRoachGame);
   if (little.pillowPivot) storage.roundCushion.add(little.pillowPivot);
   room.traverse(o=>{if(o.isMesh&&!meshes.includes(o))meshes.push(o);});
   const wardrobe = installWardrobe(room);
@@ -469,7 +470,7 @@ async function startRoom() {
         roomSound(action.startsWith('drawer') ? 'drawer' : 'box');
       }
       else if (action === 'bed') { bed.toggle(); roomSound('fabric'); }
-      else if (action === 'rugCorner') { rug.toggle(); roomSound('fabric'); }
+      else if (action === 'rugCorner') { if(rug.toggle())armSlapAudio();roomSound('fabric'); }
       else if (storage.plants.has(action)) roomProps.showPlant(action);
       else if (action === 'lamp') window.dispatchEvent(new Event('soft-hours:lamp'));
       else if (action) window.dispatchEvent(new CustomEvent('soft-hours:open', { detail: action }));

@@ -1,5 +1,5 @@
 import {showPrivateGate} from './cloud.js';
-import {boardApi} from './board-cloud.js?v=doorbell-1';
+import {boardApi} from './board-cloud.js?v=memory-box-fix-1';
 let host=null, data=null, filter='active', timer=null, busy=false, loading=false, signature='', editor=null, page=0, textPage=0;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const date=n=>new Date(n).toLocaleString('zh-CN',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});

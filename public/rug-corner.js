@@ -8,7 +8,7 @@ const crease = 5.16;
 const hingeHeight = .135;
 const diagonal = Math.SQRT1_2;
 
-export function installRugCorner(room){
+export function installRugCorner(room,onReveal){
   const source = room.getObjectByName('room');
   const geometry = new THREE.BufferGeometry();
   for(const [name,attribute] of Object.entries(source.geometry.attributes)){
@@ -67,9 +67,9 @@ export function installRugCorner(room){
   oval('#f8e7c9',0,.167,-.125,.042,.011,.044);
   oval('#edc17f',0,.176,-.125,.021,.007,.021);
 
-  let opened=false, progress=0;
+  let opened=false, progress=0, pendingReveal=false;
   return {
-    toggle(){opened=!opened;},
+    toggle(){opened=!opened;pendingReveal=opened;return opened;},
     update(delta,reduced,night){
       const target=opened?1:0;
       if(progress!==target){
@@ -87,6 +87,7 @@ export function installRugCorner(room){
         mesh.visible=progress>.51;
         if(mesh.visible)mesh.material.color.lerpColors(day,shade,night);
       }
+      if(pendingReveal&&progress>=.96){pendingReveal=false;onReveal?.();}
     },
   };
 }

@@ -21,7 +21,8 @@ export async function boardApi(p){
   }
   if(p.version!==note.version)throw Object.assign(new Error('便签已更新，请刷新后重试。'),{status:409});
   if(['edit','delete'].includes(p.action)&&note.author!==me.user.id)throw Object.assign(new Error('只能修改自己的便签。'),{status:403});
-  const changes={edit:{body:p.body.trim()},delete:{deleted:true},pin:{pinned:!note.pinned},archive:{archived:!note.archived}}[p.action];
+  const changes=p.action==='edit'?{body:p.body.trim()}:
+    {delete:{deleted:true},pin:{pinned:!note.pinned},archive:{archived:!note.archived}}[p.action];
   if(!changes)throw Error('操作无效。');
   const {data,error}=await notes.update({...changes,version:note.version+1}).eq('id',p.id).eq('version',note.version).select('id');fail(error);if(!data.length)throw Object.assign(new Error('便签已更新，请刷新后重试。'),{status:409});return {ok:true};
 }
