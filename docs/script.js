@@ -5,7 +5,7 @@ import { mountPhotos, unmountPhotos } from './photos.js?v=room-finds-2';
 import { mountBoard, unmountBoard } from './board.js?v=room-finds-2';
 import {cloud,getIdentity,showPrivateGate} from './cloud.js';
 import {mountDrinkStudio} from './drink-studio.js';
-import {mountLedger, unmountLedger} from './room-ledger.js?v=goal-save-2';
+import {mountLedger, unmountLedger} from './room-ledger.js?v=ledger-controls-1';
 import {mountRoomCamera} from './room-camera.js?v=room-finds-2';
 const roomSection = document.getElementById('roomSection');
 const heroCopy = document.getElementById('heroCopy');
@@ -43,6 +43,7 @@ document.getElementById('resetView').addEventListener('click', () => {
 const panels = {
   ledger:{number:'J & K',title:'我们的小账本',intro:'定一个共同目标，每存一笔就离它近一点。'},
   camera:{number:'SOFT HOURS CAMERA',title:'把小屋拍下来',intro:'把喜欢的角落留成一张照片。'},
+  goldKey:{number:'✦',title:'新地图，敬请期待',intro:'这把金钥匙，还藏着一扇没打开的门。'},
   bedPrank:{number:'',title:'烤鱼女士禁止睡觉！',intro:''},
   spilledTea:{number:'',title:'你为什么要这样对我的奶茶！',intro:''},
   letters:{number:'04 / LETTERS TO TOMORROW',title:'未来来信',intro:'把今天想说的话，留给未来某一天的你。'},
@@ -95,6 +96,7 @@ function openPanel(name) {
   panelNumber.textContent = data.number; panelTitle.textContent = data.title; panelIntro.textContent = data.intro;
   if(name==='bedPrank'){panelBody.replaceChildren();const ok=document.createElement('button');ok.type='button';ok.className='bed-prank-ok';ok.textContent='好啦，醒着呢！';ok.addEventListener('click',closePanel);panelBody.append(ok);}
   if(name==='spilledTea'){panelBody.replaceChildren();const ok=document.createElement('button');ok.type='button';ok.className='bed-prank-ok';ok.textContent='我错啦';ok.addEventListener('click',closePanel);panelBody.append(ok);}
+  if(name==='goldKey')panelBody.replaceChildren();
   if (name === 'wardrobe') renderWardrobe();
   if (name === 'record') renderRecord();
   if (name === 'board') renderBoard();

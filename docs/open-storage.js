@@ -116,8 +116,9 @@ export function installOpenStorage(room){
    box(key,.32,.038,.043,.074,.025,0,'#dba34c');
    box(key,.044,.038,.083,.17,.025,.027,'#eab75f');
    box(key,.046,.038,.10,.23,.025,.034,'#eab75f');
+   key.traverse(object=>{if(object.isMesh)object.userData.action='goldKey';});
   }
-  body.traverse(o=>{if(o.isMesh)o.userData.action=action;});parts.push({pivot,action,open:false,kind:'lid'});
+  body.traverse(o=>{if(o.isMesh&&!o.userData.action)o.userData.action=action;});parts.push({pivot,action,open:false,kind:'lid'});
  }
  room.add(roundCushion);
  extract(215404,220109,'pillow',roundCushion);
@@ -137,5 +138,10 @@ export function installOpenStorage(room){
  // Remove the small decorative purple block in front of the drawers.
  for(const id of g.index.array)if(id>=159879&&id<=160070)removed.add(id);
  const keep=[];for(let i=0;i<g.index.count;i+=3)if(!removed.has(g.index.array[i]))keep.push(g.index.array[i],g.index.array[i+1],g.index.array[i+2]);g.setIndex(keep);
- return {keepsakes,roundCushion,plants,toggle(action){const p=parts.find(p=>p.action===action);if(p)p.open=!p.open;},setNight(amount){for(const c of colored)c.material.color.lerpColors(c.day,c.night,amount);},update(dt,reduced){for(const p of parts){const target=p.open?(p.kind==='drawer'?.66:-1.65):0;if(p.kind==='drawer')p.pivot.position.z=reduced?target:THREE.MathUtils.damp(p.pivot.position.z,target,9,dt);else p.pivot.rotation.x=reduced?target:THREE.MathUtils.damp(p.pivot.rotation.x,target,9,dt);}}};
+ return {keepsakes,roundCushion,plants,
+  isOpen(action){return parts.some(part=>part.action===action&&part.open);},
+  toggle(action){const p=parts.find(p=>p.action===action);if(p)p.open=!p.open;},
+  setNight(amount){for(const c of colored)c.material.color.lerpColors(c.day,c.night,amount);},
+  update(dt,reduced){for(const p of parts){const target=p.open?(p.kind==='drawer'?.66:-1.65):0;if(p.kind==='drawer')p.pivot.position.z=reduced?target:THREE.MathUtils.damp(p.pivot.position.z,target,9,dt);else p.pivot.rotation.x=reduced?target:THREE.MathUtils.damp(p.pivot.rotation.x,target,9,dt);}}
+ };
 }

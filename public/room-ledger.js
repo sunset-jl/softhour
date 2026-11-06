@@ -177,7 +177,8 @@ export async function mountLedger(host){
 
   async function write(form, type){
     if(busy) return;
-    const {item: nameInput, amount: amountInput} = form.elements;
+    const nameInput = form.elements.namedItem('item');
+    const amountInput = form.elements.namedItem('amount');
     const feedback = form.querySelector('.ledger-form-status');
     const item = nameInput.value.trim() || (type === 'contribution' ? '存了一笔' : '');
     const cents = parseAmount(amountInput.value);
@@ -231,8 +232,8 @@ export async function mountLedger(host){
 
   goalSettings.querySelector('summary').onclick = () => {
     if(goalSettings.open) return;
-    goalForm.elements.item.value = goal?.item || '';
-    goalForm.elements.amount.value = goal ? (goal.cents / 100).toFixed(2) : '';
+    goalForm.elements.namedItem('item').value = goal?.item || '';
+    goalForm.elements.namedItem('amount').value = goal ? (goal.cents / 100).toFixed(2) : '';
   };
   goalForm.onsubmit = event => {event.preventDefault();write(goalForm,'goal');};
   contributionForm.onsubmit = event => {event.preventDefault();if(goal)write(contributionForm,'contribution');};

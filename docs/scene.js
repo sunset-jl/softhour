@@ -1,4 +1,4 @@
-import {installOpenStorage} from './open-storage.js?v=room-finds-2';
+import {installOpenStorage} from './open-storage.js?v=key-teaser-1';
 import {installCoffeeMachine} from './coffee-machine.js?v=room-finds-2';
 import {installArrangement} from './room-arrangement.js?v=room-finds-2';
 import {prepareCat} from './cat.js';
@@ -253,7 +253,7 @@ async function startRoom() {
     roomSound('focus');
     room.updateMatrixWorld(true);
     const center=name==='curtains'?new THREE.Vector3(-5.15,2.55,0):name==='letters'?envelope.getWorldPosition(new THREE.Vector3()):name==='coffeeMachine'?new THREE.Vector3(1.55,1.75,-3.25):name==='wardrobe'?new THREE.Vector3(3.9,1.72,-3.1):name==='storageBoxes'?new THREE.Vector3(3.9,3.55,-3.45):name==='drawers'?new THREE.Vector3(.76,.85,-2.75):new THREE.Vector3(-.65,1.3,-3.15);
-    const aim=new THREE.Vector3(center.x,8.5,center.z);
+    const aim=new THREE.Vector3(center.x,name==='storageBoxes'?28:8.5,center.z);
     moveView({position:aim.clone().add(name==='curtains'?new THREE.Vector3(24.5,0,3):new THREE.Vector3(7,0,24.65)),target:aim,focus:center,zoom:name==='curtains'?2.35:name==='letters'?3.5:name==='coffeeMachine'?3.2:name==='drawers'||name==='storageBoxes'?Math.min(3.5,camera.aspect<.8?3.3:3.1):Math.min(3.5,Math.max(2.3,camera.aspect<.8?3.3:2.7))});
     return true;
   }
@@ -284,7 +284,9 @@ async function startRoom() {
     if (!hit) return undefined;
     let object = hit.object;
     while (object && !object.userData.action) object = object.parent;
-    return labels[object?.userData.action] ? object.userData.action : null;
+    const action=object?.userData.action;
+    if(action==='goldKey'&&!storage.isOpen('storageBox1'))return 'storageBox1';
+    return labels[action] ? action : null;
   }
   const reaction = document.createElement('div');
   reaction.className = 'little-toast';
@@ -298,7 +300,7 @@ async function startRoom() {
     reaction.hidden = false;
     reactionTimer = setTimeout(() => { reaction.hidden = true; }, 3300);
   }
-  Object.assign(labels, {drawerCamera:'相机 · 拍照', plantWindow:'窗边植物', plantDesk:'桌边植物', plantShelf:'书架植物', arrangeNotebook:'记账本 · 点击打开', pillow:'拖动圆抱枕'});
+  Object.assign(labels, {drawerCamera:'相机 · 拍照', goldKey:'金钥匙', plantWindow:'窗边植物', plantDesk:'桌边植物', plantShelf:'书架植物', arrangeNotebook:'记账本 · 点击打开', pillow:'拖动圆抱枕'});
   const roomProps = installRoomProps({
     room, camera, canvas, controls, hitAt, cushion: storage.roundCushion, plants: storage.plants,
     tapPillow: () => { little.tap(); roomSound('pillow'); }, notify,
