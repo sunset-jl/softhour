@@ -20,10 +20,24 @@ const notes = [
 ];
 let remaining = [];
 let last = -1;
+let timer;
+
+export function unmountComfortMachine(){
+  clearTimeout(timer);
+}
 
 export function mountComfortMachine(host){
-  host.innerHTML = '<blockquote class="pillow-note comfort-note" role="status"></blockquote><div class="comfort-actions"><button type="button">再抽一张</button></div>';
+  host.innerHTML = `<div class="comfort-stage" data-phase="ready">
+    <canvas class="comfort-preview" width="384" height="384" role="img" aria-label="圆形扭蛋机"></canvas>
+    <span class="comfort-capsule" aria-hidden="true"><i></i><i></i></span>
+  </div>
+  <div class="comfort-actions"><button type="button">抽</button></div>
+  <div class="comfort-paper-slot"><blockquote class="pillow-note comfort-note" role="status"></blockquote></div>`;
+  const stage = host.querySelector('.comfort-stage');
+  const preview = host.querySelector('canvas');
+  window.dispatchEvent(new CustomEvent('soft-hours:comfort-preview',{detail:preview}));
   const card = host.querySelector('.comfort-note');
+  const button = host.querySelector('button');
   function draw(){
     if(!remaining.length)remaining = notes.map((_, index) => index);
     const available = remaining.length > 1 ? remaining.filter(index => index !== last) : remaining;
@@ -31,6 +45,25 @@ export function mountComfortMachine(host){
     remaining.splice(remaining.indexOf(last),1);
     card.textContent = notes[last];
   }
-  draw();
-  host.querySelector('button').onclick = () => {draw();roomSound('sparkle');};
+  function reveal(){
+    stage.dataset.phase = 'revealed';
+    draw();
+    button.disabled = false;
+    roomSound('sparkle');
+  }
+  function next(phase, delay, after){
+    stage.dataset.phase = phase;
+    timer = setTimeout(after,delay);
+  }
+  button.onclick = () => {
+    if(button.disabled)return;
+    card.textContent = '';
+    button.disabled = true;
+    if(matchMedia('(prefers-reduced-motion: reduce)').matches){reveal();return;}
+    roomSound('box');
+    next('shake',460,() => next('drop',480,() => {
+      roomSound('place');
+      next('open',340,reveal);
+    }));
+  };
 }

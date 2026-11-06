@@ -7,9 +7,9 @@ import {cloud,getIdentity,showPrivateGate} from './cloud.js';
 import {mountDrinkStudio} from './drink-studio.js';
 import {mountLedger, unmountLedger} from './room-ledger.js?v=ledger-controls-1';
 import {mountRoomCamera} from './room-camera.js?v=room-finds-2';
-import {mountRoomUpdates, updateRoomNotice} from './room-updates.js?v=4';
+import {mountRoomUpdates, updateRoomNotice} from './room-updates.js?v=5';
 import {setDoorbellMember} from './doorbell-presence.js?v=1';
-import {mountComfortMachine} from './comfort-machine.js?v=1';
+import {mountComfortMachine, unmountComfortMachine} from './comfort-machine.js?v=2';
 const roomSection = document.getElementById('roomSection');
 const heroCopy = document.getElementById('heroCopy');
 const modalShell = document.getElementById('modalShell');
@@ -90,8 +90,8 @@ function renderCoffeeMachine(){
 }
 function openPanel(name) {
   const data = panels[name]; if (!data) return;
-  roomSound(name === 'letters' ? 'page' : name === 'comfortMachine' ? 'sparkle' : 'panelOpen');
-  unmountBoard(); unmountPhotos(); unmountRecords(); unmountThings(); unmountLedger();
+  roomSound(name === 'letters' ? 'page' : 'panelOpen');
+  unmountBoard(); unmountPhotos(); unmountRecords(); unmountThings(); unmountLedger(); unmountComfortMachine();
   panelBody.classList.remove("is-uploading");
   currentPanel = name;
   modalShell.classList.toggle('is-bed-prank',name==='bedPrank'||name==='spilledTea');
@@ -125,7 +125,7 @@ function closePanel() {
   if (!currentPanel) return;
   if (currentPanel==='camera') window.dispatchEvent(new Event('soft-hours:camera-closed'));
   roomSound('panelClose');
-  unmountBoard(); unmountPhotos(); unmountRecords(); unmountThings(); unmountLedger();
+  unmountBoard(); unmountPhotos(); unmountRecords(); unmountThings(); unmountLedger(); unmountComfortMachine();
   document.getElementById('audioPlayer')?.pause();
   if (localAudioUrl) { URL.revokeObjectURL(localAudioUrl); localAudioUrl = null; }
   photoUrls.forEach(URL.revokeObjectURL); photoUrls = [];

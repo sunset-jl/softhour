@@ -3,6 +3,7 @@ export function installOpenStorage(room){
  const keepsakes = new Map();
  const roundCushion = new THREE.Group();
  const plants = new Map();
+ let comfortMachine;
  const source=room.getObjectByName('room'),g=source.geometry,parts=[],removed=new Set(),colored=[];
  function extract(a,b,action,pivot){
   const ids=[];for(const id of g.index.array)if(id>=a&&id<=b){ids.push(id);removed.add(id);}
@@ -32,19 +33,21 @@ export function installOpenStorage(room){
   tray.add(props);
 
   if(index === 0){
-   // A tiny capsule machine with a pastel window and a gold crank.
+   // Rounded lilac base, glass globe, and a centered capsule outlet.
    props.rotation.y = -.08;
-   box(props,.32,.055,.245,0,.028,0,'#a78ebf');
-   box(props,.29,.105,.22,0,.105,0,'#d5badf');
-   const window=part(props,new THREE.SphereGeometry(.115,24,16),0,.185,.013,'#f3e3f2');
-   window.scale.set(1,.70,.84);
-   for(const [x,y,color] of [[-.05,.172,'#e8b5bc'],[.05,.177,'#d6c3e8'],[0,.215,'#f5d490']]){
-    part(props,new THREE.SphereGeometry(.026,12,8),x,y,.092,color);
+   const baseProfile=[[0,0],[.117,0],[.132,.008],[.136,.025],[.125,.074],[.106,.098],[0,.098]];
+   part(props,new THREE.LatheGeometry(baseProfile.map(([radius,y])=>new THREE.Vector2(radius,y)),32),0,0,0,'#c5a9da');
+   const globe=part(props,new THREE.SphereGeometry(.113,32,20),0,.181,0,'#e7d9f4');
+   globe.material.transparent=true;globe.material.opacity=.29;globe.material.depthWrite=false;
+   for(const [x,y,z,color] of [[-.05,.151,.034,'#e8aabb'],[.046,.153,.037,'#b9b5ea'],[0,.199,.044,'#f5ce81'],[.048,.186,-.041,'#b4d0b8']]){
+    part(props,new THREE.SphereGeometry(.041,20,12),x,y,z,color);
    }
-   box(props,.25,.022,.18,0,.257,0,'#baa0ce');
-   box(props,.103,.023,.01,-.037,.074,.114,'#886b9d');
-   const crank=part(props,new THREE.CylinderGeometry(.029,.029,.023,16),.077,.111,.118,'#edc686');
+   part(props,new THREE.CylinderGeometry(.067,.083,.014,24),0,.277,0,'#baa0ce');
+   const mouth=part(props,new THREE.SphereGeometry(.043,20,12),0,.041,.126,'#705589');
+   mouth.scale.set(1,.51,.24);
+   const crank=part(props,new THREE.CylinderGeometry(.022,.022,.019,16),.068,.063,.114,'#edc686');
    crank.rotation.x=Math.PI/2;
+   comfortMachine=props;
   }else if(index === 1){
    // Rest the camera on its back so the lens is visible from above.
    props.rotation.y = -.17;
@@ -153,7 +156,7 @@ export function installOpenStorage(room){
  // Remove the small decorative purple block in front of the drawers.
  for(const id of g.index.array)if(id>=159879&&id<=160070)removed.add(id);
  const keep=[];for(let i=0;i<g.index.count;i+=3)if(!removed.has(g.index.array[i]))keep.push(g.index.array[i],g.index.array[i+1],g.index.array[i+2]);g.setIndex(keep);
- return {keepsakes,roundCushion,plants,
+ return {keepsakes,roundCushion,plants,comfortMachine,
   isOpen(action){return parts.some(part=>part.action===action&&part.open);},
   toggle(action){const p=parts.find(p=>p.action===action);if(p)p.open=!p.open;},
   setNight(amount){for(const c of colored)c.material.color.lerpColors(c.day,c.night,amount);},

@@ -2,7 +2,32 @@
 .scene-actions{max-width:calc(100vw - 32px);width:max-content;flex-wrap:wrap;justify-content:center}.scene-actions button{white-space:nowrap}@media(max-width:600px){.scene-actions{gap:5px}.scene-actions button{padding:7px 9px;font-size:10px}}
 /* Lift the pillow hint whenever the active player bar is visible. */
 .record-player-bar:not([hidden])~.little-toast,.little-toast:has(~.record-player-bar:not([hidden])){bottom:220px}
-.pillow-note.comfort-note{margin:12px 0 16px;padding:18px;text-align:left;transform:rotate(-1deg);font-size:clamp(16px,4vw,20px);line-height:1.7}
+.comfort-stage{position:relative;width:min(248px,41svh,100%);aspect-ratio:1;margin:-8px auto 8px;--capsule-travel:clamp(18px,5.6svh,37px)}
+.comfort-preview{display:block;width:100%;height:100%;object-fit:contain;transform-origin:50% 78%;filter:drop-shadow(0 6px 6px #5e456326)}
+.comfort-stage[data-phase="shake"] .comfort-preview{animation:comfort-shake .46s ease-in-out}
+.comfort-capsule{position:absolute;left:50%;top:76%;width:26px;height:26px;visibility:hidden;transform:translate(-50%,var(--capsule-travel));pointer-events:none}
+.comfort-capsule i{position:absolute;left:0;width:100%;height:50%;box-shadow:inset 0 0 0 1px #9b779d61}
+.comfort-capsule i:first-child{top:0;border-radius:100px 100px 0 0;background:linear-gradient(145deg,#fff1ce,#edb7ce)}
+.comfort-capsule i:last-child{bottom:0;border-radius:0 0 100px 100px;background:linear-gradient(145deg,#c6a8e7,#a184c8)}
+.comfort-stage[data-phase="drop"] .comfort-capsule{visibility:visible;animation:comfort-drop .48s both}
+.comfort-stage:is([data-phase="open"],[data-phase="revealed"]) .comfort-capsule{visibility:visible}
+.comfort-stage:is([data-phase="open"],[data-phase="revealed"]) .comfort-capsule i:first-child{transform:translate(-10px,-7px) rotate(-27deg);animation:comfort-open .34s ease-out both}
+.comfort-stage:is([data-phase="open"],[data-phase="revealed"]) .comfort-capsule i:last-child{transform:translate(10px,2px) rotate(21deg);animation:comfort-open .34s ease-out both}
 .comfort-actions{display:flex;justify-content:center}
-.comfort-actions button{padding:8px 16px;cursor:pointer}
+.comfort-actions button{min-width:84px;padding:8px 16px;cursor:pointer}
+.comfort-paper-slot{min-height:80px;padding-top:8px}
+.pillow-note.comfort-note{margin:0;padding:10px 15px;text-align:left;transform:rotate(-1deg);font-size:clamp(15px,3.8vw,18px);line-height:1.55}
+.comfort-note:empty{visibility:hidden}
+.comfort-note:not(:empty){animation:comfort-note-in .25s ease-out both}
+@keyframes comfort-shake{0%,100%{transform:none}20%,60%{transform:rotate(-6deg)}40%,80%{transform:rotate(6deg)}}
+@keyframes comfort-drop{
+  0%{transform:translate(-50%,0) scale(.65);opacity:0}
+  18%{opacity:1}
+  65%{transform:translate(-50%,var(--capsule-travel)) rotate(12deg)}
+  82%{transform:translate(-50%,calc(var(--capsule-travel) - 5px)) rotate(-6deg)}
+  100%{transform:translate(-50%,var(--capsule-travel))}
+}
+@keyframes comfort-open{from{transform:none}}
+@keyframes comfort-note-in{from{opacity:0;transform:translateY(8px) scale(.98)}}
+@media(prefers-reduced-motion:reduce){.comfort-stage *,.comfort-note:not(:empty){animation:none!important}}
 @media(max-width:640px){.record-player-bar:not([hidden])~.little-toast,.little-toast:has(~.record-player-bar:not([hidden])){bottom:245px}}

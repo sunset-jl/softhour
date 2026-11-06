@@ -1,4 +1,4 @@
-import {installOpenStorage} from './open-storage.js?v=comfort-machine-1';
+import {installOpenStorage} from './open-storage.js?v=capsule-draw-1';
 import {installCoffeeMachine} from './coffee-machine.js?v=room-finds-2';
 import {installArrangement} from './room-arrangement.js?v=room-finds-2';
 import {prepareCat} from './cat.js';
@@ -312,6 +312,26 @@ async function startRoom() {
   window.addEventListener('soft-hours:camera-frame', event => {
     renderer.render(scene,camera);
     event.detail.frame=canvas;
+  });
+  window.addEventListener('soft-hours:comfort-preview', event => {
+    const preview=event.detail;
+    const crop=Math.min(canvas.width,canvas.height);
+    if(!crop)return;
+    const width=.177*canvas.width/crop,height=.177*canvas.height/crop;
+    const previewCamera=new THREE.OrthographicCamera(-width,width,height,-height,.1,3);
+    previewCamera.position.set(.09,.31,1.1);
+    previewCamera.lookAt(0,.14,0);
+    const previewScene=new THREE.Scene();
+    const model=storage.comfortMachine.clone();
+    model.position.set(0,0,0);
+    model.rotation.y=.06;
+    previewScene.add(model);
+    try{
+      renderer.render(previewScene,previewCamera);
+      preview.getContext('2d').drawImage(canvas,(canvas.width-crop)/2,(canvas.height-crop)/2,crop,crop,0,0,preview.width,preview.height);
+    }finally{
+      renderer.render(scene,camera);
+    }
   });
   const arrangement = installArrangement({
     room, camera, canvas, controls, keepsakes: storage.keepsakes, hitAt, coffeeMachine, notify,
