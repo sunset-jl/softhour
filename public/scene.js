@@ -12,6 +12,7 @@ import { prepareWardrobeClothes } from './wardrobe-clothes.js';
 import { installCurtains } from './curtains.js?v=room-finds-2';
 import { meowSound, pourSound, sipSound, roomSound } from './room-sounds.js?v=room-finds-2';
 import { installRoomProps } from './room-props.js?v=room-finds-2';
+import { installRugCorner } from './rug-corner.js?v=1';
 import { installDoorbell } from './doorbell-scene.js?v=3';
 import { ringDoorbell } from './doorbell-presence.js?v=1';
 import * as THREE from 'three';
@@ -217,6 +218,7 @@ async function startRoom() {
   const little = installLittleThings(room,envelope);
   window.dispatchEvent(new Event('soft-hours:things-ready'));
   const storage=installOpenStorage(room);
+  const rug=installRugCorner(room);
   if (little.pillowPivot) storage.roundCushion.add(little.pillowPivot);
   room.traverse(o=>{if(o.isMesh&&!meshes.includes(o))meshes.push(o);});
   const wardrobe = installWardrobe(room);
@@ -305,7 +307,7 @@ async function startRoom() {
     reaction.hidden = false;
     reactionTimer = setTimeout(() => { reaction.hidden = true; }, 3300);
   }
-  Object.assign(labels, {drawerCamera:'相机 · 拍照', comfortMachine:'抽奖机', goldKey:'金钥匙', doorbell:'窗边门铃', plantWindow:'窗边植物', plantDesk:'桌边植物', plantShelf:'书架植物', arrangeNotebook:'记账本 · 点击打开', pillow:'拖动圆抱枕'});
+  Object.assign(labels, {drawerCamera:'相机 · 拍照', comfortMachine:'抽奖机', goldKey:'金钥匙', doorbell:'窗边门铃', rugCorner:'地毯', plantWindow:'窗边植物', plantDesk:'桌边植物', plantShelf:'书架植物', arrangeNotebook:'记账本 · 点击打开', pillow:'拖动圆抱枕'});
   const roomProps = installRoomProps({
     room, camera, canvas, controls, hitAt, cushion: storage.roundCushion, plants: storage.plants,
     tapPillow: () => { little.tap(); roomSound('pillow'); }, notify,
@@ -467,6 +469,7 @@ async function startRoom() {
         roomSound(action.startsWith('drawer') ? 'drawer' : 'box');
       }
       else if (action === 'bed') { bed.toggle(); roomSound('fabric'); }
+      else if (action === 'rugCorner') { rug.toggle(); roomSound('fabric'); }
       else if (storage.plants.has(action)) roomProps.showPlant(action);
       else if (action === 'lamp') window.dispatchEvent(new Event('soft-hours:lamp'));
       else if (action) window.dispatchEvent(new CustomEvent('soft-hours:open', { detail: action }));
@@ -519,6 +522,7 @@ async function startRoom() {
     nightUniform.value = reduced ? nightTarget : THREE.MathUtils.damp(nightUniform.value,nightTarget,5,delta);
     muralMaterial.color.lerpColors(muralDayColor,muralNightColor,nightUniform.value);
     storage.setNight(nightUniform.value);coffeeMachine.setNight(nightUniform.value);
+    rug.update(delta,reduced,nightUniform.value);
     const aperture = curtains.lightOpening;
     curtainOpening.value.x = reduced ? aperture[0] : THREE.MathUtils.damp(curtainOpening.value.x,aperture[0],14,delta);
     curtainOpening.value.y = reduced ? aperture[1] : THREE.MathUtils.damp(curtainOpening.value.y,aperture[1],14,delta);
