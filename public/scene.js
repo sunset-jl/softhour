@@ -3,7 +3,7 @@ import {installCoffeeMachine} from './coffee-machine.js?v=room-finds-2';
 import {installArrangement} from './room-arrangement.js?v=room-finds-2';
 import {prepareCat} from './cat.js';
 import {removeLampPlants} from './remove-lamp-plants.js';
-import {prepareBed,installBed} from './bed.js';
+import {prepareBed,installBed} from './bed.js?v=daytime-quilt-1';
 import {installSnowglobe} from './snowglobe.js?v=room-finds-2';
 import {prepareLittleThings,installLittleThings} from './little-scene.js?v=room-finds-2';
 import { installTurntable } from './turntable.js';
@@ -492,7 +492,14 @@ async function startRoom() {
         storage.toggle(action);
         roomSound(action.startsWith('drawer') ? 'drawer' : 'box');
       }
-      else if (action === 'bed') { bed.toggle(); roomSound('fabric'); }
+      else if (action === 'bed') {
+        const night=document.body.classList.contains('is-night');
+        const started=night?bed.toggle():bed.sleep();
+        if(started){
+          roomSound('fabric');
+          if(!night)notify('睡睡睡睡睡！！！');
+        }
+      }
       else if (action === 'rugCorner') tapRug();
       else if (storage.plants.has(action)) roomProps.showPlant(action);
       else if (action === 'lamp') window.dispatchEvent(new Event('soft-hours:lamp'));
