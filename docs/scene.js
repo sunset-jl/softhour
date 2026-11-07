@@ -3,7 +3,7 @@ import {installCoffeeMachine} from './coffee-machine.js?v=room-finds-2';
 import {installArrangement} from './room-arrangement.js?v=room-finds-2';
 import {prepareCat} from './cat.js';
 import {removeLampPlants} from './remove-lamp-plants.js';
-import {prepareBed,installBed} from './bed.js?v=daytime-quilt-1';
+import {prepareBed,installBed} from './bed.js?v=daytime-quilt-2';
 import {installSnowglobe} from './snowglobe.js?v=room-finds-2';
 import {prepareLittleThings,installLittleThings} from './little-scene.js?v=room-finds-2';
 import { installTurntable } from './turntable.js';

@@ -41,18 +41,21 @@ export function installBed(parts){
    // The foot of the quilt rises higher, letting the cover billow toward the pillow.
    const foot=lift?THREE.MathUtils.smoothstep(z,-2.42,2.12):0;
    position.array[i]=x+t*.12*Math.sin(z*2)*edge-lift*.13*foot;
-   position.array[i+1]=y+t*(.62*bump+.10*(1+Math.sin(z*5+x*2)))*edge+lift*(.74+.58*foot+.13*Math.sin((x+z)*2));
+   position.array[i+1]=y+t*(.62*bump+.10*(1+Math.sin(z*5+x*2)))*edge+lift*(1.12+.66*foot+.13*Math.sin((x+z)*2));
    position.array[i+2]=z+t*.18*Math.sin(x*3)*edge-lift*.28*foot;
   }
   position.needsUpdate=true;quilt.geometry.computeBoundingSphere();
-  pillows.forEach(({mesh,center},i)=>{mesh.position.copy(center).add(new THREE.Vector3(.16*t,hop*.65+.14*t,.48*t));mesh.rotation.set(.12*t,.24*t,-.08*t);});
+  pillows.forEach(({mesh,center})=>{
+   mesh.position.set(center.x+.16*t,center.y+.65*hop+.14*t+1.55*lift,center.z+.48*t);
+   mesh.rotation.set(.12*t+.16*lift,.24*t,-.08*t-.12*lift);
+  });
  }
  if(button){button.disabled=false;button.addEventListener('click',toggle);}
  return {toggle,sleep,update(dt,reduced){
   if(!animation)return;
   elapsed+=dt;
   const sleeping=animation==='sleep';
-  const t=reduced?1:Math.min(1,elapsed/(sleeping?1.5:1.65));
+  const t=reduced?1:Math.min(1,elapsed/1.65);
   const ease=t*t*(3-2*t);
   const wave=t===1?0:Math.sin(Math.PI*t)**2;
   progress=from+(to-from)*ease;
